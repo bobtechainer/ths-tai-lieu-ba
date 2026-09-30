@@ -1,12 +1,14 @@
 # Tài liệu BA - Trường học số
 
-Repo này gom các script và trang HTML mà Bob làm trong vai trò BA cho dự án Trường học số (THS). Script Python phần lớn đọc một file Excel hoặc Word ở máy, rồi ghi ra file Excel, Word hay PowerPoint để gửi cho khách, đối tác hoặc đội nội bộ. Trang HTML là bài nghiên cứu, sơ đồ hệ thống và kịch bản minh họa, mở thẳng bằng trình duyệt. Các file `.md` là bản thiết kế đã chốt của vài báo cáo Excel lớn.
+Repo này gom script và trang HTML Bob làm trong vai trò BA cho dự án Trường học số (THS). Nhiều script đọc một file Excel ở máy rồi ghi ra file Excel, Word hay PowerPoint. Các file đó đã gửi cho khách, đối tác hoặc đội nội bộ. Trang HTML là bài nghiên cứu, sơ đồ hệ thống và kịch bản minh họa, mở thẳng bằng trình duyệt. Các file `.md` là bản thiết kế đã chốt của vài báo cáo Excel lớn.
+
+Hai mục không thuộc THS nhưng làm cùng đợt nên để chung. Đó là bài IELTS tuyển sinh 2027 (`tuyen-sinh-ielts/`) và bài so 5 ứng dụng nấu ăn (`nghien-cuu/nghien-cuu-5-app-nau-an.html`).
 
 Người làm: Bob (BobLe, bob@techainer.com), tháng 5–9/2026. Tình trạng: đã dùng thật. Các file đầu ra đã gửi đi, repo này là bản lưu để bàn giao.
 
 ## Mở hoặc chạy thế nào
 
-- Trang HTML: mở đúp bằng trình duyệt, không cần cài gì. Vài trang tải phông từ Google Fonts nên có mạng thì chữ hiện đúng hơn.
+- Trang HTML: bấm đúp để mở bằng trình duyệt, không cần cài gì. Vài trang tải phông từ Google Fonts nên có mạng thì chữ hiện đúng hơn.
 - Script Python cần Python 3 và các thư viện `openpyxl`, `python-docx`, `python-pptx`. Riêng `csdl-dong-nai/_form.py` dùng thêm `playwright`.
 
 ```
@@ -14,8 +16,13 @@ pip install openpyxl python-docx python-pptx playwright
 ```
 
 - Trên Windows, chạy với `PYTHONIOENCODING=utf-8` để màn hình dòng lệnh in được tiếng Việt.
-- Đa số script trỏ cứng đường dẫn về thư mục gốc cũ `c:\Trường học số - source code\`. Script đọc file đầu vào thì file đó không có trong repo (xem mục "Không có trong repo").
-- Chạy được ngay, không cần file đầu vào: `kich-ban-demo/export_demo_script.py`, `thiet-bi-man-hinh/export_device_analysis.py`, `lop-hoc-thong-minh/export_smartclass_en_pptx.py`, `module-ai/generate_excel_report.py` và bộ `vong-doi-hoc-sinh/gen_vongdoi*.py`. Nhớ sửa đường dẫn ghi file ở cuối script nếu máy khác thư mục.
+- Đường dẫn trong script có ba kiểu:
+  - Tám script đọc hoặc ghi thẳng vào `c:\Trường học số - source code\`. Đó là 3 file trong `kich-ban-demo`, `export_device_analysis.py`, `generate_excel_report.py`, `gen_phanquyen.py` và hai file `export_ai_modules*.py`. Hai file sau cùng trỏ vào thư mục con `_non_code_assets`.
+  - Bộ `csdl-dong-nai`, `export_smartclass_en_pptx.py` và `figma_audit.example.py` đọc, ghi ở thư mục đang đứng lúc chạy lệnh.
+  - Bộ `vong-doi-hoc-sinh` và hai file `phan-quyen/read_*.py` dùng file nằm ngay trong thư mục chứa script.
+- File đầu vào của các script này không có trong repo (xem mục "Không có trong repo").
+- Chạy được ngay, không cần file đầu vào: `kich-ban-demo/export_demo_script.py`, `thiet-bi-man-hinh/export_device_analysis.py`, `lop-hoc-thong-minh/export_smartclass_en_pptx.py`, `module-ai/generate_excel_report.py` và bộ `vong-doi-hoc-sinh/gen_vongdoi*.py`.
+- Ba file `export_demo_script.py`, `export_device_analysis.py`, `generate_excel_report.py` ghi thẳng vào `c:\Trường học số - source code\`. Máy khác thư mục thì sửa biến đường dẫn: cuối file với script demo, đầu file với hai script kia. `export_smartclass_en_pptx.py` ghi ra thư mục đang đứng, bộ `gen_vongdoi` ghi đè file xlsx nằm cạnh nó.
 
 ## Trong repo có gì
 
@@ -31,8 +38,8 @@ pip install openpyxl python-docx python-pptx playwright
 | `csdl-dong-nai/gen.py`, `huongdan.py` | Bản trước của `final.py`: 2 sheet (checklist, dò từng trường) và thêm sheet "Cách đọc file" | cùng tên file trên, ghi đè | 24/08/2026 |
 | `csdl-dong-nai/trace_p1.py` | Bảng dò từng trường phần 1, viết trước `build.py`. Không script nào gọi tới nữa | không có | 24/08/2026 |
 | `csdl-dong-nai/_form.py` | Mở một form trên trang UAT bằng phiên đăng nhập đã lưu, ghi lại tab, nhãn, ô nhập và chụp ảnh | `_rs/<tên>.txt`, `_rs/<tên>.png` | 24/08/2026 |
-| `phan-quyen/read_xlsx.py` | In file rà soát tính năng trùng với VNTIT ra màn hình để đọc | `xlsx_output.txt` | 31/07/2026 |
-| `phan-quyen/read_perm.py` | In file phân quyền tính năng Sổ liên lạc điện tử của VNTIT ra màn hình | `perm_output.txt` | 31/07/2026 |
+| `phan-quyen/read_xlsx.py` | In file rà soát tính năng trùng với VNTIT ra màn hình để đọc. File Excel phải đặt cùng thư mục với script | chỉ in ra màn hình (bản lưu lúc đó: `xlsx_output.txt`) | 31/07/2026 |
+| `phan-quyen/read_perm.py` | In file phân quyền tính năng Sổ liên lạc điện tử của VNTIT ra màn hình. File Excel phải đặt cùng thư mục với script | chỉ in ra màn hình (bản lưu lúc đó: `perm_output.txt`) | 31/07/2026 |
 | `phan-quyen/pq_data.py` | Bảng chia việc theo mã chức năng: THS tự làm hay nhúng màn VNTIT, đặt ở menu nào, dev làm gì | dữ liệu cho script dưới | 31/07/2026 |
 | `phan-quyen/gen_phanquyen.py` | Thêm 3 cột (bên phụ trách, vị trí menu, yêu cầu cho dev) vào file phân quyền của VNTIT | `YEU_CAU_PHAN_QUYEN_v3.xlsx` | 31/07/2026 |
 | `kich-ban-demo/export_demo_script.py` | Kịch bản demo THS 5 phần: trước giờ học, trong giờ, bài về nhà, báo cáo, admin trường | `Kịch bản Demo THS - Nâng cao.xlsx` | 30/07/2026 |
@@ -59,7 +66,7 @@ pip install openpyxl python-docx python-pptx playwright
 | `module-ai/generate_excel_report.py` | Bảng Excel của báo cáo trên: module nào có AI, có nên gộp, gợi ý AI tiếp | `bao-cao-module-ai-gkebook-2026-06-03.xlsx` | 03/06/2026 |
 | `module-ai/export_ai_modules.py` | Thêm 4 cột về AI vào file danh sách module NKG, giọng kỹ thuật | `Danh sách Module hiện có NKG - Đề xuất AI - bo-sung-AI.xlsx` | 03/06/2026 |
 | `module-ai/export_ai_modules_humanized.py` | Như trên, viết lại cho người không làm kỹ thuật | `Danh sách Module hiện có NKG - Đề xuất AI - humanized.xlsx` | 03/06/2026 |
-| `mau-import-cau-hoi/vba-macro-cau-hoi.example.bas` | Macro cho sheet "Câu hỏi" của mẫu import: chọn loại câu ở cột B thì tự điền, khóa ô đáp án và gắn danh sách chọn đáp án đúng | dán vào file `mau-import-cau-hoi*.xlsm` | 28/05/2026 |
+| `mau-import-cau-hoi/vba-macro-cau-hoi.example.bas` | Macro cho sheet "Câu hỏi" của mẫu import: chọn loại câu nhận định (Đúng/Sai, hoặc Đúng/Sai/Không xác định) ở cột B thì macro tự điền các lựa chọn, khóa ô đáp án và chỉ cho chọn A, B (hoặc A, B, C) ở cột đáp án đúng. Chọn loại câu khác thì macro chỉ xóa trống và mở khóa các ô đó | dán vào file `mau-import-cau-hoi*.xlsm` | 28/05/2026 |
 | `hoc-lieu/2026-09-09-thong-ke-hoc-lieu-design.md` | Thiết kế và kết quả báo cáo kiểm kê học liệu, số liệu đọc từ hệ thống thật (chỉ đọc) | `Kiểm kê học liệu THS - 09.09.2026.xlsx` | 09/09/2026 |
 | `hoc-lieu/2026-09-17-ke-hoach-san-xuat-hoc-lieu-design.md` | Kế hoạch 10 tuần làm học liệu cho bộ SGK thống nhất: khối lượng, năng suất, số người | `Kế hoạch sản xuất học liệu SGK thống nhất - 17.09.2026.xlsx` | 17/09/2026 |
 | `hoc-lieu/2026-09-21-chia-nhom-chuyen-gia-design.md` | Đề xuất chia nhóm chuyên gia hiệp hội duyệt học liệu: 2 cấp học × 6 nhóm môn | `Đề xuất chia nhóm chuyên gia học liệu - 21.09.2026.xlsx` | 21/09/2026 |
@@ -73,7 +80,7 @@ Repo không có dữ liệu học sinh, giáo viên hay tài khoản thật. Tê
 
 Những thứ dưới đây cố ý để lại ở máy gốc, thư mục `c:\Trường học số - source code\`:
 
-- File Excel, Word, PowerPoint, PDF đã giao (kịch bản demo, yêu cầu phân quyền, checklist Đồng Nai, kiểm kê học liệu, kế hoạch sản xuất, testcase...). Đây là tài liệu gửi khách và đối tác. Vài file có sheet tài khoản đăng nhập demo, vài file là tài liệu của VNTIT hoặc của Sở.
+- File Excel, Word, PowerPoint, PDF đã giao: kịch bản demo, yêu cầu phân quyền, checklist Đồng Nai, kiểm kê học liệu, kế hoạch sản xuất, testcase. Đây là tài liệu gửi khách và đối tác. Vài file có sheet tài khoản đăng nhập demo, vài file là tài liệu của VNTIT hoặc của Sở.
 - Hai file tài khoản chuyên gia học liệu ngày 24/09/2026. Trong đó có tên và tài khoản của người thật.
 - Bảng kết quả thi thử THPT môn Địa lý của trường THPT Sơn Tây. Đây là điểm của học sinh thật.
 - Thư mục `_rs`. Trong đó có phiên đăng nhập trang UAT, ảnh chụp hồ sơ học sinh và bản chữ của tài liệu API.
@@ -87,9 +94,10 @@ Những thứ dưới đây cố ý để lại ở máy gốc, thư mục `c:\T
 
 ## Lưu ý cho người nhận
 
-- Script giữ nguyên như lúc dùng, chưa sửa đường dẫn. Muốn chạy lại thì đặt file đầu vào đúng chỗ hoặc sửa đường dẫn ở đầu và cuối script.
-- CSDL Đồng Nai: chạy `parse_api.py` trước, rồi `final.py`. Hai script này cần `_rs/api_full.txt` và `_rs/api_fields.json`, không có trong repo. Phạm vi chỉ là đầu mục 39–75. Đầu mục 1–38 do người khác phụ trách.
-- `_form.py` cần phiên đăng nhập `_rs/auth.json` và hai file `fields.js`, `text.js`. Hai file js này không còn trên máy.
+- Script giữ nguyên như lúc dùng, chưa sửa đường dẫn. Muốn chạy lại thì đặt file đầu vào đúng chỗ, hoặc sửa đường dẫn trong script (xem mục "Mở hoặc chạy thế nào").
+- Chạy lại `gen_vongdoi.py` hoặc `gen_lifecycle_part1.py` sẽ ghi đè file `vong-doi-hoc-sinh-THS.xlsx` đang có trong repo. Muốn giữ bản cũ thì chép ra chỗ khác trước.
+- CSDL Đồng Nai: đứng trong thư mục `csdl-dong-nai`, chạy `parse_api.py` trước rồi `final.py`. `parse_api.py` đọc `_rs/api_full.txt` (bản chữ của tài liệu API, không có trong repo) và ghi ra `_rs/api_fields.json`. `final.py` đọc file json đó. Phạm vi chỉ là đầu mục 39–75. Đầu mục 1–38 do người khác phụ trách.
+- `_form.py` chạy theo dạng `python _form.py <đường dẫn trang> <tên nút cần bấm> <tên file ghi ra>`, cũng đứng trong thư mục `csdl-dong-nai`. Máy phải có Microsoft Edge, phiên đăng nhập `_rs/auth.json` và hai file `fields.js`, `text.js`. Hai file js này không còn trên máy.
 - `figma_audit.example.py`: đặt biến môi trường `FIGMA_TOKEN` bằng token của mình và điền mã file Figma vào chỗ `FILE_KEY_xx`.
 - `vba-macro-cau-hoi.example.bas`: sửa `DOI_MAT_KHAU_KHOA_SHEET` thành đúng mật khẩu khóa sheet trong file mẫu.
 - `so-do-he-thong.html` được sinh bằng script, không viết tay. Sửa tay dễ làm lệch chữ với đường nối.
