@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Các trạng thái Lớp học thông minh — kịch bản một tiết</title>
+<style>
+  :root{
+    --bg:#F6F8FC; --surface:#FFFFFF; --ink:#17212E; --muted:#586274; --border:#E3E7EF;
+    --cal:#2563EB; --cal-strong:#1D4ED8; --cal-soft:#E9F0FE; --cal-border:#C4D6F7;
+    --room:#0E9A88; --room-strong:#0A776A; --room-soft:#E1F5F0; --room-border:#B7E4D9;
+    --warn:#B3730A; --warn-strong:#8F5D08; --warn-soft:#FCF3DE; --warn-border:#EAD6A2;
+    --zebra:#FAFBFE;
+    --shadow:0 1px 2px rgba(20,32,54,.05), 0 8px 24px rgba(20,32,54,.06);
+    --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0E141C; --surface:#151E2A; --ink:#E9EEF5; --muted:#95A2B4; --border:#25313F;
+      --cal:#7FA9FF; --cal-strong:#A9C6FF; --cal-soft:#16243A; --cal-border:#2E466E;
+      --room:#3ED8C2; --room-strong:#6BE6D4; --room-soft:#0F2521; --room-border:#1F4C43;
+      --warn:#E4A74C; --warn-strong:#F0BE72; --warn-soft:#2A2213; --warn-border:#4A3A1C;
+      --zebra:#121B27;
+      --shadow:0 1px 2px rgba(0,0,0,.35), 0 12px 34px rgba(0,0,0,.4);
+    }
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font);
+        line-height:1.58; -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:960px; margin:0 auto; padding:clamp(22px,4vw,52px) clamp(16px,4vw,32px) 64px; }
+  h1{ margin:0 0 8px; font-size:clamp(23px,3.1vw,32px); line-height:1.16; letter-spacing:-.01em; font-weight:800; }
+  .intro{ margin:0; max-width:64ch; color:var(--muted); font-size:15.5px; }
+  .example{ display:inline-flex; align-items:center; gap:8px; margin-top:14px; padding:7px 14px;
+            background:var(--surface); border:1px solid var(--border); border-radius:999px; font-size:13.5px;
+            box-shadow:var(--shadow); }
+  .example b{ font-weight:700; }
+
+  h2.sec{ margin:clamp(30px,5vw,46px) 0 6px; font-size:19px; font-weight:750; letter-spacing:-.01em; }
+  .seclead{ margin:0 0 16px; color:var(--muted); font-size:14px; }
+
+  .tablewrap{ overflow-x:auto; border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow);
+              background:var(--surface); }
+  table{ width:100%; border-collapse:collapse; min-width:720px; }
+  thead th{ text-align:left; padding:12px 16px; font-size:11.5px; letter-spacing:.04em; text-transform:uppercase;
+            color:var(--muted); font-weight:700; border-bottom:1px solid var(--border); white-space:nowrap; }
+  tbody td{ padding:13px 16px; border-top:1px solid var(--border); vertical-align:top; font-size:14px; }
+  tbody tr:nth-child(even){ background:var(--zebra); }
+  tbody tr.diverge{ background:var(--warn-soft); }
+  .t{ font-weight:800; font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink); }
+  .who{ color:var(--ink); } .who .q{ color:var(--muted); }
+  .empty{ color:var(--muted); }
+  .pill{ display:inline-block; font-size:12.5px; font-weight:700; padding:4px 11px; border-radius:999px;
+         white-space:nowrap; border:1px solid; }
+  .pill.cal{ background:var(--cal-soft); color:var(--cal-strong); border-color:var(--cal-border); }
+  .pill.room{ background:var(--room-soft); color:var(--room-strong); border-color:var(--room-border); }
+  .flag{ display:inline-block; margin-top:6px; font-size:11px; font-weight:700; color:var(--warn-strong);
+         background:var(--warn-soft); border:1px solid var(--warn-border); border-radius:6px; padding:1px 7px; }
+
+  .callout{ margin-top:18px; background:var(--surface); border:1px solid var(--border); border-left:4px solid var(--warn);
+            border-radius:12px; padding:16px 18px; box-shadow:var(--shadow); }
+  .callout h3{ margin:0 0 8px; font-size:14.5px; }
+  .callout ul{ margin:0; padding-left:20px; } .callout li{ margin:6px 0; font-size:14px; }
+  .callout b{ font-weight:700; }
+  .freenote{ margin-top:14px; font-size:13.5px; color:var(--muted); border-left:3px solid var(--border); padding:4px 0 4px 13px; }
+
+  .layer{ margin-top:26px; }
+  .lhead{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin:0 0 12px; }
+  .lhead h3{ margin:0; font-size:16px; font-weight:750; }
+  .lhead .tag{ font-size:12px; font-weight:600; padding:3px 10px; border-radius:999px; }
+  .layer.cal .tag{ background:var(--cal-soft); color:var(--cal-strong); border:1px solid var(--cal-border); }
+  .layer.room .tag{ background:var(--room-soft); color:var(--room-strong); border:1px solid var(--room-border); }
+  .cardlist{ display:grid; gap:12px; }
+  .scard{ background:var(--surface); border:1px solid var(--border); border-radius:13px; box-shadow:var(--shadow);
+          padding:16px 18px; border-left:4px solid var(--edge); }
+  .layer.cal .scard{ --edge:var(--cal); } .layer.room .scard{ --edge:var(--room); }
+  .scard h4{ margin:0 0 8px; font-size:15px; font-weight:750; }
+  .scard ul{ margin:0; padding-left:20px; } .scard li{ margin:5px 0; font-size:14.5px; }
+  .scard.single p{ margin:0; font-size:14.5px; } .scard b{ font-weight:700; }
+  .note{ margin-top:14px; font-size:13.5px; color:var(--muted); border-left:3px solid var(--border); padding:4px 0 4px 13px; }
+  .scrollhint{ display:none; margin:10px 2px 0; font-size:12px; color:var(--muted); }
+  @media (max-width:760px){ .scrollhint{ display:block; } }
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Một tiết học diễn ra như thế nào</h1>
+    <p class="intro">Đọc theo mốc giờ từ trên xuống. Mỗi dòng cho biết cùng lúc đó giáo viên làm gì, học sinh làm gì, và trạng thái lớp học so với trạng thái dưới BE lúc đó.</p>
+    <div class="example"><span>Ví dụ: tiết Toán, lịch <b>9:00 – 9:45</b></span></div>
+
+    <h2 class="sec">Kịch bản theo mốc giờ</h2>
+    <p class="seclead">Cột "Trạng thái lớp học" chạy theo giờ trên lịch. Cột "Trạng thái dưới BE" chạy theo việc giáo viên làm. Hai dòng nền vàng là lúc hai cột lệch nhau.</p>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Giờ</th>
+            <th>Giáo viên</th>
+            <th>Học sinh</th>
+            <th>Trạng thái lớp học</th>
+            <th>Trạng thái dưới BE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="t">8:52</td>
+            <td class="who">Vào phòng sớm để chuẩn bị</td>
+            <td class="who"><span class="q">chưa có ai vào</span></td>
+            <td><span class="pill cal">Sắp diễn ra</span></td>
+            <td><span class="pill room">Chờ bắt đầu</span></td>
+          </tr>
+          <tr>
+            <td class="t">8:57</td>
+            <td class="who">Sắp bài, dựng bảng</td>
+            <td class="who">An vào phòng chờ, thấy <span class="q">"chờ giáo viên"</span></td>
+            <td><span class="pill cal">Sắp diễn ra</span></td>
+            <td><span class="pill room">Chờ bắt đầu</span></td>
+          </tr>
+          <tr class="diverge">
+            <td class="t">9:00</td>
+            <td class="who"><span class="q">chưa bấm Bắt đầu</span></td>
+            <td class="who">Cả lớp lần lượt vào phòng chờ</td>
+            <td><span class="pill cal">Đang diễn ra</span></td>
+            <td><span class="pill room">Chờ bắt đầu</span><span class="flag">lệch nhau</span></td>
+          </tr>
+          <tr>
+            <td class="t">9:03</td>
+            <td class="who">Bấm <b>"Bắt đầu"</b></td>
+            <td class="who">Vào lớp học, được điểm danh</td>
+            <td><span class="pill cal">Đang diễn ra</span></td>
+            <td><span class="pill room">Đang dạy</span></td>
+          </tr>
+          <tr>
+            <td class="t">9:10</td>
+            <td class="who">Đang giảng bài</td>
+            <td class="who">Bình vào muộn → tính đi muộn theo giờ lớp bắt đầu thật (9:03)</td>
+            <td><span class="pill cal">Đang diễn ra</span></td>
+            <td><span class="pill room">Đang dạy</span></td>
+          </tr>
+          <tr class="diverge">
+            <td class="t">9:45</td>
+            <td class="who">Vẫn đang dạy</td>
+            <td class="who">Vẫn đang học</td>
+            <td><span class="pill cal">Đã kết thúc</span></td>
+            <td><span class="pill room">Đang dạy</span><span class="flag">lệch nhau</span></td>
+          </tr>
+          <tr>
+            <td class="t">9:47</td>
+            <td class="who">Bấm <b>"Kết thúc"</b> rồi thoát</td>
+            <td class="who">Bị đưa ra theo giáo viên</td>
+            <td><span class="pill cal">Đã kết thúc</span></td>
+            <td><span class="pill room">Đã đóng</span></td>
+          </tr>
+          <tr>
+            <td class="t">Sau đó</td>
+            <td class="who">Mở lại phòng xem báo cáo lớp mình dạy</td>
+            <td class="who">Xem báo cáo phần mình / xem lại buổi học</td>
+            <td><span class="pill cal">Đã kết thúc</span></td>
+            <td><span class="pill room">Đã đóng</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="scrollhint">Vuốt ngang để xem đủ các cột.</p>
+    </div>
+
+    <div class="callout">
+      <h3>Hai lúc dễ nhầm — trạng thái lớp học và trạng thái dưới BE lệch nhau</h3>
+      <ul>
+        <li><b>9:00 (tới giờ):</b> trạng thái lớp học đã là "Đang diễn ra", nhưng trạng thái dưới BE vẫn "Chờ bắt đầu" vì giáo viên chưa bấm. Học sinh vào lúc này là vào phòng chờ.</li>
+        <li><b>9:45 (hết giờ trên lịch):</b> trạng thái lớp học đổi thành "Đã kết thúc", nhưng trạng thái dưới BE vẫn "Đang dạy" cho tới khi giáo viên bấm Kết thúc lúc 9:47.</li>
+      </ul>
+    </div>
+    <p class="freenote">Lớp tự do tạo ngay thì không có "Sắp diễn ra": vừa tạo là "Đang diễn ra / Chờ bắt đầu", giáo viên bấm Bắt đầu là chuyển "Đang dạy".</p>
+
+    <!-- ===== CHI TIẾT (đúng nội dung gốc) ===== -->
+    <h2 class="sec">Chi tiết từng trạng thái</h2>
+
+    <section class="layer cal">
+      <div class="lhead"><h3>Các trạng thái của lớp học</h3><span class="tag">hiển thị cho người dùng</span></div>
+      <div class="cardlist">
+        <div class="scard single"><p>Chưa tới giờ học → <b>"Sắp diễn ra"</b>. Học sinh thấy tiết học trên lịch, có thể vào hoặc không nhưng là vào phòng chờ. Giáo viên cũng có thể vào hoặc không, nhưng trạng thái hiện lớp vẫn là "sắp diễn ra", nhưng dẫn đi đâu tùy trạng thái phòng học.</p></div>
+        <div class="scard single"><p>Tới giờ → <b>"Đang diễn ra"</b>, nút "Vào lớp" đổi màu → ai bấm cũng vào phòng được, nhưng dẫn đi đâu tùy trạng thái phòng học.</p></div>
+        <div class="scard single"><p>Qua giờ → <b>"Đã kết thúc"</b>. Vẫn bấm vào được, nhưng dẫn đi đâu tùy trạng thái phòng học.</p></div>
+      </div>
+      <p class="note">Lớp tự do hiện trạng thái tương tự tùy theo đặt lịch của lớp tự do; nếu lớp tự do tạo ngay lập tức thì chỉ có "đang diễn ra" và "đã kết thúc".</p>
+    </section>
+
+    <section class="layer room">
+      <div class="lhead"><h3>Các trạng thái dưới BE</h3><span class="tag">setup ở BE, không hiện cho người dùng</span></div>
+      <div class="cardlist">
+        <div class="scard">
+          <h4>Chờ bắt đầu</h4>
+          <ul>
+            <li>Tới giờ là vào phòng được, kể cả khi giáo viên chưa vào → học sinh ngồi chờ, thấy "đang chờ giáo viên bắt đầu".</li>
+            <li>Giáo viên vào thì thấy ai đã có mặt, có nút "Bắt đầu".</li>
+            <li>Mới chỉ ghi nhận "đã vào", chưa tính điểm danh, chưa có báo cáo.</li>
+          </ul>
+        </div>
+        <div class="scard">
+          <h4>Đang dạy</h4>
+          <ul>
+            <li>Giáo viên bấm "Bắt đầu" → ghi giờ thực tế bắt đầu, học sinh vào lớp chính thức, điểm danh chạy.</li>
+            <li>Vào muộn vẫn vào được. Đi muộn hay về sớm tính theo giờ lớp thật sự bắt đầu, không theo mốc thời khóa biểu.</li>
+            <li>Báo cáo cập nhật liên tục → giáo viên và học sinh đều xem được số liệu tính đến lúc đang xem. Lớp thời khóa biểu hiện thêm giờ dự kiến để đối chiếu; lớp tự do chỉ có giờ thực tế.</li>
+          </ul>
+        </div>
+        <div class="scard">
+          <h4>Đã đóng</h4>
+          <ul>
+            <li>Giáo viên bấm "Kết thúc"; hoặc lớp thời khóa biểu qua giờ và giáo viên đã thoát; hoặc phòng bỏ trống lâu → tự chốt. Giáo viên thoát thì học sinh cũng ra theo.</li>
+            <li>Ghi giờ thực tế kết thúc → báo cáo chốt lại, cố định, không đổi nữa, và luôn tìm lại được trong lịch sử.</li>
+            <li>Mở lại phòng chỉ để xem (khoá chỉnh sửa): giáo viên xem lại lớp mình dạy, học sinh xem lại buổi mình học.</li>
+            <li>Nếu tới hết giờ mà chưa ai bấm "Bắt đầu" → phòng đóng luôn, không tạo báo cáo.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

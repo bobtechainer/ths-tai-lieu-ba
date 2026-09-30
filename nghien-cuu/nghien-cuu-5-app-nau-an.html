@@ -1,0 +1,1258 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Năm ứng dụng nấu ăn, năm cách sống khác nhau</title>
+<meta name="description" content="Nghiên cứu so sánh ReciMe, Paprika, Flavorish, Mealime và Eat This Much: mỗi app trả lời một câu hỏi khác nhau, và đó là lý do cả năm cùng sống được.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --font-display:'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono:'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+
+  --bg:#FAFAF9;
+  --bg-alt:#F4F4F2;
+  --surface:#FFFFFF;
+  --fg:#18181B;
+  --fg-muted:#52525B;
+  --fg-faint:#78716C;
+  --border:#E1DFDB;
+  --border-strong:#C9C6C0;
+  --accent:#C2410C;
+  --accent-soft:#FEF3E9;
+  --shadow:0 1px 2px rgba(24,24,27,.04), 0 8px 24px -12px rgba(24,24,27,.10);
+
+  --c-recime:#6D28D9;
+  --c-paprika:#C2410C;
+  --c-flavorish:#0E7490;
+  --c-mealime:#15803D;
+  --c-etm:#B91C1C;
+
+  --sp-1:.25rem; --sp-2:.5rem; --sp-3:.75rem; --sp-4:1rem;
+  --sp-6:1.5rem; --sp-8:2rem; --sp-12:3rem; --sp-16:4rem; --sp-24:6rem;
+
+  --measure:38rem;
+  --wide:72rem;
+  --radius:4px;
+  --t:200ms cubic-bezier(.2,.6,.3,1);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B0A09;
+    --bg-alt:#131211;
+    --surface:#171614;
+    --fg:#F5F5F4;
+    --fg-muted:#B4AEA6;
+    --fg-faint:#8C857C;
+    --border:#2A2724;
+    --border-strong:#3D3934;
+    --accent:#FB923C;
+    --accent-soft:#241A12;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 8px 24px -12px rgba(0,0,0,.6);
+
+    --c-recime:#A78BFA;
+    --c-paprika:#FB923C;
+    --c-flavorish:#22D3EE;
+    --c-mealime:#4ADE80;
+    --c-etm:#F87171;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B0A09;
+  --bg-alt:#131211;
+  --surface:#171614;
+  --fg:#F5F5F4;
+  --fg-muted:#B4AEA6;
+  --fg-faint:#8C857C;
+  --border:#2A2724;
+  --border-strong:#3D3934;
+  --accent:#FB923C;
+  --accent-soft:#241A12;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 8px 24px -12px rgba(0,0,0,.6);
+
+  --c-recime:#A78BFA;
+  --c-paprika:#FB923C;
+  --c-flavorish:#22D3EE;
+  --c-mealime:#4ADE80;
+  --c-etm:#F87171;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms !important; transition-duration:.01ms !important}
+}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--font-body);
+  font-size:17px;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+h1,h2,h3,h4{font-family:var(--font-display); font-weight:600; line-height:1.18; letter-spacing:-.015em; margin:0}
+p{margin:0 0 1.1em}
+a{color:var(--fg); text-decoration:none; text-underline-offset:3px; text-decoration:underline; text-decoration-color:var(--border-strong); transition:color var(--t), text-decoration-color var(--t)}
+a:hover{color:var(--accent); text-decoration-color:var(--accent)}
+a:focus-visible, button:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px}
+strong{font-weight:600}
+::selection{background:var(--accent); color:#fff}
+
+.wrap{width:100%; max-width:var(--wide); margin-inline:auto; padding-inline:clamp(1.25rem, 5vw, 3rem)}
+.prose{max-width:var(--measure)}
+.prose p{color:var(--fg-muted)}
+.prose p strong{color:var(--fg)}
+
+.label{
+  font-family:var(--font-mono); font-size:.72rem; font-weight:500;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--accent);
+}
+.rule{height:1px; background:var(--border); border:0; margin:0}
+
+/* progress */
+#progress{
+  position:fixed; inset:0 auto auto 0; height:2px; width:100%;
+  transform:scaleX(0); transform-origin:0 50%;
+  background:var(--accent); z-index:60;
+}
+
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+.topbar{
+  position:sticky; top:0; z-index:50;
+  background:var(--bg);
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:saturate(180%) blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.topbar-in{display:flex; align-items:center; gap:var(--sp-4); height:56px}
+.brand{font-family:var(--font-mono); font-size:.75rem; letter-spacing:.1em; text-transform:uppercase; color:var(--fg-faint); text-decoration:none}
+.brand:hover{color:var(--accent)}
+.topnav{display:none; gap:var(--sp-6); margin-left:auto; align-items:center}
+@media (min-width:900px){ .topnav{display:flex} }
+.topnav a{font-size:.85rem; color:var(--fg-muted); text-decoration:none}
+.topnav a:hover{color:var(--accent)}
+.theme-btn{
+  margin-left:auto; display:inline-flex; align-items:center; justify-content:center;
+  width:44px; height:44px; background:none; border:1px solid var(--border);
+  border-radius:var(--radius); color:var(--fg-muted); cursor:pointer;
+  transition:border-color var(--t), color var(--t);
+}
+@media (min-width:900px){ .theme-btn{margin-left:0} }
+.theme-btn:hover{border-color:var(--accent); color:var(--accent)}
+.theme-btn svg{width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round}
+/* icon state is driven by JS via data-mode so there is no specificity conflict */
+.theme-btn .ico-moon{display:none}
+.theme-btn[data-mode="dark"] .ico-sun{display:none}
+.theme-btn[data-mode="dark"] .ico-moon{display:block}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{padding:clamp(3.5rem,9vw,7rem) 0 clamp(2.5rem,6vw,4rem)}
+.hero h1{
+  font-size:clamp(2.35rem, 7.5vw, 4.6rem);
+  max-width:20ch; margin-bottom:var(--sp-6);
+}
+.hero .lede{
+  font-size:clamp(1.06rem,2.4vw,1.28rem); line-height:1.6;
+  color:var(--fg-muted); max-width:44rem;
+}
+.hero-meta{
+  display:flex; flex-wrap:wrap; gap:var(--sp-2) var(--sp-6);
+  margin-top:var(--sp-8); padding-top:var(--sp-4);
+  border-top:1px solid var(--border);
+  font-family:var(--font-mono); font-size:.74rem; letter-spacing:.06em;
+  color:var(--fg-faint); text-transform:uppercase;
+}
+
+/* ============================================================
+   SECTION
+   ============================================================ */
+section{padding:clamp(3rem,7vw,5.5rem) 0; border-top:1px solid var(--border)}
+.sec-head{margin-bottom:var(--sp-8)}
+.sec-head h2{font-size:clamp(1.7rem,4vw,2.6rem); max-width:26ch; margin-top:var(--sp-3)}
+.sec-head .sub{margin-top:var(--sp-4); color:var(--fg-muted); max-width:var(--measure)}
+
+/* ============================================================
+   TL;DR
+   ============================================================ */
+.tldr{list-style:none; margin:0; padding:0; display:grid; gap:0; border-top:1px solid var(--border)}
+.tldr li{
+  display:grid; grid-template-columns:1fr; gap:var(--sp-1);
+  padding:var(--sp-4) 0; border-bottom:1px solid var(--border);
+}
+@media (min-width:760px){
+  .tldr li{grid-template-columns:11rem 1fr; gap:var(--sp-6); align-items:baseline}
+}
+.tldr .nm{font-family:var(--font-display); font-size:1.15rem; font-weight:600; display:flex; align-items:center; gap:.6rem}
+.tldr .nm::before{content:''; width:3px; height:1.05em; background:var(--dot,var(--accent)); border-radius:2px; flex:0 0 auto}
+.tldr .ds{color:var(--fg-muted)}
+
+/* ============================================================
+   KEY CALLOUT
+   ============================================================ */
+.callout{
+  background:var(--surface); border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  border-radius:var(--radius); padding:clamp(1.25rem,3vw,2rem);
+  box-shadow:var(--shadow);
+}
+.callout p:last-child{margin-bottom:0}
+.callout .label{display:block; margin-bottom:var(--sp-3)}
+
+/* ============================================================
+   TABLE
+   ============================================================ */
+.tscroll{
+  overflow-x:auto; -webkit-overflow-scrolling:touch;
+  border:1px solid var(--border); border-radius:var(--radius);
+  background:var(--surface);
+}
+table{border-collapse:collapse; width:100%; min-width:56rem; font-size:.9rem}
+caption{text-align:left; padding:0 0 var(--sp-3); font-size:.85rem; color:var(--fg-faint)}
+th,td{padding:var(--sp-4); text-align:left; vertical-align:top; border-bottom:1px solid var(--border)}
+thead th{
+  font-family:var(--font-mono); font-size:.7rem; font-weight:500;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--fg-faint);
+  background:var(--bg-alt); white-space:nowrap; position:sticky; top:0; z-index:2;
+}
+tbody tr:last-child th, tbody tr:last-child td{border-bottom:0}
+tbody th{
+  font-family:var(--font-display); font-size:1rem; font-weight:600; color:var(--fg);
+  white-space:nowrap; background:var(--surface);
+}
+tbody td{color:var(--fg-muted)}
+.num{font-family:var(--font-mono); font-variant-numeric:tabular-nums; font-size:.84rem; color:var(--fg)}
+.scroll-hint{font-size:.8rem; color:var(--fg-faint); margin-top:var(--sp-3)}
+@media (min-width:1000px){ .scroll-hint{display:none} }
+
+/* ============================================================
+   SPLIT MAP
+   ============================================================ */
+.split{display:grid; gap:var(--sp-6); margin-top:var(--sp-8)}
+@media (min-width:820px){ .split{grid-template-columns:1fr 1fr; gap:var(--sp-8)} }
+.side{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:clamp(1.25rem,3vw,2rem); box-shadow:var(--shadow);
+}
+.side h3{font-size:1.35rem; margin-bottom:var(--sp-2)}
+.side .who{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--fg-faint); margin-bottom:var(--sp-4)}
+.side .apps{display:flex; flex-wrap:wrap; gap:var(--sp-2); margin:var(--sp-4) 0}
+.chip{
+  font-size:.8rem; font-weight:500; padding:.3rem .65rem;
+  border:1px solid var(--border-strong); border-radius:999px; color:var(--fg);
+}
+.side dl{margin:var(--sp-4) 0 0; display:grid; gap:var(--sp-3); border-top:1px solid var(--border); padding-top:var(--sp-4)}
+.side dt{font-family:var(--font-mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--fg-faint)}
+.side dd{margin:.15rem 0 0; color:var(--fg-muted); font-size:.92rem}
+
+/* ============================================================
+   APP CARDS
+   ============================================================ */
+.cards{display:grid; gap:var(--sp-6); margin-top:var(--sp-8)}
+.card{
+  background:var(--surface); border:1px solid var(--border);
+  border-top:3px solid var(--ac,var(--accent));
+  border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow);
+}
+.card-head{padding:clamp(1.25rem,3vw,2rem) clamp(1.25rem,3vw,2rem) 0}
+.card-kicker{font-family:var(--font-mono); font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ac,var(--accent)); margin-bottom:var(--sp-2)}
+.card h3{font-size:clamp(1.5rem,3.4vw,2rem)}
+.card .quote{
+  margin:var(--sp-4) 0 0; padding-left:var(--sp-4);
+  border-left:2px solid var(--border-strong);
+  font-family:var(--font-display); font-style:italic; font-size:1.1rem; color:var(--fg);
+}
+.card-body{padding:clamp(1.25rem,3vw,2rem); display:grid; gap:var(--sp-6)}
+@media (min-width:900px){ .card-body{grid-template-columns:1.35fr .8fr; gap:var(--sp-8)} }
+.card-body h4{font-family:var(--font-body); font-size:.74rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--fg-faint); margin-bottom:var(--sp-3)}
+.card-body p{color:var(--fg-muted); font-size:.95rem}
+.reasons{list-style:none; margin:0 0 var(--sp-6); padding:0; display:grid; gap:var(--sp-4)}
+.reasons li{padding-left:1.6rem; position:relative; color:var(--fg-muted); font-size:.95rem}
+.reasons li::before{
+  content:''; position:absolute; left:0; top:.62em;
+  width:.5rem; height:.5rem; border:1.5px solid var(--ac,var(--accent)); border-radius:50%;
+}
+.reasons li b{color:var(--fg); font-weight:600}
+.weak{
+  background:var(--bg-alt); border:1px solid var(--border); border-radius:var(--radius);
+  padding:var(--sp-4); font-size:.9rem; color:var(--fg-muted);
+}
+.weak h4{margin-bottom:var(--sp-2)}
+.weak p:last-child{margin-bottom:0}
+.stats{list-style:none; margin:0; padding:0; display:grid; gap:0; border-top:1px solid var(--border)}
+.stats li{display:flex; justify-content:space-between; gap:var(--sp-4); padding:var(--sp-3) 0; border-bottom:1px solid var(--border); font-size:.88rem}
+.stats .k{color:var(--fg-faint)}
+.stats .v{font-family:var(--font-mono); font-variant-numeric:tabular-nums; text-align:right; color:var(--fg); font-size:.82rem}
+
+/* ============================================================
+   NUMBERED LIST
+   ============================================================ */
+.numbered{list-style:none; counter-reset:n; margin:var(--sp-8) 0 0; padding:0; display:grid; gap:0}
+.numbered li{
+  counter-increment:n; padding:var(--sp-6) 0; border-top:1px solid var(--border);
+  display:grid; gap:var(--sp-2);
+}
+@media (min-width:760px){
+  .numbered li{grid-template-columns:4rem 1fr; gap:var(--sp-6)}
+}
+.numbered li::before{
+  content:counter(n,decimal-leading-zero);
+  font-family:var(--font-mono); font-size:.85rem; color:var(--accent); padding-top:.2rem;
+}
+.numbered h3{font-family:var(--font-body); font-size:1.05rem; font-weight:600; margin-bottom:var(--sp-2); line-height:1.4}
+.numbered p{color:var(--fg-muted); font-size:.95rem; margin-bottom:0; max-width:52rem}
+
+/* ============================================================
+   MYTHS
+   ============================================================ */
+.myths{display:grid; gap:var(--sp-4); margin-top:var(--sp-8)}
+@media (min-width:760px){ .myths{grid-template-columns:1fr 1fr} }
+.myth{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:var(--sp-6)}
+.myth .x{
+  display:inline-flex; align-items:center; gap:.4rem;
+  font-family:var(--font-mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--fg-faint); margin-bottom:var(--sp-3);
+}
+.myth .x svg{width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round}
+.myth h3{font-family:var(--font-body); font-size:1rem; font-weight:600; margin-bottom:var(--sp-2)}
+.myth p{color:var(--fg-muted); font-size:.92rem; margin-bottom:0}
+
+/* ============================================================
+   TRUST
+   ============================================================ */
+.trust{display:grid; gap:0; margin-top:var(--sp-8); border-top:1px solid var(--border)}
+.trust-row{display:grid; gap:var(--sp-2); padding:var(--sp-5) 0; border-bottom:1px solid var(--border)}
+@media (min-width:760px){
+  .trust-row{grid-template-columns:9rem 1fr; gap:var(--sp-6); align-items:start}
+}
+.tag{
+  display:inline-flex; align-items:center; gap:.4rem; align-self:start;
+  font-family:var(--font-mono); font-size:.68rem; font-weight:500; letter-spacing:.08em; text-transform:uppercase;
+  padding:.25rem .55rem; border-radius:var(--radius); border:1px solid currentColor; white-space:nowrap;
+}
+.tag.ok{color:#15803D}
+.tag.mid{color:#B45309}
+.tag.low{color:#B91C1C}
+[data-theme="dark"] .tag.ok, :root:not([data-theme="light"]) .tag.ok{color:#4ADE80}
+[data-theme="dark"] .tag.mid, :root:not([data-theme="light"]) .tag.mid{color:#FBBF24}
+[data-theme="dark"] .tag.low, :root:not([data-theme="light"]) .tag.low{color:#F87171}
+.trust-row p{margin:0; color:var(--fg-muted); font-size:.93rem}
+.trust-row p + p{margin-top:.4rem}
+
+/* ============================================================
+   SOURCES + FOOTER
+   ============================================================ */
+.srcgrid{display:grid; gap:var(--sp-6); margin-top:var(--sp-8)}
+@media (min-width:760px){ .srcgrid{grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))} }
+.srcgroup h3{font-family:var(--font-body); font-size:.74rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--fg-faint); margin-bottom:var(--sp-3); padding-bottom:var(--sp-2); border-bottom:1px solid var(--border)}
+.srcgroup ul{list-style:none; margin:0; padding:0; display:grid; gap:var(--sp-2)}
+.srcgroup li{font-size:.86rem; line-height:1.5}
+.srcgroup a{color:var(--fg-muted); text-decoration-color:var(--border)}
+.srcgroup a:hover{color:var(--accent)}
+footer{padding:var(--sp-12) 0 var(--sp-16); border-top:1px solid var(--border)}
+footer p{font-size:.83rem; color:var(--fg-faint); max-width:44rem}
+@media print{
+  .topbar,#progress,.theme-btn{display:none}
+  body{background:#fff; color:#000; font-size:11pt}
+  section{page-break-inside:avoid; border-top:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+
+<div id="progress" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="brand" href="#top">Nghiên cứu · 08/2026</a>
+    <nav class="topnav" aria-label="Mục lục">
+      <a href="#bang">Bảng so sánh</a>
+      <a href="#chia">Hai nửa thị trường</a>
+      <a href="#apps">Từng app</a>
+      <a href="#chung">Điểm chung</a>
+      <a href="#hieusai">Dễ hiểu sai</a>
+      <a href="#nguon">Nguồn</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" type="button" aria-label="Đổi giao diện sáng/tối">
+      <svg class="ico-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
+      <svg class="ico-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 1 1 9.4 3.5a6.8 6.8 0 0 0 11.1 11.1Z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ===================== HERO ===================== -->
+<div class="wrap hero">
+  <p class="label">Nghiên cứu so sánh · 5 ứng dụng · thị trường Mỹ</p>
+  <h1>Năm ứng dụng nấu ăn, năm cách sống khác nhau</h1>
+  <p class="lede">
+    ReciMe, Paprika, Flavorish, Mealime và Eat This Much nhìn bên ngoài đều là “app nấu ăn”.
+    Nhưng khi đọc kỹ từng cái, mỗi app đang trả lời một câu hỏi khác nhau trong đầu người dùng.
+    Đó là lý do cả năm cùng sống được mà không phải giành khách của nhau.
+  </p>
+  <div class="hero-meta">
+    <span>Ngày 18/08/2026</span>
+    <span>Nguồn: website chính thức + App Store + báo chí</span>
+    <span>Số liệu chưa chắc chắn đã ghi rõ ở phần cuối</span>
+  </div>
+</div>
+
+<!-- ===================== TL;DR ===================== -->
+<section id="nhanh">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">Đọc nhanh</p>
+      <h2>Mỗi app trong một câu</h2>
+    </div>
+    <ul class="tldr">
+      <li style="--dot:var(--c-recime)">
+        <span class="nm">ReciMe</span>
+        <span class="ds">Bạn xem một video món ăn trên TikTok và muốn giữ lại công thức. Đây là app làm việc đó.</span>
+      </li>
+      <li style="--dot:var(--c-paprika)">
+        <span class="nm">Paprika</span>
+        <span class="ds">Trả tiền một lần, giữ công thức cả đời, chạy được cả khi không có mạng. Không subscription.</span>
+      </li>
+      <li style="--dot:var(--c-flavorish)">
+        <span class="nm">Flavorish</span>
+        <span class="ds">AI đọc được cả thẻ công thức viết tay, và nghĩ ra món mới từ mấy thứ đang có trong tủ lạnh.</span>
+      </li>
+      <li style="--dot:var(--c-mealime)">
+        <span class="nm">Mealime</span>
+        <span class="ds">Không lưu gì của bạn cả. Nó chỉ quyết định hộ bạn tối nay ăn gì, và cho gần như miễn phí.</span>
+      </li>
+      <li style="--dot:var(--c-etm)">
+        <span class="nm">Eat This Much</span>
+        <span class="ds">Bạn cần đúng 2.200 calo và 160g protein mỗi ngày. Nó tính ra thực đơn khớp con số đó.</span>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===================== CALLOUT ===================== -->
+<section id="ychinh">
+  <div class="wrap">
+    <div class="prose">
+      <div class="callout">
+        <span class="label">Nếu chỉ nhớ một điều</span>
+        <p>
+          Thị trường này chia làm hai nửa, dựa trên câu hỏi: <strong>ai đưa công thức vào app?</strong>
+        </p>
+        <p>
+          ReciMe, Paprika và Flavorish là <strong>cái tủ</strong> để bạn xếp công thức của chính bạn vào.
+          Chúng không có công thức nào của riêng mình. Giá trị nằm ở chỗ nhận vào và giữ được.
+        </p>
+        <p>
+          Mealime và Eat This Much thì ngược lại: chúng là <strong>người quyết định</strong>. Bạn không mang gì vào,
+          app tự chọn món cho bạn. Giá trị nằm ở chất lượng lựa chọn.
+        </p>
+        <p>
+          Hai nửa này bán hai thứ hoàn toàn khác nhau, nên gần như không cạnh tranh trực tiếp. Hiểu được chỗ này
+          thì mọi khác biệt còn lại về giá, tính năng, cách kiếm tiền đều tự giải thích được.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TABLE ===================== -->
+<section id="bang">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">Bảng so sánh</p>
+      <h2>Năm app cạnh nhau</h2>
+      <p class="sub">
+        Điểm App Store là con số đáng tin nhất để so sánh vì nó khó làm giả. Số người dùng thì do chính công ty
+        công bố, đọc với thái độ dè dặt.
+      </p>
+    </div>
+    <div class="tscroll">
+      <table>
+        <caption>Số liệu thu ngày 18/08/2026, thị trường Mỹ.</caption>
+        <thead>
+          <tr>
+            <th scope="col">App</th>
+            <th scope="col">Nó làm gì</th>
+            <th scope="col">Giá</th>
+            <th scope="col">Điểm App Store</th>
+            <th scope="col">Quy mô và kết cục</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">ReciMe</th>
+            <td>Lưu công thức từ video social, ảnh chụp, chữ viết tay</td>
+            <td>Miễn phí 5 lần lưu mỗi tuần<br><span class="num">39,99 USD / năm</span></td>
+            <td><span class="num">4,8 sao · 276.000 đánh giá</span><br>Hạng 8 mục Food &amp; Drink</td>
+            <td>Úc, chuyển sang New York. Gọi khoảng <span class="num">2 triệu USD</span>, có Marissa Mayer đầu tư</td>
+          </tr>
+          <tr>
+            <th scope="row">Paprika 3</th>
+            <td>Quản lý công thức, chạy offline, có app cho Mac và Windows</td>
+            <td>Mua một lần:<br><span class="num">4,99 USD (iOS) · 29,99 USD (Mac) · 29,99 USD (Windows)</span></td>
+            <td><span class="num">4,9 sao · 53.000 đánh giá</span><br>Hạng 1 mục Food &amp; Drink</td>
+            <td>Đội indie, tự nuôi mình từ khoảng 2011, không gọi vốn</td>
+          </tr>
+          <tr>
+            <th scope="row">Flavorish</th>
+            <td>Dùng AI đọc ảnh, chữ viết tay, và sinh công thức mới</td>
+            <td>Miễn phí 5 lần mỗi loại<br><span class="num">4,99 USD / tháng · 49,99 USD / năm</span></td>
+            <td><span class="num">4,7 sao · khoảng 1.600 đánh giá</span></td>
+            <td>Toronto, ra mắt 2024. Quy mô nhỏ nhất trong nhóm</td>
+          </tr>
+          <tr>
+            <th scope="row">Mealime</th>
+            <td>Chọn món hộ bạn, công thức 30 phút do đầu bếp viết</td>
+            <td>Dùng miễn phí gần như đầy đủ<br><span class="num">2,99 USD / tháng</span> cho bản Pro</td>
+            <td><span class="num">4,8 sao · 54.000 đánh giá</span><br>Hạng 136 mục Food &amp; Drink</td>
+            <td>Canada. Tiny mua năm 2018, rồi chuỗi siêu thị Albertsons mua tháng 3/2022</td>
+          </tr>
+          <tr>
+            <th scope="row">Eat This Much</th>
+            <td>Sinh thực đơn khớp calo, macro, ngân sách và lịch sinh hoạt</td>
+            <td>Miễn phí lên thực đơn 1 ngày<br><span class="num">59,99 USD / năm</span> hoặc <span class="num">14,99 USD / tháng</span></td>
+            <td><span class="num">4,7 sao · 22.000 đánh giá</span><br>Nằm ở mục Health &amp; Fitness</td>
+            <td>Santa Monica, từ 2013. Khoảng 6 người. CNN chọn là app tốt nhất 2025</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="scroll-hint">Kéo ngang để xem hết bảng.</p>
+  </div>
+</section>
+
+<!-- ===================== SPLIT ===================== -->
+<section id="chia">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">Hai nửa thị trường</p>
+      <h2>Cái tủ, hay người đầu bếp</h2>
+      <p class="sub">
+        Cùng một cái nút “tạo danh sách đi chợ”, nhưng hai nửa này chạy trên hai logic kinh doanh khác nhau
+        và gặp hai kiểu rủi ro khác nhau.
+      </p>
+    </div>
+    <div class="split">
+      <div class="side">
+        <p class="who">Nửa thứ nhất</p>
+        <h3>Cái tủ đựng công thức</h3>
+        <p style="color:var(--fg-muted); font-size:.95rem">
+          Nội dung do bạn mang vào. App không sở hữu công thức nào.
+        </p>
+        <div class="apps">
+          <span class="chip">ReciMe</span><span class="chip">Paprika</span><span class="chip">Flavorish</span>
+        </div>
+        <dl>
+          <div><dt>Thi nhau ở</dt><dd>Nhận được nhiều loại đầu vào, giữ dữ liệu bền, sync mượt</dd></div>
+          <div><dt>Giữ khách bằng</dt><dd>Càng lưu nhiều càng khó rời. 400 công thức trong app là 400 lý do ở lại</dd></div>
+          <div><dt>Rủi ro</dt><dd>Tính năng dễ bị bắt chước, dần thành hàng phổ thông ai cũng làm được</dd></div>
+        </dl>
+      </div>
+      <div class="side">
+        <p class="who">Nửa thứ hai</p>
+        <h3>Người quyết định thay bạn</h3>
+        <p style="color:var(--fg-muted); font-size:.95rem">
+          Nội dung do app cung cấp. Bạn không mang gì vào cả.
+        </p>
+        <div class="apps">
+          <span class="chip">Mealime</span><span class="chip">Eat This Much</span>
+        </div>
+        <dl>
+          <div><dt>Thi nhau ở</dt><dd>Kho món đủ hay, thuật toán chọn đủ khéo, không lặp lại</dd></div>
+          <div><dt>Giữ khách bằng</dt><dd>Kết quả thật: bữa tối xong nhanh, hoặc cân nặng thay đổi</dd></div>
+          <div><dt>Rủi ro</dt><dd>Người dùng nhàm sau vài tuần. Phải liên tục làm mới nội dung</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== APP CARDS ===================== -->
+<section id="apps">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">Từng app một</p>
+      <h2>Nó bán gì, và vì sao còn sống</h2>
+    </div>
+
+    <div class="cards">
+
+      <!-- ReciMe -->
+      <article class="card" style="--ac:var(--c-recime)">
+        <div class="card-head">
+          <p class="card-kicker">01 · Cái tủ đựng công thức</p>
+          <h3>ReciMe</h3>
+          <p class="quote">“Video này ngon quá, làm sao giữ lại công thức?”</p>
+        </div>
+        <div class="card-body">
+          <div>
+            <h4>Nó giải quyết chuyện gì</h4>
+            <p>
+              Bạn xem một video nấu ăn trên TikTok hoặc Reels. Muốn lưu lại thì nền tảng chỉ cho bạn bấm
+              “lưu bài” — sau đó bạn có một video, chứ không có công thức. ReciMe đọc video đó và viết ra
+              danh sách nguyên liệu với các bước làm. Nó cũng đọc được ảnh chụp trang sách và thẻ công thức
+              bà viết tay.
+            </p>
+            <h4>Vì sao nó lớn nhanh</h4>
+            <ul class="reasons">
+              <li>
+                <b>Nó vá một lỗ hổng mới xuất hiện.</b> Từ khoảng 2021, phần lớn nội dung nấu ăn chuyển sang
+                video ngắn. Nhưng TikTok và Instagram không có chỗ nào để lưu công thức. ReciMe làm phần
+                mà nền tảng gốc bỏ trống.
+              </li>
+              <li>
+                <b>Tên app trên store viết như một câu tìm kiếm:</b> “app số 1 để lưu công thức từ Instagram,
+                TikTok, Facebook, YouTube”. Đó không phải slogan, đó là cách bắt đúng cái người ta đang gõ.
+              </li>
+              <li>
+                <b>Nó mở đường cho người dùng bỏ app cũ.</b> Phần mô tả ghi rõ có thể chuyển dữ liệu từ
+                Paprika, Notion và Google Docs sang.
+              </li>
+              <li>
+                <b>Xuất hiện đúng nơi khách hàng ở.</b> The Drew Barrymore Show và CBS, chứ không phải
+                các trang công nghệ. Đúng tệp người nấu ăn tại nhà.
+              </li>
+            </ul>
+            <div class="weak">
+              <h4>Chỗ chưa ổn</h4>
+              <p>
+                Bản miễn phí chỉ cho lưu 5 công thức mỗi tuần, mà đó lại chính là tính năng người ta cần nhất.
+                Đánh giá trên store còn phản ánh lỗi khi gắn thẻ và khi sửa chữ.
+              </p>
+            </div>
+          </div>
+          <div>
+            <h4>Số liệu chính</h4>
+            <ul class="stats">
+              <li><span class="k">Đánh giá iOS (Mỹ)</span><span class="v">4,8 · 276.000</span></li>
+              <li><span class="k">Hạng Food &amp; Drink</span><span class="v">#8</span></li>
+              <li><span class="k">Google Play</span><span class="v">1 triệu+ tải</span></li>
+              <li><span class="k">Vốn đã gọi</span><span class="v">≈ 2 tr USD</span></li>
+              <li><span class="k">Giá / năm</span><span class="v">39,99 USD</span></li>
+              <li><span class="k">Tuyên bố của hãng</span><span class="v">10 tr+ người</span></li>
+            </ul>
+            <p style="font-size:.85rem; color:var(--fg-faint); margin:var(--sp-4) 0 0">
+              Mốc tăng trưởng có nhiều nguồn xác nhận: 20.000 lên 400.000 người trong năm 2023,
+              rồi 800.000 khi đội ngũ chuyển sang New York.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Paprika -->
+      <article class="card" style="--ac:var(--c-paprika)">
+        <div class="card-head">
+          <p class="card-kicker">02 · Cái tủ đựng công thức</p>
+          <h3>Paprika 3</h3>
+          <p class="quote">“Đừng để tôi mất bộ công thức của tôi.”</p>
+        </div>
+        <div class="card-body">
+          <div>
+            <h4>Nó giải quyết chuyện gì</h4>
+            <p>
+              Đây là app duy nhất trong nhóm lưu dữ liệu ngay trên máy bạn, chạy được khi không có mạng,
+              và có app thật cho Mac và Windows chứ không chỉ điện thoại. Trả tiền một lần là xong, không
+              bao giờ đòi gia hạn.
+            </p>
+            <h4>Vì sao nó vẫn đứng hạng 1</h4>
+            <ul class="reasons">
+              <li>
+                <b>Nó thắng bằng thứ không ai copy được: thời gian.</b> Sống liên tục từ khoảng 2011, bản
+                cập nhật gần nhất tháng 12/2025. Có người dùng từ 2015 vẫn đang viết đánh giá. Với một app
+                giữ dữ liệu cá nhân lâu dài thì tuổi thọ chính là tính năng — không ai muốn nhập 400 công
+                thức vào một app có thể đóng cửa sau một năm rưỡi.
+              </li>
+              <li>
+                <b>Cách tính giá là một lời tuyên bố.</b> Trang web ghi thẳng: đồng bộ đám mây đã tính trong
+                tiền mua app, không phụ phí gì thêm. Giữa một thị trường ai cũng thu 50 USD mỗi năm, câu đó
+                mạnh hơn mọi tính năng.
+              </li>
+              <li>
+                <b>Bán bốn lần cho cùng một khách mà không ai phàn nàn.</b> Mỗi nền tảng tính tiền riêng.
+                Một gia đình dùng đủ máy trả khoảng 65 USD một lần — đủ nuôi một đội nhỏ, trong khi chi phí
+                máy chủ gần bằng không vì dữ liệu nằm ở máy người dùng.
+              </li>
+              <li>
+                <b>Chi tiết chỉ có được sau nhiều năm nghe người nấu thật.</b> Tự nhận ra thời gian trong
+                phần hướng dẫn để bấm hẹn giờ, quy đổi khẩu phần, quản lý tủ đồ, nhập được từ những app
+                cũ như MacGourmet và MasterCook.
+              </li>
+            </ul>
+            <div class="weak">
+              <h4>Chỗ chưa ổn</h4>
+              <p>
+                Không có bản miễn phí để thử. Lấy công thức từ video social kém hơn ReciMe rõ rệt, vì app
+                được thiết kế quanh trình duyệt web nhúng — kiểu của thời trước video. Việc trả tiền lại
+                cho từng nền tảng làm một nhóm người dùng khó chịu.
+              </p>
+            </div>
+          </div>
+          <div>
+            <h4>Số liệu chính</h4>
+            <ul class="stats">
+              <li><span class="k">Đánh giá iOS (Mỹ)</span><span class="v">4,9 · 53.000</span></li>
+              <li><span class="k">Hạng Food &amp; Drink</span><span class="v">#1</span></li>
+              <li><span class="k">iOS</span><span class="v">4,99 USD</span></li>
+              <li><span class="k">Mac</span><span class="v">29,99 USD</span></li>
+              <li><span class="k">Windows</span><span class="v">29,99 USD</span></li>
+              <li><span class="k">Subscription</span><span class="v">Không có</span></li>
+            </ul>
+            <p style="font-size:.85rem; color:var(--fg-faint); margin:var(--sp-4) 0 0">
+              4,9 sao là điểm cao nhất cả nhóm. Cần lưu ý: người đánh giá đều đã trả tiền trước khi dùng,
+              nên tệp này tự lọc sẵn.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Flavorish -->
+      <article class="card" style="--ac:var(--c-flavorish)">
+        <div class="card-head">
+          <p class="card-kicker">03 · Cái tủ đựng công thức</p>
+          <h3>Flavorish</h3>
+          <p class="quote">“Tôi có mấy thứ trong tủ lạnh, nghĩ hộ tôi một món.”</p>
+        </div>
+        <div class="card-body">
+          <div>
+            <h4>Nó giải quyết chuyện gì</h4>
+            <p>
+              Cũng là app lưu công thức, nhưng đặt cược vào AI ngay từ tên miền. Nó chụp ảnh thẻ công thức
+              viết tay hay trang sách và chuyển thành công thức số. Nó cũng tự nghĩ ra món mới dựa trên
+              nguyên liệu bạn nhập vào hoặc chế độ ăn bạn theo.
+            </p>
+            <h4>Nó đang làm đúng chuyện gì</h4>
+            <ul class="reasons">
+              <li>
+                <b>Vào muộn nên buộc phải khác.</b> Ra mắt 2024, khi ReciMe và Paprika đã chiếm chỗ. Nó không
+                thi đấu ở khoản “lưu công thức” mà ở khoản đọc được những đầu vào app khác không đọc nổi:
+                chữ viết tay, và những trang web bố cục lạ.
+              </li>
+              <li>
+                <b>Câu chuyện khởi đầu rất dễ đồng cảm.</b> Người sáng lập viết trên Product Hunt rằng họ
+                mắc kẹt ở câu “tối nay ăn gì”, hay gọi đồ ăn ngoài, chán bộ nguyên liệu nấu sẵn thì đắt mà
+                web công thức thì đầy quảng cáo.
+              </li>
+              <li>
+                <b>Bản miễn phí hào phóng ở đúng chỗ.</b> Lấy công thức từ website thì không giới hạn, đồng
+                bộ đầy đủ, không quảng cáo. Chỉ siết ba thứ có tốn chi phí AI, mỗi thứ 5 lần.
+              </li>
+              <li>
+                <b>Giá thấp nhất trong nhóm thu phí tháng.</b> 4,99 USD một tháng, 49,99 USD một năm.
+              </li>
+            </ul>
+            <div class="weak">
+              <h4>Chỗ chưa ổn — và đây là điều quan trọng nhất về app này</h4>
+              <p>
+                Khoảng 1.600 đánh giá, so với 276.000 của ReciMe. Đây là app <strong>chưa chứng minh được
+                mình thành công</strong>; nó mới chỉ chứng minh được mình khác biệt. Review độc lập cũng ghi
+                nhận người dùng bực vì phần lấy công thức từ social bị chặn sớm.
+              </p>
+            </div>
+          </div>
+          <div>
+            <h4>Số liệu chính</h4>
+            <ul class="stats">
+              <li><span class="k">Đánh giá iOS</span><span class="v">4,7 · ≈1.600</span></li>
+              <li><span class="k">Ra mắt</span><span class="v">2024</span></li>
+              <li><span class="k">Giá / tháng</span><span class="v">4,99 USD</span></li>
+              <li><span class="k">Giá / năm</span><span class="v">49,99 USD</span></li>
+              <li><span class="k">Product Hunt</span><span class="v">127 lượt bình chọn</span></li>
+              <li><span class="k">Vốn công bố</span><span class="v">Chưa có</span></li>
+            </ul>
+            <p style="font-size:.85rem; color:var(--fg-faint); margin:var(--sp-4) 0 0">
+              Nếu bạn đang tìm hình mẫu để học, đây là app nên đọc để hiểu cách một người vào sau tự tìm
+              chỗ đứng — chứ chưa phải hình mẫu về kết quả.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Mealime -->
+      <article class="card" style="--ac:var(--c-mealime)">
+        <div class="card-head">
+          <p class="card-kicker">04 · Người quyết định thay bạn</p>
+          <h3>Mealime</h3>
+          <p class="quote">“Đừng bắt tôi nghĩ. Tối nay ăn gì?”</p>
+        </div>
+        <div class="card-body">
+          <div>
+            <h4>Nó giải quyết chuyện gì</h4>
+            <p>
+              Đây không phải nơi bạn lưu công thức. Nó tự chọn món cho cả tuần, tất cả đều nấu trong 30 phút,
+              rồi gộp thành một danh sách đi chợ. Kho món khoảng 1.200 công thức do đầu bếp và chuyên gia
+              dinh dưỡng viết riêng. Dùng miễn phí gần như đầy đủ.
+            </p>
+            <h4>Vì sao nó thành công</h4>
+            <ul class="reasons">
+              <li>
+                <b>Câu định vị hay nhất cả nhóm.</b> Nguyên văn: “Chúng tôi làm cho việc lên thực đơn, đi chợ
+                và nấu ăn đơn giản như gọi đồ ăn ngoài.” Nó không so mình với app nấu ăn khác — nó so với
+                dịch vụ đặt đồ ăn. Đúng đối thủ thật.
+              </li>
+              <li>
+                <b>Chiến lược nội dung ngược hẳn ba app trên.</b> Kho đóng, không cho bạn mang công thức
+                riêng vào. Đánh đổi: mất tự do, được sự đảm bảo. Món nào cũng nấu được trong 30 phút, danh
+                sách đi chợ nào cũng gọn.
+              </li>
+              <li>
+                <b>Cá nhân hóa bằng ngôn ngữ của gia đình, không phải của phòng gym.</b> Hơn 200 lựa chọn
+                về dị ứng và món không thích — không đậu phụ, không ô liu, không tôm cua, không gluten.
+                Không có chỗ nào bắt bạn nhập chỉ số macro.
+              </li>
+              <li>
+                <b>Miễn phí chính là cách nó lan ra.</b> Không chặn tính năng cốt lõi, nên người ta rủ nhau
+                dùng. Kết quả là 54.000 đánh giá với 4,8 sao.
+              </li>
+              <li>
+                <b>Và đây là app duy nhất có kết cục rõ ràng.</b> Tiny mua năm 2018, rồi chuỗi siêu thị
+                Albertsons mua tháng 3/2022. Lý do rất logic: công thức nấu ăn là cửa vào giỏ hàng. Một
+                chuỗi bán lẻ không mua app để bán gói 2,99 USD — họ mua để biến kế hoạch bữa ăn thành đơn
+                thực phẩm. Giá trị thật của Mealime nằm ở phía siêu thị, không ở phía người dùng cuối.
+              </li>
+            </ul>
+            <div class="weak">
+              <h4>Chỗ chưa ổn</h4>
+              <p>
+                Kho đóng nghĩa là nó không dùng được như chỗ lưu công thức riêng. Sau khi bị mua lại, app chủ
+                yếu thêm công thức và sửa lỗi, ít tính năng lớn, và không có AI trong khi cả thị trường đang
+                chuyển sang AI. Giá bản Pro cũng đang có dấu hiệu thay đổi gây tranh cãi.
+              </p>
+            </div>
+          </div>
+          <div>
+            <h4>Số liệu chính</h4>
+            <ul class="stats">
+              <li><span class="k">Đánh giá iOS (Mỹ)</span><span class="v">4,8 · 54.000</span></li>
+              <li><span class="k">Hạng Food &amp; Drink</span><span class="v">#136</span></li>
+              <li><span class="k">Kho công thức</span><span class="v">≈1.200 món</span></li>
+              <li><span class="k">Bản Pro</span><span class="v">2,99 USD / tháng</span></li>
+              <li><span class="k">Tuyên bố của hãng</span><span class="v">4,5 tr người</span></li>
+              <li><span class="k">Kết cục</span><span class="v">Albertsons mua, 2022</span></li>
+            </ul>
+            <p style="font-size:.85rem; color:var(--fg-faint); margin:var(--sp-4) 0 0">
+              Hạng 136 thấp hơn ReciMe rất nhiều, nhưng điều đó không nói lên thất bại — app đã bán được rồi,
+              và giá trị của nó không nằm ở bảng xếp hạng.
+            </p>
+          </div>
+        </div>
+      </article>
+
+      <!-- Eat This Much -->
+      <article class="card" style="--ac:var(--c-etm)">
+        <div class="card-head">
+          <p class="card-kicker">05 · Người quyết định thay bạn</p>
+          <h3>Eat This Much</h3>
+          <p class="quote">“Cho tôi thực đơn đúng 2.200 calo và 160g protein.”</p>
+        </div>
+        <div class="card-body">
+          <div>
+            <h4>Nó giải quyết chuyện gì</h4>
+            <p>
+              Đây là app duy nhất trong nhóm giải một bài toán có đáp số. Bạn nhập số calo, tỉ lệ chất, ngân
+              sách và lịch sinh hoạt. Nó tính ra thực đơn khớp đúng những con số đó, ưu tiên nguyên liệu bạn
+              đang có trong tủ, và biết cách dùng đồ ăn còn lại của ngày hôm trước.
+            </p>
+            <h4>Vì sao nó sống được 13 năm với 6 người</h4>
+            <ul class="reasons">
+              <li>
+                <b>Nó không thi đấu cùng hạng với bốn app kia.</b> Nó nằm ở mục Health &amp; Fitness, không
+                phải Food &amp; Drink. Khách là người tập gym, người giảm cân, người theo keto — nhóm đã có
+                sẵn động lực trả tiền vì kết quả cơ thể, không phải vì sự tiện lợi. Đó là lý do nó thu được
+                14,99 USD một tháng, gấp ba lần mọi app còn lại.
+              </li>
+              <li>
+                <b>Gốc gác quyết định độ sâu.</b> Người sáng lập viết nó năm 2011 như bài tập học lập trình,
+                tên là swole.me, để tự giải bài toán tăng cân của chính mình khi không tìm được công cụ nào
+                nói cho anh ấy ăn chính xác cái gì. Mười lăm năm mài một thuật toán không phải thứ đuổi kịp
+                trong vài tháng.
+              </li>
+              <li>
+                <b>Định vị bằng động từ, không bằng danh từ:</b> “Để chế độ ăn của bạn chạy tự động.”
+                Không phải “quản lý công thức”, mà là “bỏ tay khỏi vô lăng”.
+              </li>
+              <li>
+                <b>Có một nguồn thu thứ ba mà không app nào khác có.</b> Bản Pro dành cho huấn luyện viên và
+                chuyên gia dinh dưỡng, tính tiền theo số khách. Cùng một cỗ máy, bán thêm cho doanh nghiệp.
+              </li>
+              <li>
+                <b>Được kiểm chứng độc lập.</b> CNN thử năm app cùng lúc và chọn nó là app lên thực đơn tốt
+                nhất 2025, thắng cả Paprika và Mealime — khen dễ cài đặt, sửa món dễ, hỗ trợ khách hàng tốt
+                nhất nhóm.
+              </li>
+            </ul>
+            <div class="weak">
+              <h4>Chỗ chưa ổn</h4>
+              <p>
+                Review độc lập ghi nhận thực đơn bắt đầu lặp lại từ tuần thứ ba, và danh sách đi chợ hay bị
+                phình to. Giá 14,99 USD một tháng rất cao nếu không chịu cam kết cả năm.
+              </p>
+            </div>
+          </div>
+          <div>
+            <h4>Số liệu chính</h4>
+            <ul class="stats">
+              <li><span class="k">Đánh giá iOS (Mỹ)</span><span class="v">4,7 · 22.000</span></li>
+              <li><span class="k">Mục trên store</span><span class="v">Health &amp; Fitness</span></li>
+              <li><span class="k">Giá / năm</span><span class="v">59,99 USD</span></li>
+              <li><span class="k">Giá / tháng</span><span class="v">14,99 USD</span></li>
+              <li><span class="k">Dùng thử</span><span class="v">14 ngày</span></li>
+              <li><span class="k">Quy mô đội</span><span class="v">≈6 người (2024)</span></li>
+            </ul>
+            <p style="font-size:.85rem; color:var(--fg-faint); margin:var(--sp-4) 0 0">
+              Tích hợp sẵn Instacart và AmazonFresh, quét mã vạch, xuất PDF. Toàn là thứ chỉ có nghĩa với
+              người ăn theo số liệu.
+            </p>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===================== COMMON ===================== -->
+<section id="chung">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">Điểm chung</p>
+      <h2>Sáu thứ cả năm app đều làm</h2>
+      <p class="sub">
+        Năm app khác nhau đến vậy mà vẫn trùng nhau ở sáu chỗ. Những chỗ trùng này đáng chú ý hơn cả những
+        chỗ khác biệt.
+      </p>
+    </div>
+    <ol class="numbered">
+      <li>
+        <div>
+          <h3>Không app nào cố làm “app nấu ăn tất cả trong một”</h3>
+          <p>
+            Mỗi app trả lời đúng một câu hỏi. Cái nào định vị mờ hơn thì đã không có mặt trong danh sách này
+            để chúng ta bàn.
+          </p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Giá trị thật nằm ở lúc đi chợ, không phải lúc nấu</h3>
+          <p>
+            Cả năm app, không trừ cái nào, đều có danh sách đi chợ tự động, gộp trùng nguyên liệu và sắp theo
+            lối đi trong siêu thị. Chi tiết này trùng đủ 5 trên 5, tức nó là thứ giữ người dùng thật. Công
+            thức chỉ là cái cớ để mở app.
+          </p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Không app nào làm mạng xã hội nấu ăn</h3>
+          <p>
+            Không bảng tin, không theo dõi, không bình luận. Đây là bài học từ thế hệ app trước đã chết:
+            người ta không muốn diễn việc nấu ăn, người ta muốn xong việc nấu ăn.
+          </p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Mỗi app có một cửa vào riêng, không ai thắng bằng quảng cáo chung</h3>
+          <p>
+            Paprika đi bằng bảng xếp hạng app trả phí và truyền miệng suốt 14 năm. ReciMe đi bằng cách đặt
+            tên app trùng với câu người ta tìm kiếm, cộng với làn sóng người làm nội dung ẩm thực. Flavorish
+            đi bằng Product Hunt và sự chú ý dành cho AI. Mealime đi bằng miễn phí rồi vào chuỗi siêu thị.
+            Eat This Much đi bằng nội dung tìm kiếm và cộng đồng thể hình.
+          </p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Đặt bức tường trả phí sai chỗ là chết</h3>
+          <p>
+            ReciMe và Flavorish đều chặn ngay tính năng cốt lõi ở mức 5 lần, và cả hai đều bị người dùng phàn
+            nàn đúng ở chỗ đó. Ngược lại, Flavorish để phần lấy công thức từ website không giới hạn, còn
+            Mealime mở gần như toàn bộ. Đây là đường ranh mà cả ngành vẫn đang dò.
+          </p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Đội nhỏ, sống dai, chi phí thấp</h3>
+          <p>
+            Eat This Much khoảng 6 người sau 13 năm. Paprika là đội indie tự nuôi mình. ReciMe chỉ gọi khoảng
+            2 triệu USD cho quy mô hàng triệu người dùng. Đây không phải ngành cần đốt vốn — nó cần kiên trì
+            và chi phí vận hành thấp.
+          </p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ===================== MYTHS ===================== -->
+<section id="hieusai">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">Kiểm chứng ngược</p>
+      <h2>Bốn điều dễ kết luận sai</h2>
+      <p class="sub">
+        Phần này để tránh rút ra bài học ngược. Nếu chỉ đọc phần trên, rất dễ tin vào bốn điều dưới đây —
+        và dữ liệu không đỡ được cái nào.
+      </p>
+    </div>
+    <div class="myths">
+      <div class="myth">
+        <span class="x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Không đúng</span>
+        <h3>“AI là yếu tố quyết định”</h3>
+        <p>
+          App dùng AI nặng nhất là Flavorish, và nó nhỏ nhất. App không có AI nào là Paprika, và nó đứng hạng
+          1 với điểm cao nhất. Ở đây AI là một tính năng, không phải một chiến lược. Nó chỉ đáng giá khi
+          xử lý được một đầu vào mà cách khác không xử lý nổi, ví dụ chữ viết tay.
+        </p>
+      </div>
+      <div class="myth">
+        <span class="x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Không đúng</span>
+        <h3>“Gọi được nhiều vốn thì thắng”</h3>
+        <p>
+          App bền nhất về tài chính là Paprika, không gọi vốn. App có kết cục tốt nhất là Mealime, cũng không
+          đi đường quỹ đầu tư điển hình. ReciMe gọi khoảng 2 triệu USD — rất ít so với quy mô người dùng.
+        </p>
+      </div>
+      <div class="myth">
+        <span class="x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Không đúng</span>
+        <h3>“Nhiều tính năng hơn là lợi thế”</h3>
+        <p>
+          Mealime cố tình ít tính năng hơn tất cả, không cho người dùng mang công thức riêng vào, và vẫn
+          được một chuỗi siêu thị toàn quốc mua lại.
+        </p>
+      </div>
+      <div class="myth">
+        <span class="x"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Không đúng</span>
+        <h3>“Thắng nhờ công thức nấu ăn hay hơn”</h3>
+        <p>
+          Ba trong năm app không sở hữu một công thức nào cả. Chúng chỉ là chỗ chứa. Nội dung không phải
+          nơi cuộc chơi này được quyết định.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TRUST ===================== -->
+<section id="tincay">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">Độ tin cậy</p>
+      <h2>Số nào tin được, số nào chưa</h2>
+      <p class="sub">
+        Nói thẳng để bạn dùng đúng cách. Có ba mức: xác minh được từ nguồn gốc, chưa xác minh xong,
+        và không nên dùng.
+      </p>
+    </div>
+    <div class="trust">
+      <div class="trust-row">
+        <span class="tag ok">Tin được</span>
+        <div>
+          <p><strong>Điểm và số lượng đánh giá App Store, giá bán, thứ hạng mục.</strong></p>
+          <p>Đọc trực tiếp từ trang App Store và website của từng hãng trong ngày 18/08/2026. Số lượng đánh giá là con số khó làm giả nhất, nên dùng nó để so quy mô thay vì dùng số người dùng.</p>
+        </div>
+      </div>
+      <div class="trust-row">
+        <span class="tag mid">Chưa chắc</span>
+        <div>
+          <p><strong>Vụ Albertsons mua Mealime, ngày 11/3/2022.</strong></p>
+          <p>Nguồn là PitchBook và một tạp chí ngành bán lẻ. Tôi tìm nhưng không thấy thông cáo chính thức từ Albertsons. Một bài Grocery Dive về “Albertsons và dịch vụ lên thực đơn” mà tôi mở ra hóa ra nói về eMeals, không phải Mealime. Coi đây là rất có thể đúng, chưa phải đã xác nhận.</p>
+        </div>
+      </div>
+      <div class="trust-row">
+        <span class="tag mid">Chưa chắc</span>
+        <div>
+          <p><strong>Giá bản Mealime Pro.</strong></p>
+          <p>App Store và Google Play đều ghi 2,99 USD một tháng. Vài nguồn năm 2026 nói đã đổi lên 5,99 USD một tháng hoặc 49,99 USD một năm. Chưa rõ cái nào đang áp dụng.</p>
+        </div>
+      </div>
+      <div class="trust-row">
+        <span class="tag mid">Chưa chắc</span>
+        <div>
+          <p><strong>Số người dùng do các hãng tự công bố.</strong></p>
+          <p>“10 triệu+ người nấu” của ReciMe, “4.500.000 người” của Mealime, “2 triệu công thức đã lưu” của Flavorish. Không có ai kiểm toán, và gần như chắc chắn đây là số tài khoản đã đăng ký, không phải số người dùng hằng tháng.</p>
+        </div>
+      </div>
+      <div class="trust-row">
+        <span class="tag low">Không dùng</span>
+        <div>
+          <p><strong>Con số doanh thu Mealime 768.000 USD năm 2020.</strong></p>
+          <p>Đây là ước lượng của một bên thứ ba, độ tin cậy thấp. Tôi không dùng nó cho bất kỳ kết luận nào trong báo cáo.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="prose" style="margin-top:var(--sp-12)">
+      <div class="callout">
+        <span class="label">Ba giới hạn của cả báo cáo</span>
+        <p>
+          <strong>Một, “lý do thành công” ở đây là suy luận, không phải nhân quả đã kiểm chứng.</strong>
+          Tôi quan sát được vốn, điểm đánh giá, thứ hạng, cách định vị, giá, báo chí và các vụ mua bán.
+          Tôi không có dữ liệu nội bộ: tỉ lệ người dùng ở lại, tỉ lệ bỏ đi, giá trị một khách hàng.
+          Thiếu những thứ đó thì không thể khẳng định “vì X nên thành công”.
+        </p>
+        <p>
+          <strong>Hai, chúng ta chỉ đang mổ những app còn sống.</strong> Hàng trăm app cùng ý tưởng đã chết
+          mà không để lại dấu vết nào để so sánh. Nên sáu “điểm chung” ở trên có thể là đặc điểm của app nấu
+          ăn nói chung, chứ chưa hẳn là đặc điểm riêng của app thành công.
+        </p>
+        <p>
+          <strong>Ba, toàn bộ dữ liệu là thị trường Mỹ và nội dung tiếng Anh.</strong> Không có gì trong đây
+          nói về hành vi hay mức chi trả của người dùng Việt Nam.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SOURCES ===================== -->
+<section id="nguon">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="label">Nguồn</p>
+      <h2>Chỗ nào ra số nào</h2>
+    </div>
+    <div class="srcgrid">
+      <div class="srcgroup">
+        <h3>ReciMe</h3>
+        <ul>
+          <li><a href="https://www.recime.app">Website chính thức</a></li>
+          <li><a href="https://apps.apple.com/us/app/recime-recipe-manager/id1593779280">Trang App Store</a></li>
+          <li><a href="https://recime.app/help/en/articles/11630592-how-much-does-the-recime-subscription-cost">Trang giải thích giá</a></li>
+          <li><a href="https://www.smartcompany.com.au/startupsmart/recime-sizzles-jumping-20000-400000-users-in-2023/">SmartCompany: 20.000 lên 400.000</a></li>
+          <li><a href="https://www.startupdaily.net/topic/funding/marissa-mayer-cooking-app-recime-in-1-5-million-seed-round/">Startup Daily: vòng gọi vốn 1,5 triệu</a></li>
+          <li><a href="https://www.capitalbrief.com/briefing/cooking-app-recime-raises-15m-in-seed-round-led-by-even-capital-c46f07d0-5d14-4d13-b10c-817eae74cad6/">Capital Brief: chi tiết vòng seed</a></li>
+        </ul>
+      </div>
+      <div class="srcgroup">
+        <h3>Paprika</h3>
+        <ul>
+          <li><a href="https://www.paprikaapp.com">Website chính thức</a></li>
+          <li><a href="https://www.paprikaapp.com/windows/">Trang giá bản Windows</a></li>
+          <li><a href="https://apps.apple.com/us/app/paprika-recipe-manager-3/id1303222868">App Store bản iPhone và iPad</a></li>
+          <li><a href="https://apps.apple.com/us/app/paprika-recipe-manager-3/id1303222628">App Store bản Mac</a></li>
+        </ul>
+      </div>
+      <div class="srcgroup">
+        <h3>Flavorish</h3>
+        <ul>
+          <li><a href="https://www.flavorish.ai">Website chính thức</a></li>
+          <li><a href="https://apps.apple.com/us/app/flavorish-save-any-recipe/id6478546136">Trang App Store</a></li>
+          <li><a href="https://www.producthunt.com/products/flavorish">Product Hunt và lời người sáng lập</a></li>
+          <li><a href="https://aichief.com/ai-productivity-tools/flavorish/">Review độc lập của AIChief</a></li>
+        </ul>
+      </div>
+      <div class="srcgroup">
+        <h3>Mealime</h3>
+        <ul>
+          <li><a href="https://www.mealime.com">Website chính thức</a></li>
+          <li><a href="https://apps.apple.com/us/app/mealime-meal-plans-recipes/id1079999103">Trang App Store</a></li>
+          <li><a href="https://support.mealime.com/article/79-mealime-pro">Tài liệu về bản Pro</a></li>
+          <li><a href="https://pitchbook.com/profiles/company/166435-03">PitchBook: hồ sơ công ty</a></li>
+          <li><a href="https://magazine.retail-today.com/grocery_2022/albertsons">Tạp chí bán lẻ: Albertsons 2022</a></li>
+        </ul>
+      </div>
+      <div class="srcgroup">
+        <h3>Eat This Much</h3>
+        <ul>
+          <li><a href="https://www.eatthismuch.com">Website chính thức</a></li>
+          <li><a href="https://apps.apple.com/us/app/eat-this-much-meal-planner/id981637806">Trang App Store</a></li>
+          <li><a href="https://help.eatthismuch.com/help/what-do-i-get-for-subscribing">Trang giải thích gói trả phí</a></li>
+          <li><a href="https://www.crunchbase.com/person/louis-dementhon">Crunchbase: người sáng lập và swole.me</a></li>
+          <li><a href="https://www.promealplan.com/en/blog/eat-this-much-review-2026">Review độc lập ProMealPlan</a></li>
+        </ul>
+      </div>
+      <div class="srcgroup">
+        <h3>So sánh chung</h3>
+        <ul>
+          <li><a href="https://edition.cnn.com/cnn-underscored/reviews/best-meal-planning-apps">CNN Underscored: thử 5 app, chọn app tốt nhất 2025</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>
+      Nghiên cứu thực hiện ngày 18/08/2026 với sự hỗ trợ của công cụ AI. Mọi số liệu đều được đối chiếu về
+      nguồn gốc; những chỗ chưa xác minh xong đã ghi rõ ở mục “Số nào tin được, số nào chưa”. Giá và thứ hạng
+      trên app store thay đổi theo thời gian và theo quốc gia, nên nếu dùng lại các con số này sau vài tháng
+      thì nên kiểm tra lại.
+    </p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  var btn  = document.getElementById('themeBtn');
+  var KEY  = 'ths-report-theme';
+  var mqDark = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function resolved(){
+    var set = root.getAttribute('data-theme');
+    if(set === 'dark' || set === 'light') return set;
+    return mqDark.matches ? 'dark' : 'light';
+  }
+  function syncIcon(){
+    var mode = resolved();
+    btn.setAttribute('data-mode', mode);
+    btn.setAttribute('aria-label', mode === 'dark' ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối');
+  }
+
+  try{
+    var saved = localStorage.getItem(KEY);
+    if(saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved);
+  }catch(e){}
+  syncIcon();
+
+  btn.addEventListener('click', function(){
+    var next = resolved() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try{ localStorage.setItem(KEY, next); }catch(e){}
+    syncIcon();
+  });
+
+  if(mqDark.addEventListener) mqDark.addEventListener('change', syncIcon);
+
+  // reading progress
+  var bar = document.getElementById('progress');
+  var raf = null;
+  function update(){
+    raf = null;
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    var p = h > 0 ? Math.min(1, window.scrollY / h) : 0;
+    bar.style.transform = 'scaleX(' + p + ')';
+  }
+  window.addEventListener('scroll', function(){
+    if(raf === null) raf = window.requestAnimationFrame(update);
+  }, {passive:true});
+  window.addEventListener('resize', function(){
+    if(raf === null) raf = window.requestAnimationFrame(update);
+  }, {passive:true});
+  update();
+})();
+</script>
+</body>
+</html>

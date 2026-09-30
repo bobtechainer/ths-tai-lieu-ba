@@ -1,0 +1,1467 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đưa Lớp học thông minh lên màn hình Philips</title>
+<meta name="description" content="Hồ sơ nghiên cứu: Philips đang có sẵn những gì trên màn hình tương tác cho trường học, phần mềm của chúng ta vào bằng cửa nào, các hãng khác đã đi tới đâu, và nên chọn đường triển khai nào.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  --font-display:'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --font-body:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono:'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+  --bg:#FBFAF8;
+  --bg-alt:#F2F1ED;
+  --surface:#FFFFFF;
+  --surface-2:#F7F6F3;
+  --fg:#1A1A1C;
+  --fg-muted:#55565B;
+  --fg-faint:#828289;
+  --border:#E3E1DC;
+  --border-strong:#C8C5BE;
+
+  --accent:#0F5C8C;
+  --accent-soft:#E8F1F7;
+
+  --ok:#1B7A4B;
+  --ok-soft:#E6F4EC;
+  --warn:#9A6207;
+  --warn-soft:#FBF1DF;
+  --ask:#8A3E12;
+  --ask-soft:#FBEDE4;
+  --bad:#A32020;
+  --bad-soft:#FAEAEA;
+
+  --shadow:0 1px 2px rgba(20,20,25,.04), 0 10px 28px -14px rgba(20,20,25,.14);
+
+  --sp-1:.25rem; --sp-2:.5rem; --sp-3:.75rem; --sp-4:1rem;
+  --sp-5:1.25rem; --sp-6:1.5rem; --sp-8:2rem; --sp-10:2.5rem;
+  --sp-12:3rem; --sp-16:4rem; --sp-20:5rem;
+
+  --measure:40rem;
+  --wide:78rem;
+  --radius:6px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C0C0E;
+    --bg-alt:#141416;
+    --surface:#17171A;
+    --surface-2:#1E1E22;
+    --fg:#F2F2F0;
+    --fg-muted:#AEAEB4;
+    --fg-faint:#83838B;
+    --border:#2B2B30;
+    --border-strong:#3E3E45;
+
+    --accent:#63B3E0;
+    --accent-soft:#122430;
+
+    --ok:#5FCB92;
+    --ok-soft:#10231A;
+    --warn:#E0B057;
+    --warn-soft:#241C0C;
+    --ask:#E39A6C;
+    --ask-soft:#26170F;
+    --bad:#E88080;
+    --bad-soft:#2A1213;
+
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C0C0E; --bg-alt:#141416; --surface:#17171A; --surface-2:#1E1E22;
+  --fg:#F2F2F0; --fg-muted:#AEAEB4; --fg-faint:#83838B;
+  --border:#2B2B30; --border-strong:#3E3E45;
+  --accent:#63B3E0; --accent-soft:#122430;
+  --ok:#5FCB92; --ok-soft:#10231A;
+  --warn:#E0B057; --warn-soft:#241C0C;
+  --ask:#E39A6C; --ask-soft:#26170F;
+  --bad:#E88080; --bad-soft:#2A1213;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.7);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:var(--font-body); font-size:16.5px; line-height:1.68;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.wrap{max-width:var(--wide); margin:0 auto; padding:0 var(--sp-6)}
+.col{max-width:var(--measure)}
+section{padding:var(--sp-16) 0; border-top:1px solid var(--border)}
+section:first-of-type{border-top:none}
+
+/* ============================================================
+   TYPOGRAPHY
+   ============================================================ */
+h1,h2,h3,h4{font-family:var(--font-display); font-weight:600; line-height:1.22; letter-spacing:-.011em; margin:0}
+h1{font-size:clamp(2.1rem,5.2vw,3.4rem); letter-spacing:-.022em}
+h2{font-size:clamp(1.55rem,3.2vw,2.15rem); margin-bottom:var(--sp-3)}
+h3{font-size:1.22rem; margin:var(--sp-10) 0 var(--sp-3)}
+h4{font-size:1.02rem; font-family:var(--font-body); font-weight:650; margin:var(--sp-6) 0 var(--sp-2)}
+p{margin:0 0 var(--sp-4)}
+a{color:var(--accent); text-underline-offset:2px; text-decoration-thickness:1px}
+strong{font-weight:640}
+ul,ol{margin:0 0 var(--sp-4); padding-left:1.25rem}
+li{margin-bottom:var(--sp-2)}
+li>ul,li>ol{margin-top:var(--sp-2)}
+
+.eyebrow{
+  font-size:.735rem; font-weight:650; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--fg-faint); margin-bottom:var(--sp-3); font-family:var(--font-body);
+}
+.lede{font-size:1.14rem; color:var(--fg-muted); line-height:1.62}
+.small{font-size:.9rem; color:var(--fg-muted)}
+.tiny{font-size:.82rem; color:var(--fg-faint)}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  padding:var(--sp-20) 0 var(--sp-12);
+  background:linear-gradient(180deg, var(--bg-alt) 0%, var(--bg) 100%);
+  border-bottom:1px solid var(--border);
+}
+.hero h1{margin-bottom:var(--sp-5)}
+.hero .lede{max-width:44rem; font-size:1.2rem}
+.meta-row{
+  display:flex; flex-wrap:wrap; gap:var(--sp-2) var(--sp-6);
+  margin-top:var(--sp-8); padding-top:var(--sp-5);
+  border-top:1px solid var(--border);
+  font-size:.855rem; color:var(--fg-faint);
+}
+.meta-row b{color:var(--fg-muted); font-weight:600}
+
+/* ============================================================
+   CONFIDENCE BADGES
+   ============================================================ */
+.badge{
+  display:inline-block; font-size:.68rem; font-weight:680; letter-spacing:.05em;
+  text-transform:uppercase; padding:.16em .55em; border-radius:3px;
+  vertical-align:.12em; white-space:nowrap; font-family:var(--font-body);
+}
+.b-v{background:var(--ok-soft); color:var(--ok)}
+.b-i{background:var(--warn-soft); color:var(--warn)}
+.b-q{background:var(--ask-soft); color:var(--ask)}
+
+.legend{
+  display:flex; flex-wrap:wrap; gap:var(--sp-4);
+  background:var(--surface-2); border:1px solid var(--border);
+  border-radius:var(--radius); padding:var(--sp-4) var(--sp-5); margin:var(--sp-6) 0;
+  font-size:.88rem;
+}
+.legend div{flex:1 1 15rem}
+.legend .badge{margin-right:.4em}
+
+/* ============================================================
+   CARDS / CALLOUTS
+   ============================================================ */
+.card{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); padding:var(--sp-5) var(--sp-6);
+  box-shadow:var(--shadow); margin-bottom:var(--sp-4);
+}
+.card h4{margin-top:0}
+.card p:last-child,.card ul:last-child{margin-bottom:0}
+
+.note{
+  border-left:3px solid var(--accent); background:var(--accent-soft);
+  padding:var(--sp-4) var(--sp-5); border-radius:0 var(--radius) var(--radius) 0;
+  margin:var(--sp-5) 0;
+}
+.note.w{border-left-color:var(--warn); background:var(--warn-soft)}
+.note.q{border-left-color:var(--ask); background:var(--ask-soft)}
+.note.b{border-left-color:var(--bad); background:var(--bad-soft)}
+.note p:last-child{margin-bottom:0}
+.note-title{font-weight:650; font-size:.95rem; margin-bottom:var(--sp-2); display:block}
+
+.quote{
+  font-family:var(--font-mono); font-size:.855rem; line-height:1.6;
+  background:var(--surface-2); border:1px solid var(--border);
+  border-radius:var(--radius); padding:var(--sp-3) var(--sp-4);
+  margin:var(--sp-3) 0; color:var(--fg);
+}
+.quote .src{display:block; margin-top:var(--sp-2); font-family:var(--font-body); font-size:.78rem; color:var(--fg-faint)}
+
+/* ============================================================
+   KEY FINDINGS
+   ============================================================ */
+.findings{display:grid; gap:var(--sp-4); margin:var(--sp-8) 0}
+@media(min-width:56rem){.findings{grid-template-columns:1fr 1fr}}
+.finding{
+  background:var(--surface); border:1px solid var(--border);
+  border-left:3px solid var(--accent);
+  border-radius:0 var(--radius) var(--radius) 0;
+  padding:var(--sp-4) var(--sp-5);
+}
+.finding .n{
+  font-family:var(--font-mono); font-size:.75rem; color:var(--fg-faint);
+  display:block; margin-bottom:var(--sp-1);
+}
+.finding h4{margin:0 0 var(--sp-2); font-size:1.02rem}
+.finding p{margin:0; font-size:.94rem; color:var(--fg-muted)}
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+.tw{overflow-x:auto; margin:var(--sp-6) 0; border:1px solid var(--border); border-radius:var(--radius); background:var(--surface)}
+table{border-collapse:collapse; width:100%; min-width:44rem; font-size:.9rem}
+th,td{padding:.7rem .85rem; text-align:left; vertical-align:top; border-bottom:1px solid var(--border)}
+th{
+  background:var(--surface-2); font-weight:640; font-size:.78rem;
+  letter-spacing:.03em; text-transform:uppercase; color:var(--fg-muted);
+  position:sticky; top:0; white-space:nowrap;
+}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--surface-2)}
+td.num,th.num{font-family:var(--font-mono); font-size:.84rem; white-space:nowrap}
+.yes{color:var(--ok); font-weight:600}
+.no{color:var(--bad); font-weight:600}
+.partial{color:var(--warn); font-weight:600}
+.t-cap{font-size:.83rem; color:var(--fg-faint); margin-top:calc(-1 * var(--sp-3)); margin-bottom:var(--sp-6)}
+
+/* ============================================================
+   DOORS (paths)
+   ============================================================ */
+.doors{display:grid; gap:var(--sp-5); margin:var(--sp-8) 0}
+@media(min-width:52rem){.doors{grid-template-columns:repeat(2,1fr)}}
+.door{
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); padding:var(--sp-5); box-shadow:var(--shadow);
+  display:flex; flex-direction:column;
+}
+.door .rank{
+  font-family:var(--font-mono); font-size:.72rem; letter-spacing:.06em;
+  color:var(--fg-faint); text-transform:uppercase; margin-bottom:var(--sp-2);
+}
+.door h4{margin:0 0 var(--sp-3); font-size:1.06rem}
+.door .verdict{
+  margin-top:auto; padding-top:var(--sp-3); border-top:1px solid var(--border);
+  font-size:.88rem; font-weight:600;
+}
+.door.rec{border-color:var(--accent); border-width:1.5px}
+.door.rec .verdict{color:var(--accent)}
+.kv{font-size:.9rem; margin:0 0 var(--sp-3)}
+.kv dt{font-weight:640; color:var(--fg-muted); font-size:.8rem; text-transform:uppercase; letter-spacing:.03em; margin-top:var(--sp-3)}
+.kv dd{margin:.15rem 0 0}
+
+/* ============================================================
+   THREE COLUMNS (advantage)
+   ============================================================ */
+.tri{display:grid; gap:var(--sp-5); margin:var(--sp-8) 0}
+@media(min-width:60rem){.tri{grid-template-columns:repeat(3,1fr)}}
+.tri > div{
+  border:1px solid var(--border); border-radius:var(--radius);
+  padding:var(--sp-5); background:var(--surface);
+}
+.tri h4{margin-top:0; padding-bottom:var(--sp-3); border-bottom:1px solid var(--border)}
+.tri ul{padding-left:1.1rem; font-size:.92rem; margin-bottom:0}
+.tri.c1 > div:nth-child(1){border-top:3px solid var(--fg-faint)}
+.tri.c1 > div:nth-child(2){border-top:3px solid var(--ok)}
+.tri.c1 > div:nth-child(3){border-top:3px solid var(--bad)}
+
+/* ============================================================
+   ROADMAP
+   ============================================================ */
+.steps{counter-reset:s; list-style:none; padding:0; margin:var(--sp-6) 0}
+.steps li{
+  counter-increment:s; position:relative; padding-left:2.9rem;
+  margin-bottom:var(--sp-5); min-height:2rem;
+}
+.steps li::before{
+  content:counter(s); position:absolute; left:0; top:.05rem;
+  width:1.95rem; height:1.95rem; border-radius:50%;
+  background:var(--accent-soft); color:var(--accent);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mono); font-size:.85rem; font-weight:600;
+  border:1px solid var(--border);
+}
+.steps h4{margin:0 0 var(--sp-1)}
+.steps p{margin:0; font-size:.94rem; color:var(--fg-muted)}
+
+/* ============================================================
+   QUESTIONS LIST
+   ============================================================ */
+.qlist{list-style:none; padding:0; margin:var(--sp-6) 0; counter-reset:q}
+.qlist li{
+  counter-increment:q; background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); padding:var(--sp-4) var(--sp-5);
+  margin-bottom:var(--sp-3); position:relative; padding-left:3.4rem;
+}
+.qlist li::before{
+  content:"Q" counter(q); position:absolute; left:var(--sp-4); top:var(--sp-4);
+  font-family:var(--font-mono); font-size:.78rem; font-weight:600; color:var(--ask);
+}
+.qlist .why{display:block; margin-top:var(--sp-2); font-size:.86rem; color:var(--fg-faint)}
+
+/* ============================================================
+   TOC
+   ============================================================ */
+.toc{
+  background:var(--surface-2); border:1px solid var(--border);
+  border-radius:var(--radius); padding:var(--sp-5) var(--sp-6); margin:var(--sp-8) 0 0;
+}
+.toc ol{columns:2; column-gap:var(--sp-8); margin:0; padding-left:1.2rem; font-size:.93rem}
+@media(max-width:44rem){.toc ol{columns:1}}
+.toc li{margin-bottom:var(--sp-2); break-inside:avoid}
+.toc a{text-decoration:none; color:var(--fg-muted)}
+.toc a:hover{color:var(--accent); text-decoration:underline}
+
+/* ============================================================
+   SOURCES
+   ============================================================ */
+.srcs{font-size:.88rem; padding-left:1.6rem}
+.srcs li{margin-bottom:var(--sp-3); color:var(--fg-muted)}
+.srcs a{word-break:break-word}
+.src-group{font-weight:650; margin:var(--sp-6) 0 var(--sp-3); font-size:.95rem; color:var(--fg)}
+
+footer{
+  border-top:1px solid var(--border); background:var(--bg-alt);
+  padding:var(--sp-10) 0; margin-top:var(--sp-12);
+  font-size:.87rem; color:var(--fg-faint);
+}
+hr.sep{border:none; border-top:1px solid var(--border); margin:var(--sp-10) 0}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Hồ sơ nghiên cứu nội bộ</div>
+    <h1>Đưa Lớp học thông minh<br>lên màn hình Philips</h1>
+    <p class="lede">
+      Philips đang có sẵn những gì trong máy, phần mềm của chúng ta vào được bằng cửa nào,
+      các hãng khác đã đi tới đâu, và nếu phải chọn một đường thì nên chọn đường nào.
+    </p>
+    <div class="meta-row">
+      <span><b>Ngày:</b> 24/08/2026</span>
+      <span><b>Phạm vi:</b> toàn cầu</span>
+      <span><b>Đối tượng đọc:</b> nội bộ, để ra quyết định</span>
+      <span><b>Phần mềm:</b> prj-ths-smart-class, nhánh neo-build-app</span>
+      <span><b>Không bao gồm:</b> giá và báo giá</span>
+    </div>
+
+    <nav class="toc">
+      <ol>
+        <li><a href="#s1">Đọc trong ba phút</a></li>
+        <li><a href="#s2">Philips đang có gì trong tay</a></li>
+        <li><a href="#s3">Năm cửa để vào được máy Philips</a></li>
+        <li><a href="#s4">Cả thị trường đang ở đâu</a></li>
+        <li><a href="#s5">Máy có gánh nổi phần mềm không</a></li>
+        <li><a href="#s6">Hơn ở đâu, thua ở đâu</a></li>
+        <li><a href="#s7">Khuyến nghị và lộ trình</a></li>
+        <li><a href="#s8">Chỗ tôi chưa chắc</a></li>
+        <li><a href="#s9">Nguồn tham khảo</a></li>
+      </ol>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ============================================================
+     1. TÓM TẮT
+     ============================================================ -->
+<section id="s1">
+  <div class="eyebrow">Phần 1</div>
+  <h2>Đọc trong ba phút</h2>
+  <p class="col lede">
+    Nếu chỉ có ba phút, đây là sáu điều đáng nhớ. Phần sau chỉ là chứng minh cho sáu điều này.
+  </p>
+
+  <div class="legend">
+    <div><span class="badge b-v">Đã xác minh</span> Lấy từ tài liệu gốc của hãng hoặc đọc trực tiếp trong mã nguồn.</div>
+    <div><span class="badge b-i">Suy luận</span> Ghép từ nhiều nguồn gián tiếp. Hợp lý, nhưng chưa có tài liệu nói thẳng.</div>
+    <div><span class="badge b-q">Cần hỏi</span> Không có câu trả lời công khai. Phải hỏi nhà cung cấp mới biết.</div>
+  </div>
+
+  <div class="findings">
+    <div class="finding">
+      <span class="n">01</span>
+      <h4>Cửa vào đã mở sẵn, không cần xin phép ai <span class="badge b-v">Đã xác minh</span></h4>
+      <p>
+        Sách hướng dẫn chính hãng của dòng E-Line ghi rõ máy có mục bật cho phép cài ứng dụng
+        ngoài, và có mục chọn một ứng dụng bất kỳ do người dùng cài để máy tự mở. Nghĩa là về mặt
+        kỹ thuật, không có rào nào chặn chúng ta cả.
+      </p>
+    </div>
+    <div class="finding">
+      <span class="n">02</span>
+      <h4>Philips mạnh phần cứng, mỏng phần dạy học <span class="badge b-v">Đã xác minh</span></h4>
+      <p>
+        Họ có bảng viết tích hợp, có chiếu màn hình không dây, có phần mềm quản lý máy từ xa, và
+        có một bộ công cụ soạn bài tên Genius. Nhưng không có hệ thống quản lý trường lớp, không có
+        kho học liệu bám chương trình, không có ngân hàng câu hỏi, không có hồ sơ học sinh.
+      </p>
+    </div>
+    <div class="finding">
+      <span class="n">03</span>
+      <h4>Đã có tiền lệ Philips bắt tay bên ngoài <span class="badge b-v">Đã xác minh</span></h4>
+      <p>
+        Năm 2021 Philips ký với i3 Technologies để đưa nền tảng học tập i3LEARNHUB lên màn hình
+        giáo dục của họ. Nghĩa là mô hình chúng ta đang tính không phải chuyện lạ với họ, họ đã làm
+        rồi, chỉ là làm với người khác.
+      </p>
+    </div>
+    <div class="finding">
+      <span class="n">04</span>
+      <h4>Cần chọn đúng đời máy, không phải máy Philips nào cũng như nhau <span class="badge b-v">Đã xác minh</span></h4>
+      <p>
+        Dòng E-Line có ba đời. Đời cũ chạy Android 11 và không có kho ứng dụng của Google. Hai đời
+        mới chạy Android 14 và có chứng nhận EDLA nên có kho ứng dụng Google. Khác biệt này quan
+        trọng hơn nhiều so với chuyện màn hình bao nhiêu inch.
+      </p>
+    </div>
+    <div class="finding">
+      <span class="n">05</span>
+      <h4>Rủi ro thật không nằm ở bộ nhớ, mà ở chip đồ hoạ và màn hình 4K <span class="badge b-i">Suy luận</span></h4>
+      <p>
+        Máy có 8GB bộ nhớ, dư cho phần mềm của chúng ta. Nhưng chip đồ hoạ chỉ ở mức phổ thông, mà
+        lại phải vẽ ra màn hình 86 inch độ phân giải 4K. Các cảnh 3D trong app nhiều khả năng sẽ
+        chậm nếu để nguyên như đang chạy trên máy tính bảng.
+      </p>
+    </div>
+    <div class="finding">
+      <span class="n">06</span>
+      <h4>Điểm danh khuôn mặt sẽ vướng, vì màn hình không có camera <span class="badge b-v">Đã xác minh</span></h4>
+      <p>
+        Tài liệu Philips ghi rõ muốn gọi video thì phải cắm thêm camera rời. Tính năng điểm danh
+        bằng khuôn mặt của chúng ta vì thế không dùng ngay được, phải kèm camera hoặc phải để tính
+        năng đó chạy trên máy tính bảng của giáo viên.
+      </p>
+    </div>
+  </div>
+
+  <div class="note">
+    <span class="note-title">Khuyến nghị gói trong một câu</span>
+    <p>
+      Nên nhắm dòng E-Line đời mới có chứng nhận EDLA, cài phần mềm dạng ứng dụng Android chạy
+      thẳng trên máy, đặt làm ứng dụng tự mở khi bật màn hình, và giữ khe cắm máy tính rời như
+      phương án dự phòng cho những phòng học cần chạy nặng. Chi tiết ở
+      <a href="#s7">phần 7</a>.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     2. PHILIPS
+     ============================================================ -->
+<section id="s2">
+  <div class="eyebrow">Phần 2</div>
+  <h2>Philips đang có gì trong tay</h2>
+
+  <div class="col">
+    <p>
+      Trước hết cần gỡ một nhầm lẫn hay gặp. Màn hình chuyên dụng mang tên Philips không do tập
+      đoàn Philips y tế làm ra. Chúng do TPV làm và bán dưới thương hiệu Philips, với tên gọi
+      chính thức là PPDS. Trong sách hướng dẫn của chính dòng E-Line, phần thông tin liên hệ vẫn
+      ghi địa chỉ và email của TPV.
+      <span class="badge b-v">Đã xác minh</span>
+    </p>
+    <p>
+      Điều này giải thích rất nhiều thứ về sau. Gốc gác của họ là màn hình quảng cáo và bảng thông
+      tin nơi công cộng, chứ không phải trường học. Cả giao diện lẫn cách đặt tên trong máy vẫn
+      giữ nguyên dấu vết đó, các mục cấu hình vẫn nằm dưới nhóm tên là màn hình quảng cáo.
+    </p>
+  </div>
+
+  <h3>Ba đời máy trong cùng một dòng tên</h3>
+  <p class="col">
+    Philips gọi dòng dành cho lớp học là E-Line. Nhưng trong cùng một cái tên đó có ba đời máy
+    khác nhau khá xa. Nếu nhà cung cấp chỉ nói chung chung là màn hình Philips, thì bảng dưới là
+    thứ cần hỏi cho ra.
+  </p>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th>Đời máy</th>
+          <th>Hệ điều hành</th>
+          <th>Có kho ứng dụng Google</th>
+          <th class="num">Chip</th>
+          <th class="num">Bộ nhớ</th>
+          <th class="num">Ổ chứa</th>
+          <th class="num">Điểm chạm</th>
+          <th>Khe máy tính rời</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>BDL4052E</strong><br><span class="tiny">65, 75, 86 inch — đời cũ</span></td>
+          <td>Android 11</td>
+          <td class="no">Không</td>
+          <td class="num">MTK 9970A</td>
+          <td class="num">8 GB</td>
+          <td class="num">32 GB</td>
+          <td class="num">20</td>
+          <td class="yes">Có</td>
+        </tr>
+        <tr>
+          <td><strong>BDL4152E</strong><br><span class="tiny">65, 75, 86 inch</span></td>
+          <td>Android 14<br><span class="tiny">vài nơi vẫn ghi 13</span></td>
+          <td class="yes">Có, đạt EDLA</td>
+          <td class="num">4×A73 + 4×A53<br>Mali-G52</td>
+          <td class="num">8 GB</td>
+          <td class="num">32 GB</td>
+          <td class="num">40</td>
+          <td class="yes">Có</td>
+        </tr>
+        <tr>
+          <td><strong>BDL4252E</strong><br><span class="tiny">65, 75, 86 inch — cao nhất</span></td>
+          <td>Android 14</td>
+          <td class="yes">Có, đạt EDLA</td>
+          <td class="num">4×A72 + 4×A53<br>Mali-G52</td>
+          <td class="num">8 GB</td>
+          <td class="num">128 GB</td>
+          <td class="num">50</td>
+          <td class="yes">Có</td>
+        </tr>
+        <tr>
+          <td><strong>BDL3652T</strong><br><span class="tiny">dòng T-Line, 65 và 86 inch</span></td>
+          <td>Android<br><span class="tiny">không nêu phiên bản</span></td>
+          <td class="partial">Không thấy nêu</td>
+          <td class="num">không công bố</td>
+          <td class="num">không công bố</td>
+          <td class="num">không công bố</td>
+          <td class="num">20</td>
+          <td class="yes">Có</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="t-cap">
+    Số liệu lấy từ trang sản phẩm chính thức của Philips. Ô nào ghi không công bố nghĩa là tôi
+    không tìm được tài liệu công khai, không phải là máy không có.
+    <span class="badge b-v">Đã xác minh</span>
+  </p>
+
+  <div class="note w">
+    <span class="note-title">Một chỗ vênh cần lưu ý</span>
+    <p>
+      Với máy BDL4152E, trang chính thức của Philips ghi Android 14, nhưng vài nhà phân phối và
+      một số bản mô tả cũ vẫn ghi Android 13. Nhiều khả năng máy xuất xưởng đợt đầu chạy 13 rồi
+      được nâng lên 14. Khi nhận hàng nên kiểm tra thẳng trong phần thông tin máy, đừng tin mô tả
+      trên trang bán hàng.
+    </p>
+  </div>
+
+  <h3>EDLA là gì, và tại sao nó là chi tiết quan trọng nhất</h3>
+  <div class="col">
+    <p>
+      EDLA là một loại chứng nhận Google cấp cho thiết bị không phải điện thoại. Máy có chứng nhận
+      này thì được cài sẵn kho ứng dụng Google Play và các dịch vụ Google chính thức. Máy không có
+      thì chạy Android bản thuần, vẫn là Android nhưng không có Play Store.
+    </p>
+    <p>
+      Với người dùng bình thường, khác biệt nghe có vẻ nhỏ. Với chúng ta thì không nhỏ chút nào, và
+      lý do nằm ở một chi tiết ít ai để ý, tôi sẽ nói kỹ ở <a href="#s5">phần 5</a>. Nói ngắn gọn
+      trước: phần mềm của chúng ta chạy dựa trên một thành phần trình duyệt nằm sẵn trong Android.
+      Trên máy có Play Store, thành phần đó tự cập nhật đều. Trên máy không có, nó đứng yên ở
+      phiên bản nhà sản xuất nạp vào từ đầu, và có thể rất cũ.
+    </p>
+  </div>
+
+  <h3>Phần mềm Philips đã cài sẵn trong máy</h3>
+  <p class="col">
+    Đây là phần cần nhìn thật kỹ, vì nó quyết định chúng ta bổ sung được gì và giẫm chân vào đâu.
+  </p>
+
+  <div class="card">
+    <h4>Bảng viết tích hợp <span class="badge b-v">Đã xác minh</span></h4>
+    <p>
+      Sách hướng dẫn dành hẳn một chương cho phần này. Có bút với nhiều kiểu nét, có hình khối và
+      mẫu dựng sẵn, tẩy theo điểm và theo vòng, lùi và tiến một bước, đổi màu nền, chọn vùng để
+      sao chép hoặc xoay, viết cùng lúc hai mươi điểm chạm, lưu ra ảnh hoặc PDF, chuyển trang và
+      xem trước trang, thêm chế độ ghi chú đè lên màn hình đang chiếu.
+    </p>
+    <p>
+      Nhận xét thẳng: đây là một bảng viết tử tế và đủ dùng cho một tiết học thông thường. Nhưng nó
+      dừng ở đó. Không có tài khoản, không lưu lên mây, không có bài giảng soạn sẵn, không nối được
+      với máy học sinh, không ghi lại gì để xem sau.
+    </p>
+  </div>
+
+  <div class="card">
+    <h4>Chia sẻ màn hình không dây <span class="badge b-v">Đã xác minh</span></h4>
+    <p>
+      Tên gọi là Philips ScreenShare, hỗ trợ chiếu từ máy Apple, máy Android và Windows. Trên đời
+      máy mới có thêm hỗ trợ các chuẩn chiếu hình phổ biến. Đây là tính năng hãng nào cũng có,
+      không phải điểm mạnh riêng.
+    </p>
+  </div>
+
+  <div class="card">
+    <h4>Philips Wave và ProStore <span class="badge b-v">Đã xác minh</span></h4>
+    <p>
+      Wave là hệ thống quản lý màn hình từ xa qua mạng. Nó cho phép cài đặt, theo dõi, cập nhật và
+      bảo trì cả một dàn máy từ một chỗ, hẹn giờ bật tắt, cảnh báo khi màn hình hiện nội dung lạ
+      hoặc tắt ngoài lịch. Wave đạt chứng chỉ bảo mật ISO 27001 và chạy trên hạ tầng AWS.
+    </p>
+    <p>
+      ProStore là chợ ứng dụng đi kèm Wave, nơi khách chọn cài các ứng dụng đối tác lên màn hình
+      Philips của mình từ xa. Philips mô tả nền tảng này là ưu tiên mở giao diện lập trình, và nói
+      rõ các nhà phát triển mới lẫn cũ đều có thể làm cho giải pháp của mình chạy được trên màn
+      hình Philips. Đây là cửa đáng chú ý nhất với chúng ta.
+    </p>
+  </div>
+
+  <div class="card">
+    <h4>Philips Genius <span class="badge b-v">Đã xác minh</span></h4>
+    <p>
+      Đây là phần mềm dạy học do chính Philips làm, ra mắt để đi kèm màn hình lớp học. Nó cho giáo
+      viên soạn bài ngay trên màn hình hoặc soạn từ xa qua trình duyệt, có ứng dụng riêng cho
+      Android, Windows và iOS. Bên trong có bảng viết với bút, bút dạ quang, tẩy, hình khối, thước
+      kẻ, êke, thước đo góc. Ngoài ra có đèn pin, máy tính, ứng dụng bình chọn, gọi video, và nhúng
+      được video YouTube cùng các file PDF, Word, Excel, PowerPoint.
+    </p>
+    <p>
+      Nhận xét thẳng: Genius là một bộ công cụ dạy học tại lớp, làm khá đầy đủ. Nhưng nó vẫn là
+      công cụ cho một tiết học, không phải hệ thống của một nhà trường. Trong toàn bộ mô tả chính
+      thức không có chỗ nào nhắc tới sổ điểm, hồ sơ học sinh, phân công lớp, kho học liệu bám
+      chương trình, hay ngân hàng đề. Đó chính là khoảng trống chúng ta đang đứng.
+    </p>
+  </div>
+
+  <div class="card">
+    <h4>i3LEARNHUB, và đây là chi tiết đáng giá nhất <span class="badge b-v">Đã xác minh</span></h4>
+    <p>
+      Năm 2021 Philips ký hợp tác với i3 Technologies, một công ty chuyên phần mềm giáo dục, để đưa
+      nền tảng học tập trên mây i3LEARNHUB đi kèm màn hình tương tác Philips cho trường học, trong
+      đó có dòng T-Line vốn làm riêng cho giáo dục. Nền tảng này khi đó có hơn năm mươi nghìn giáo
+      viên đang dùng.
+    </p>
+    <p>
+      Ý nghĩa với chúng ta rất rõ. Philips không có quan điểm phải tự làm hết phần mềm giáo dục.
+      Khi thấy một nền tảng bên ngoài đủ tốt, họ sẵn sàng bắt tay và đưa lên máy của mình. Chúng ta
+      không phải là bên đầu tiên đề nghị mô hình này, nên không phải thuyết phục họ từ số không.
+    </p>
+  </div>
+
+  <div class="note">
+    <span class="note-title">Tóm lại phần này</span>
+    <p>
+      Philips đang phủ được hai việc: dạy trên màn hình, và quản lý dàn máy từ xa. Họ không phủ
+      được việc thứ ba, là vận hành một nhà trường. Toàn bộ lập luận về sau đều dựa trên chỗ này.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     3. CỬA VÀO
+     ============================================================ -->
+<section id="s3">
+  <div class="eyebrow">Phần 3</div>
+  <h2>Năm cửa để vào được máy Philips</h2>
+  <p class="col lede">
+    Đây là phần tôi đào kỹ nhất, vì nó là chỗ dễ tưởng là bí nhất nhưng hoá ra lại thoáng nhất.
+  </p>
+
+  <div class="col">
+    <p>
+      Tôi tải về sách hướng dẫn sử dụng chính hãng của dòng E-Line, bản dành cho ba máy 65, 75 và
+      86 inch, dài 84 trang, rồi đọc thẳng trong đó thay vì tin vào mô tả trên các trang bán hàng.
+      Hai mục sau là quan trọng nhất.
+    </p>
+  </div>
+
+  <div class="quote">
+    <strong>Mục 8.6.1 — Nguồn không xác định</strong><br>
+    "Enable this option to allow 3rd party application installation."<br>
+    <span class="tiny">Tạm dịch: bật mục này để cho phép cài ứng dụng của bên thứ ba.</span>
+    <span class="src">Sách hướng dẫn Philips E-Line 65/75/86BDL4052E, trang 64</span>
+  </div>
+
+  <div class="quote">
+    <strong>Mục 5.9 — Ứng dụng tuỳ chọn</strong><br>
+    "User can set up the application for Customer Source. If a custom APK is set, the PD will open
+    the customer App when switching the source to Customer mode."<br>
+    <span class="tiny">Tạm dịch: người dùng có thể chỉ định một ứng dụng làm nguồn riêng. Khi đã
+    chỉ định, máy sẽ mở ứng dụng đó mỗi khi chuyển sang nguồn riêng.</span>
+    <span class="src">Sách hướng dẫn Philips E-Line, mục 5.9, đường dẫn cấu hình: Settings → Signage Display → Source settings → Custom App</span>
+  </div>
+
+  <p class="col">
+    Cộng thêm hai chi tiết nữa. Máy có mục chọn nguồn khởi động, nên có thể đặt để mỗi lần bật màn
+    hình là ứng dụng của chúng ta tự mở ra. Và màn hình chính của máy có mục thêm lối tắt, nên có
+    thể đưa biểu tượng phần mềm ra ngay trang đầu bên cạnh nút Bảng viết và nút Trình chiếu sẵn có.
+    <span class="badge b-v">Đã xác minh</span>
+  </p>
+
+  <div class="note">
+    <span class="note-title">Nói cho gọn</span>
+    <p>
+      Về mặt kỹ thuật thuần tuý, không cần Philips cho phép thì phần mềm vẫn cài được và vẫn đặt
+      làm ứng dụng tự mở được. Cái cần Philips đồng ý là chuyện khác: cài sẵn từ nhà máy, và bán
+      kèm như một gói. Hai chuyện đó nên tách bạch khi đi thương lượng.
+    </p>
+  </div>
+
+  <div class="doors">
+    <div class="door rec">
+      <div class="rank">Cửa 1 — nên đi</div>
+      <h4>Cài ứng dụng Android trực tiếp lên màn hình</h4>
+      <dl class="kv">
+        <dt>Cách làm</dt>
+        <dd>Chép file cài đặt vào USB, cắm vào máy, bật mục cho phép cài ứng dụng ngoài, cài, rồi
+        đặt làm ứng dụng tự mở khi khởi động.</dd>
+        <dt>Cần Philips đồng ý không</dt>
+        <dd>Không.</dd>
+        <dt>Điểm mạnh</dt>
+        <dd>Không cần mua thêm máy tính, không thêm dây, trường chỉ mua một thiết bị. Chúng ta đã
+        có sẵn quy trình đóng gói bản Android trong dự án.</dd>
+        <dt>Điểm yếu</dt>
+        <dd>Phụ thuộc sức máy. Cài thủ công từng phòng rất mất công nếu triển khai diện rộng.</dd>
+      </dl>
+      <div class="verdict">Nên chọn làm đường chính.</div>
+    </div>
+
+    <div class="door">
+      <div class="rank">Cửa 2</div>
+      <h4>Đưa lên kho ứng dụng Google Play</h4>
+      <dl class="kv">
+        <dt>Cách làm</dt>
+        <dd>Đăng phần mềm lên Play Store, nhà trường tự tìm và cài như cài app điện thoại.</dd>
+        <dt>Cần Philips đồng ý không</dt>
+        <dd>Không, nhưng chỉ chạy được trên đời máy có chứng nhận EDLA.</dd>
+        <dt>Điểm mạnh</dt>
+        <dd>Cài nhanh, tự cập nhật, không phải cầm USB đi từng phòng. Trông chuyên nghiệp trong mắt
+        nhà trường.</dd>
+        <dt>Điểm yếu</dt>
+        <dd>Phải tuân thủ chính sách của Google. Đời máy Android 11 không dùng được cửa này.</dd>
+      </dl>
+      <div class="verdict">Nên làm song song với cửa 1.</div>
+    </div>
+
+    <div class="door">
+      <div class="rank">Cửa 3</div>
+      <h4>Vào chợ ứng dụng ProStore của Philips</h4>
+      <dl class="kv">
+        <dt>Cách làm</dt>
+        <dd>Trở thành đối tác của Philips, phần mềm được đưa lên ProStore, nhà trường cài từ xa qua
+        hệ thống Wave.</dd>
+        <dt>Cần Philips đồng ý không</dt>
+        <dd>Có. Đây là quan hệ đối tác, không phải thủ tục kỹ thuật.</dd>
+        <dt>Điểm mạnh</dt>
+        <dd>Được Philips bảo chứng. Cài và cập nhật cho hàng loạt máy từ một chỗ. Đây là cửa duy
+        nhất dẫn tới chuyện được bán kèm.</dd>
+        <dt>Điểm yếu</dt>
+        <dd>Điều kiện tham gia không công khai, phải hỏi thẳng. Thời gian đàm phán khó đoán.</dd>
+      </dl>
+      <div class="verdict">Nên mở đàm phán sớm, nhưng đừng chờ.</div>
+    </div>
+
+    <div class="door">
+      <div class="rank">Cửa 4</div>
+      <h4>Cắm máy tính Windows vào khe sau lưng màn hình</h4>
+      <dl class="kv">
+        <dt>Cách làm</dt>
+        <dd>Cả bốn đời máy Philips đều có khe cắm máy tính rời theo chuẩn chung của ngành. Cắm một
+        máy tính nhỏ vào đó và chạy bản Windows của phần mềm.</dd>
+        <dt>Cần Philips đồng ý không</dt>
+        <dd>Không.</dd>
+        <dt>Điểm mạnh</dt>
+        <dd>Mạnh nhất, chắc chắn chạy được mọi thứ, kể cả tính năng nhận dạng công thức toán hiện
+        chỉ có trên bản Windows. Gọn gàng, không dây lằng nhằng.</dd>
+        <dt>Điểm yếu</dt>
+        <dd>Đội chi phí mỗi phòng học. Có một vấn đề ít người nói: màn hình thường được tính khấu
+        hao năm tới tám năm, còn máy tính cắm trong thì hai tới ba năm đã lạc hậu.</dd>
+      </dl>
+      <div class="verdict">Giữ làm phương án dự phòng.</div>
+    </div>
+
+    <div class="door">
+      <div class="rank">Cửa 5</div>
+      <h4>Giáo viên dùng máy riêng, chiếu lên màn hình</h4>
+      <dl class="kv">
+        <dt>Cách làm</dt>
+        <dd>Phần mềm chạy trên máy tính bảng hoặc laptop của giáo viên, màn hình chỉ đóng vai trò
+        hiển thị và nhận chạm.</dd>
+        <dt>Cần Philips đồng ý không</dt>
+        <dd>Không, và cũng không phụ thuộc hãng nào.</dd>
+        <dt>Điểm mạnh</dt>
+        <dd>Không lệ thuộc phần cứng. Bán được cho trường đang dùng màn hình bất kỳ hãng nào.</dd>
+        <dt>Điểm yếu</dt>
+        <dd>Trải nghiệm chạm bị gián tiếp, độ trễ chiếu không dây làm việc viết bảng khó chịu. Mất
+        hẳn lợi thế bán kèm phần cứng.</dd>
+      </dl>
+      <div class="verdict">Là mạng lưới an toàn, không phải chiến lược.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     4. THỊ TRƯỜNG
+     ============================================================ -->
+<section id="s4">
+  <div class="eyebrow">Phần 4</div>
+  <h2>Cả thị trường đang ở đâu</h2>
+  <p class="col lede">
+    Câu hỏi thật ở đây không phải hãng nào màn đẹp hơn, mà là hãng nào đã đi xa tới đâu về phần
+    mềm. Vì đó mới là chỗ chúng ta cạnh tranh.
+  </p>
+
+  <div class="col">
+    <p>
+      Trước khi vào bảng, có một điều đáng biết: thị trường màn hình tương tác toàn cầu được ước
+      tính khoảng 12,8 tỷ đô la năm 2025, và châu Á Thái Bình Dương chiếm gần bốn mươi phần trăm.
+      Đây không phải một ngách nhỏ.
+      <span class="badge b-i">Suy luận</span>
+      <span class="tiny">Số từ báo cáo thị trường thương mại, các báo cáo khác nhau cho con số
+      lệch nhau đáng kể, nên chỉ nên xem là mức độ lớn chứ đừng dùng làm căn cứ chính xác.</span>
+    </p>
+  </div>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th>Hãng</th>
+          <th>Phần mềm dạy học kèm máy</th>
+          <th>Quản lý máy từ xa</th>
+          <th>Có nền tảng học tập riêng</th>
+          <th>Kho ứng dụng Google</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Philips</strong><br><span class="tiny">Hà Lan, do TPV sản xuất</span></td>
+          <td>Bảng viết tích hợp, Philips Genius, và i3LEARNHUB của đối tác</td>
+          <td class="yes">Philips Wave + chợ ứng dụng ProStore</td>
+          <td class="no">Không. Dựa vào Google Classroom và ứng dụng bên ngoài</td>
+          <td class="yes">Có, trên đời 4152E và 4252E</td>
+        </tr>
+        <tr>
+          <td><strong>ViewSonic</strong><br><span class="tiny">Đài Loan</span></td>
+          <td>myViewBoard soạn và giảng bài, AirSync chiếu không dây</td>
+          <td class="yes">myViewBoard Manager</td>
+          <td class="partial">ClassSwift, biến nội dung thành hoạt động tương tác. Không phải hệ thống quản lý trường</td>
+          <td class="yes">Có</td>
+        </tr>
+        <tr>
+          <td><strong>BenQ</strong><br><span class="tiny">Đài Loan</span></td>
+          <td>EZWrite, bộ công cụ viết và chú thích</td>
+          <td class="yes">DMS, quản lý và đẩy cập nhật hàng loạt</td>
+          <td class="partial">AMS, quản lý tài khoản và nối kho lưu trữ đám mây cá nhân</td>
+          <td class="yes">Có, hãng đầu tiên đạt chứng nhận này</td>
+        </tr>
+        <tr>
+          <td><strong>Promethean</strong><br><span class="tiny">Anh, chuyên giáo dục</span></td>
+          <td>ActivInspire, Explain Everything tặng kèm mọi máy đời 9</td>
+          <td class="yes">Promethean Panel Management hoặc Radix</td>
+          <td class="partial">ClassFlow, nền tảng bài giảng và hoạt động lớp học</td>
+          <td class="yes">Có</td>
+        </tr>
+        <tr>
+          <td><strong>SMART</strong><br><span class="tiny">Canada, lâu đời nhất</span></td>
+          <td>SMART Notebook, hệ điều hành riêng iQ với mẫu bài giảng và giáo cụ dựng sẵn</td>
+          <td class="yes">SMART Remote Management</td>
+          <td class="partial">Lumio, nền tảng học tập trên web có công cụ AI sinh bài và câu hỏi</td>
+          <td class="yes">Có, trên dòng GX Plus</td>
+        </tr>
+        <tr>
+          <td><strong>Samsung</strong><br><span class="tiny">Hàn Quốc</span></td>
+          <td>Ứng dụng ghi chú, chia màn hình, chiếu tới chín máy cùng lúc</td>
+          <td class="partial">Có, nhưng gắn với bộ công cụ doanh nghiệp chung</td>
+          <td class="no">Không tìm thấy nền tảng học tập riêng</td>
+          <td class="yes">Có, trên dòng WAD và WAF</td>
+        </tr>
+        <tr>
+          <td><strong>LG</strong><br><span class="tiny">Hàn Quốc</span></td>
+          <td>CreateBoard Lab để soạn bài, CreateBoard Share để học sinh cùng làm</td>
+          <td class="yes">ConnectedCare</td>
+          <td class="no">Không tìm thấy nền tảng học tập riêng</td>
+          <td class="yes">Có, Android 13</td>
+        </tr>
+        <tr>
+          <td><strong>MAXHUB và Seewo</strong><br><span class="tiny">Trung Quốc, cùng một công ty mẹ là CVTE</span></td>
+          <td>EasiNote, bộ soạn và giảng bài</td>
+          <td class="yes">Có</td>
+          <td class="partial">Rất mạnh ở Trung Quốc. Seewo đã bán hơn hai triệu máy vào trường học</td>
+          <td class="yes">Có, trên dòng E3 và U3</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="t-cap">
+    Cột thứ tư là cột đáng nhìn nhất. Không hãng nào trong danh sách có một hệ thống vận hành nhà
+    trường đầy đủ.
+    <span class="badge b-v">Đã xác minh</span> cho từng ô, dựa trên trang chính thức của mỗi hãng.
+  </p>
+
+  <h3>Đọc bảng trên như thế nào</h3>
+  <div class="col">
+    <p>
+      Điều đầu tiên phải thừa nhận thẳng: nếu chúng ta định nói điểm mạnh của mình là có phần mềm
+      dạy học đi kèm, thì đó không phải điểm mạnh. Hãng nào cũng có. ViewSonic, BenQ, Promethean và
+      SMART còn có bộ phần mềm dày dặn hơn Philips, và có hãng đã làm việc này hơn hai mươi năm.
+      Đem bảng viết của mình ra so với SMART Notebook là cuộc so sánh không có lợi.
+    </p>
+    <p>
+      Điều thứ hai, nhìn kỹ cột thứ tư thì thấy tất cả đều dừng ở cùng một chỗ. Họ làm rất tốt việc
+      trong bốn mươi lăm phút của một tiết học: viết bảng, trình chiếu, cho học sinh tương tác, ra
+      câu hỏi nhanh. Nhưng ra khỏi tiết học thì không ai đi tiếp. Không ai quản lý danh sách lớp,
+      phân công giáo viên, lưu điểm, làm học bạ, hay nối với hệ thống của phòng giáo dục.
+    </p>
+    <p>
+      Lý do dễ hiểu. Những thứ đó gắn chặt với quy định của từng nước, từng chương trình, từng cách
+      quản lý. Một hãng bán máy ra một trăm nước không thể làm phần đó cho từng nước. Đây chính là
+      chỗ trũng mà một đơn vị làm sâu ở một thị trường có thể lấp.
+    </p>
+  </div>
+
+  <h3>Còn ở Việt Nam thì sao</h3>
+  <div class="col">
+    <p>
+      Ba nền tảng giáo dục lớn của ba nhà mạng đều đang hoạt động: vnEdu của VNPT, K12Online của
+      Viettel, và mobiEdu của MobiFone. Theo số liệu công bố, K12Online cho biết đã kết nối khoảng
+      ba mươi lăm nghìn cơ sở giáo dục. vnEdu Connect dành cho phụ huynh đạt hơn bốn triệu lượt tải.
+      mobiEdu có ít người dùng nhất trong ba nền tảng nhưng thời gian dùng trung bình mỗi ngày lại
+      cao nhất, khoảng một giờ hai mươi phút.
+      <span class="badge b-v">Đã xác minh</span>
+    </p>
+    <p>
+      Điểm đáng chú ý: cả ba nền tảng này đều là phần mềm thuần, sống trên trình duyệt và điện
+      thoại. Chưa thấy bên nào gắn mình vào phần cứng trong phòng học. Nghĩa là ở chiều ngược lại,
+      chúng ta cũng đang cạnh tranh với họ ở phần nền tảng, nhưng lại có một thứ họ chưa có, là
+      chỗ đứng ngay trên cái màn hình treo trước lớp.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     5. KỸ THUẬT
+     ============================================================ -->
+<section id="s5">
+  <div class="eyebrow">Phần 5</div>
+  <h2>Máy có gánh nổi phần mềm không</h2>
+  <p class="col lede">
+    Phần này tôi không đoán theo cảm tính. Tôi đọc thẳng trong mã nguồn xem phần mềm đang thật sự
+    đòi hỏi những gì, rồi mới đem đối chiếu với cấu hình máy.
+  </p>
+
+  <h3>Phần mềm đang đòi hỏi những gì</h3>
+  <div class="col">
+    <p>
+      Lớp học thông minh không phải một trang web thông thường. Đọc trong dự án thì thấy nó chạy
+      cùng lúc một bảng vẽ dựa trên tldraw bản tự sửa riêng, các cảnh 3D dựng bằng Three.js, một
+      thư viện giải phẫu người 3D với năm mươi chín cơ quan, các phòng thí nghiệm hoá và lý, kết
+      nối lớp học thời gian thực giữa nhiều máy, xử lý âm thanh, và nhận dạng khuôn mặt chạy ngay
+      trên máy chứ không gửi lên mây.
+      <span class="badge b-v">Đã xác minh</span>
+    </p>
+    <p>
+      Trong workspace đã có sẵn một tài liệu đo thực tế trên hai máy tính bảng Android, một máy 4GB
+      và một máy 6GB bộ nhớ. Kết luận của tài liệu đó là máy 4GB hay bị giật khi vẽ nhiều nét, và
+      6GB là mức tối thiểu chạy được tương đối trơn. Đây là số đo thật, không phải ước lượng.
+    </p>
+  </div>
+
+  <h3>Đối chiếu với màn hình Philips</h3>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th>Yếu tố</th>
+          <th>Máy Philips E-Line đời mới</th>
+          <th>Đánh giá</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Bộ nhớ</strong></td>
+          <td class="num">8 GB</td>
+          <td class="yes">Dư. Cao hơn mức 6GB đo được là chạy ổn.</td>
+        </tr>
+        <tr>
+          <td><strong>Chip xử lý</strong></td>
+          <td class="num">8 nhân, 4 nhân mạnh + 4 nhân tiết kiệm</td>
+          <td class="yes">Đủ. Ngang hoặc hơn máy tính bảng đã thử.</td>
+        </tr>
+        <tr>
+          <td><strong>Chip đồ hoạ</strong></td>
+          <td class="num">Mali-G52</td>
+          <td class="partial">Đây là chỗ lo. Xem giải thích bên dưới.</td>
+        </tr>
+        <tr>
+          <td><strong>Ổ chứa</strong></td>
+          <td class="num">32 GB hoặc 128 GB</td>
+          <td class="partial">Bản 32GB hơi chật nếu tải sẵn nhiều học liệu 3D. Nên ưu tiên bản 128GB.</td>
+        </tr>
+        <tr>
+          <td><strong>Camera</strong></td>
+          <td class="no">Không có sẵn</td>
+          <td class="no">Điểm danh khuôn mặt không dùng ngay được.</td>
+        </tr>
+        <tr>
+          <td><strong>Phiên bản Android</strong></td>
+          <td class="num">Android 14</td>
+          <td class="yes">Rất thoải mái. Phần mềm chỉ yêu cầu tối thiểu Android 7.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Ba rủi ro cụ thể, và cái thứ ba là cái ít ai nghĩ tới</h3>
+
+  <div class="card">
+    <h4>Rủi ro 1 — Vẽ 3D trên màn hình 4K là chuyện khác hẳn <span class="badge b-i">Suy luận</span></h4>
+    <p>
+      Máy tính bảng đã thử có màn hình 800 nhân 1280 điểm ảnh. Màn hình Philips 86 inch có 3840
+      nhân 2160 điểm ảnh, tức là nhiều gấp khoảng tám lần. Cùng một cảnh 3D, chip đồ hoạ phải làm
+      việc nhiều hơn hẳn.
+    </p>
+    <p>
+      Đáng chú ý hơn, trong mã nguồn có một đoạn tự giảm chất lượng hình khi phát hiện máy yếu,
+      nhưng nó nhận diện máy yếu bằng cách đếm số nhân xử lý, cụ thể là ít hơn sáu nhân thì coi là
+      yếu. Màn hình Philips có tám nhân, nên sẽ không bị coi là yếu và sẽ chạy ở chất lượng cao
+      nhất, đúng lúc mà lẽ ra nên giảm xuống. Đây là chỗ nên sửa trước khi đem máy đi demo, và sửa
+      không khó.
+    </p>
+  </div>
+
+  <div class="card">
+    <h4>Rủi ro 2 — Vài tính năng hiện chỉ có trên bản Windows <span class="badge b-v">Đã xác minh</span></h4>
+    <p>
+      Đọc trong phần cấu hình của dự án thì thấy tính năng nhận dạng công thức toán viết tay được
+      ghi chú rõ là chỉ có trên bản Windows, vì thư viện xử lý đi kèm chỉ có bản cho Windows. Nếu
+      chạy bản Android trên màn hình, tính năng đó sẽ không có.
+    </p>
+    <p>
+      Đây không phải chuyện chặn đường, nhưng cần biết trước để không hứa nhầm với nhà trường, và
+      để tính xem có nên chuyển tính năng đó sang chạy trên máy chủ hay không.
+    </p>
+  </div>
+
+  <div class="card">
+    <h4>Rủi ro 3 — Thành phần trình duyệt cũ, và đây mới là chỗ chết người <span class="badge b-i">Suy luận, nhưng cơ sở khá chắc</span></h4>
+    <p>
+      Phần mềm của chúng ta đóng gói bằng Tauri, tức là bên trong vẫn là giao diện web nhưng được
+      hiển thị bằng một thành phần trình duyệt có sẵn trong Android. Thành phần đó cũ hay mới quyết
+      định phần mềm chạy được hay vỡ giao diện.
+    </p>
+    <p>
+      Tài liệu chính thức của dự án Chromium nói rõ: trên máy có dịch vụ Google, Google chịu trách
+      nhiệm cập nhật thành phần này qua kho ứng dụng. Còn trên máy Android thuần không có dịch vụ
+      Google, bản dựng sẵn không được cập nhật theo lịch đều đặn và có thể chứa lỗi bảo mật đã
+      biết, nên khuyến cáo nhà sản xuất tự nạp bản mới.
+    </p>
+    <p>
+      Dịch sang chuyện của chúng ta: trên máy Philips có chứng nhận EDLA, thành phần này tự cập
+      nhật, gần như chắc chắn chạy tốt. Trên máy Philips đời Android 11 không có chứng nhận, nó
+      đứng yên ở phiên bản Philips nạp vào năm 2021 và không ai cập nhật nữa. Một bảng vẽ hiện đại
+      như tldraw hoàn toàn có thể vỡ giao diện hoặc chạy sai trên một thành phần trình duyệt cũ như
+      vậy.
+    </p>
+  </div>
+
+  <div class="note b">
+    <span class="note-title">Đây là kết luận kỹ thuật quan trọng nhất của cả bản nghiên cứu</span>
+    <p>
+      Nếu chỉ được nhớ một câu từ phần này: <strong>chỉ nhắm đời máy có chứng nhận EDLA</strong>,
+      tức là BDL4152E hoặc BDL4252E. Đời BDL4052E chạy Android 11 tuy vẫn cài được phần mềm, nhưng
+      rủi ro vỡ giao diện là thật và chúng ta không có cách nào sửa từ phía mình. Nếu nhà cung cấp
+      chào đời máy cũ vì rẻ hơn, đây là lý do kỹ thuật để từ chối.
+    </p>
+  </div>
+
+  <div class="note q">
+    <span class="note-title">Chưa kiểm chứng được, và tôi không giấu chỗ này</span>
+    <p>
+      Toàn bộ phần 5 là suy luận từ thông số, không phải từ thử nghiệm. Tôi không tìm thấy dấu vết
+      nào trong dự án cho thấy phần mềm đã từng được chạy thử trên một màn hình tương tác thật. Nội
+      dung ở đây đủ để ra quyết định mua máy về thử, nhưng chưa đủ để cam kết với khách hàng.
+      Trước khi hứa gì với ai, nên mượn hoặc mua một máy về chạy thật một buổi.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     6. HƠN THUA
+     ============================================================ -->
+<section id="s6">
+  <div class="eyebrow">Phần 6</div>
+  <h2>Hơn ở đâu, thua ở đâu</h2>
+  <p class="col lede">
+    Phần này tôi cố ý viết theo ba cột, vì nếu chỉ liệt kê điểm mạnh thì bản nghiên cứu thành tài
+    liệu tự khen, và không dùng để ra quyết định được.
+  </p>
+
+  <div class="tri c1">
+    <div>
+      <h4>Cái hãng nào cũng có</h4>
+      <p class="tiny">Đừng đem những thứ này ra làm điểm bán hàng, sẽ bị hỏi ngược.</p>
+      <ul>
+        <li>Bảng viết trên màn hình, nhiều điểm chạm, tẩy bằng lòng bàn tay</li>
+        <li>Chiếu màn hình không dây từ máy giáo viên và học sinh</li>
+        <li>Soạn bài giảng và trình chiếu</li>
+        <li>Bình chọn nhanh, câu hỏi tại lớp, trò chơi tương tác</li>
+        <li>Quản lý và cập nhật dàn máy từ xa</li>
+        <li>Nối với kho lưu trữ đám mây và tài khoản Google</li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Cái chỉ chúng ta có</h4>
+      <p class="tiny">Đây là chỗ nên dồn lập luận khi trình bày.</p>
+      <ul>
+        <li><strong>Một hệ thống nhà trường thật sự.</strong> Danh sách lớp, phân công giáo viên,
+        giao nhiệm vụ, điểm danh, thông báo, hồ sơ luyện tập của từng học sinh. Không hãng màn hình
+        nào có phần này.</li>
+        <li><strong>Kho học liệu và ngân hàng câu hỏi bám chương trình Việt Nam.</strong> Ở đây có
+        một xưởng biên soạn học liệu riêng, một ngân hàng câu hỏi riêng, và một hệ thống quản trị
+        hai tầng cho nền tảng và cho từng trường.</li>
+        <li><strong>Dữ liệu chảy được từ tiết học ra ngoài tiết học.</strong> Giáo viên dạy trên
+        màn hình, kết quả đi thẳng vào hồ sơ học sinh và vào báo cáo của nhà trường. Với hãng khác,
+        hết tiết là hết, dữ liệu nằm lại trong bảng viết.</li>
+        <li><strong>Chạy được khi mất mạng.</strong> Bản chạy trên máy có một máy chủ nhỏ nằm ngay
+        trong máy và một cơ sở dữ liệu cục bộ, có chế độ kết nối trong mạng nội bộ. Phần mềm của
+        các hãng kia gần như đều là nền tảng trên mây. Với trường vùng khó, đây là khác biệt thật
+        chứ không phải khẩu hiệu.</li>
+        <li><strong>Một tài khoản dùng chung cho toàn bộ hệ sinh thái.</strong> Toàn bộ đăng nhập
+        một chỗ, không phải mỗi phần mềm một tài khoản.</li>
+        <li><strong>Thí nghiệm 3D và học liệu tương tác tự làm.</strong> Giải phẫu người, bảng tuần
+        hoàn, phòng lab hoá và lý, các mô hình 3D. Các hãng khác chủ yếu nhúng nội dung bên thứ ba.</li>
+      </ul>
+    </div>
+
+    <div>
+      <h4>Cái chúng ta đang thua</h4>
+      <p class="tiny">Phần này quan trọng hơn cột giữa, vì nó là việc phải làm.</p>
+      <ul>
+        <li><strong>Không có phần cứng.</strong> Không kiểm soát được firmware, không quyết được
+        cấu hình máy, phụ thuộc hoàn toàn vào việc hãng có chịu bắt tay hay không.</li>
+        <li><strong>Bảng viết còn non hơn.</strong> SMART Notebook và ActivInspire đã có hơn mười
+        lăm năm mài giũa, giáo viên nước ngoài quen tay. Bản tldraw sửa riêng của chúng ta trẻ hơn
+        nhiều.</li>
+        <li><strong>Đối thủ tặng kèm phần mềm miễn phí.</strong> ViewSonic, BenQ, Promethean đều
+        tặng bộ phần mềm khi mua máy. Nếu chúng ta thu phí riêng, nhà trường sẽ hỏi tại sao phải
+        trả thêm cho thứ hãng khác cho không.</li>
+        <li><strong>Chưa từng thử trên màn hình thật.</strong> Đây là rủi ro lớn nhất hiện tại,
+        và không có cách nào giải quyết ngoài việc mua máy về thử.</li>
+        <li><strong>Điểm danh khuôn mặt vướng vì thiếu camera.</strong> Phải kèm camera rời hoặc
+        để tính năng đó chạy trên máy tính bảng.</li>
+        <li><strong>Lợi thế mang tính vùng.</strong> Toàn bộ ưu thế ở cột giữa dựa trên việc hiểu
+        sâu giáo dục Việt Nam. Đem sang thị trường khác, ưu thế đó mất phần lớn.</li>
+        <li><strong>Không có kênh phân phối quốc tế.</strong> Philips bán qua đại lý ở hàng chục
+        nước, chúng ta chưa có gì tương đương.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="note">
+    <span class="note-title">Cách nói cho đúng, tránh bị bắt bẻ</span>
+    <p>
+      Đừng nói "phần mềm của chúng tôi tốt hơn". Câu đó sai và dễ bị phản bác. Nên nói theo hướng
+      khác: các hãng màn hình đang giải bài toán trong tiết học, còn chúng ta giải bài toán của cả
+      nhà trường, và hai thứ đó ghép vào nhau thì được một sản phẩm không ai có. Cách nói này vừa
+      đúng sự thật, vừa biến Philips từ đối thủ thành người cùng phe.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     7. KHUYẾN NGHỊ
+     ============================================================ -->
+<section id="s7">
+  <div class="eyebrow">Phần 7</div>
+  <h2>Khuyến nghị và lộ trình</h2>
+
+  <h3>Chọn đường nào</h3>
+  <div class="col">
+    <p>
+      Đề xuất đi hai chân. Chân chính là bản Android cài thẳng lên màn hình, vì đó là đường rẻ nhất
+      cho nhà trường và không cần xin phép ai. Chân phụ là giữ nguyên bản Windows để cắm máy tính
+      rời, dành cho phòng học cần chạy nặng hoặc cần tính năng chỉ có trên Windows.
+    </p>
+    <p>
+      Về đời máy, chỉ nhắm BDL4152E hoặc BDL4252E. Nếu chọn được thì ưu tiên BDL4252E vì ổ chứa
+      128GB thay vì 32GB, đủ chỗ tải sẵn học liệu 3D nặng, và nhiều điểm chạm hơn.
+    </p>
+  </div>
+
+  <h3>Việc cần làm, theo thứ tự</h3>
+  <ol class="steps">
+    <li>
+      <h4>Mượn hoặc mua một máy về chạy thật</h4>
+      <p>
+        Đây là việc đầu tiên và không thể bỏ qua. Mọi kết luận kỹ thuật ở phần 5 đều là suy luận
+        từ thông số. Một buổi chạy thật sẽ trả lời được nhiều hơn cả tuần đọc tài liệu. Cần thử:
+        bảng vẽ khi có nhiều nét, cảnh 3D giải phẫu, kết nối lớp học nhiều máy, và xem thành phần
+        trình duyệt trong máy là phiên bản bao nhiêu.
+      </p>
+    </li>
+    <li>
+      <h4>Sửa cách nhận diện máy yếu trong mã nguồn</h4>
+      <p>
+        Hiện tại đang đếm số nhân xử lý để đoán máy mạnh hay yếu. Cách này bỏ sót đúng trường hợp
+        màn hình tương tác. Nên thêm điều kiện dựa trên độ phân giải màn hình và loại chip đồ hoạ,
+        để cảnh 3D tự giảm chất lượng khi chạy trên màn 4K. Việc này nhỏ nhưng ảnh hưởng trực tiếp
+        tới ấn tượng buổi demo.
+      </p>
+    </li>
+    <li>
+      <h4>Làm một bản dựng riêng cho màn hình lớn</h4>
+      <p>
+        Giao diện hiện đang tối ưu cho máy tính bảng cầm tay. Trên màn 86 inch treo tường, người
+        dùng đứng cách một mét và với tay không tới góc trên màn hình. Nút bấm, thanh công cụ và
+        vị trí các bảng điều khiển cần bố trí lại. Trong dự án đã có sẵn phần xử lý cho máy tính
+        bảng, nên đây là mở rộng chứ không phải làm mới.
+      </p>
+    </li>
+    <li>
+      <h4>Đóng gói kịch bản cài đặt cho kỹ thuật viên</h4>
+      <p>
+        Viết một quy trình ngắn: chép file vào USB, bật mục cho phép cài ứng dụng ngoài, cài, đặt
+        làm ứng dụng tự mở, thêm lối tắt ra màn hình chính. Kèm ảnh chụp từng bước. Việc này quyết
+        định tốc độ triển khai khi có đơn hàng nhiều phòng.
+      </p>
+    </li>
+    <li>
+      <h4>Mở kênh nói chuyện với Philips về ProStore</h4>
+      <p>
+        Song song với ba việc trên, nên chủ động hỏi về chương trình đối tác. Điểm tựa khi nói
+        chuyện là hợp tác họ đã làm với i3 Technologies, cho thấy họ có sẵn khẩu vị cho mô hình
+        này. Danh sách câu hỏi cụ thể ở <a href="#s8">phần 8</a>.
+      </p>
+    </li>
+    <li>
+      <h4>Xử lý bài toán camera cho điểm danh</h4>
+      <p>
+        Có ba hướng: kèm camera USB gắn lên màn hình, để điểm danh chạy trên máy tính bảng giáo
+        viên rồi đồng bộ sang, hoặc bán kèm thiết bị điểm danh riêng đặt ở cửa lớp. Nên chọn trước
+        một hướng để không phải trả lời vòng vo khi nhà trường hỏi.
+      </p>
+    </li>
+    <li>
+      <h4>Chốt cách tính tiền trước khi gặp khách</h4>
+      <p>
+        Đối thủ tặng phần mềm kèm máy. Nếu định thu phí, phải trả lời được câu hỏi tại sao. Câu trả
+        lời hợp lý nhất là tách bạch: phần dùng trong tiết học có thể miễn phí như họ, phần hệ
+        thống nhà trường và kho học liệu mới tính phí, vì đó là thứ họ không có.
+      </p>
+    </li>
+  </ol>
+
+  <div class="note w">
+    <span class="note-title">Một cảnh báo về thứ tự</span>
+    <p>
+      Đừng đảo bước 5 lên trước bước 1. Nếu đi đàm phán với Philips khi chưa từng chạy thử trên máy
+      của họ, câu hỏi kỹ thuật đầu tiên họ đặt ra sẽ không trả lời được, và lần gặp đó coi như mất.
+      Chạy thử trước, cầm kết quả đi nói chuyện sau.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     8. CHƯA CHẮC
+     ============================================================ -->
+<section id="s8">
+  <div class="eyebrow">Phần 8</div>
+  <h2>Chỗ tôi chưa chắc</h2>
+  <p class="col lede">
+    Bản nghiên cứu nào cũng có vùng tối. Liệt kê ra đây để khi dùng thì biết chỗ nào đứng vững,
+    chỗ nào còn phải dò.
+  </p>
+
+  <h3>Những chỗ tôi phải suy luận thay vì tra được</h3>
+  <div class="col">
+    <ul>
+      <li>
+        <strong>Sách hướng dẫn tôi đọc được là của đời BDL4052E.</strong> Philips chưa công bố công
+        khai bản hướng dẫn cho hai đời mới hơn ở dạng tôi tải được. Mục cho phép cài ứng dụng ngoài
+        và mục ứng dụng tự mở là tính năng nền tảng của Philips, xuất hiện cả ở dòng màn hình quảng
+        cáo lẫn dòng giáo dục, nên gần như chắc chắn đời mới vẫn có. Nhưng chữ "gần như" ở đây là
+        thật, không phải khiêm tốn.
+      </li>
+      <li>
+        <strong>Chưa rõ máy đạt chứng nhận EDLA có bị siết chặt hơn không.</strong> Máy có chứng
+        nhận Google thường đi kèm khả năng cho quản trị viên chặn hoặc ẩn ứng dụng. Nếu nhà trường
+        bật chế độ quản lý chặt, việc tự cập nhật phần mềm bằng file cài đặt riêng của chúng ta có
+        thể bị chặn. Cần thử thực tế.
+      </li>
+      <li>
+        <strong>Không biết Philips Genius tính tiền thế nào.</strong> Không có thông tin công khai
+        về việc phần mềm này miễn phí kèm máy hay bán riêng. Điều này ảnh hưởng tới cách chúng ta
+        định giá.
+      </li>
+      <li>
+        <strong>Số liệu thị trường chỉ nên xem là ước lượng.</strong> Các báo cáo thương mại cho
+        con số lệch nhau khá xa. Tôi dùng chúng để nói về quy mô, không dùng làm căn cứ tính toán.
+      </li>
+      <li>
+        <strong>Không rõ tình hình Philips ở thị trường Việt Nam.</strong> Nghiên cứu này ở phạm vi
+        toàn cầu theo yêu cầu. Việc Philips có bao nhiêu đại lý, đã bán vào bao nhiêu trường ở Việt
+        Nam, là câu hỏi riêng chưa đào.
+      </li>
+    </ul>
+  </div>
+
+  <h3>Mười câu nên hỏi thẳng nhà cung cấp</h3>
+  <p class="col">
+    Những câu này không có trên mạng. Chỉ nhà cung cấp hoặc Philips mới trả lời được, và câu trả
+    lời sẽ quyết định khá nhiều thứ.
+  </p>
+
+  <ol class="qlist">
+    <li>
+      Đang chào cho chúng tôi chính xác là mã máy nào, BDL4052E, BDL4152E hay BDL4252E?
+      <span class="why">Ba đời khác nhau rất xa về hệ điều hành và khả năng chạy phần mềm. Đây là câu quan trọng nhất trong mười câu.</span>
+    </li>
+    <li>
+      Máy có chứng nhận Google EDLA không, và có sẵn kho ứng dụng Google Play không?
+      <span class="why">Quyết định phần mềm của chúng ta có chạy ổn định lâu dài hay không.</span>
+    </li>
+    <li>
+      Bật xong mục cho phép cài ứng dụng ngoài rồi, có đặt được ứng dụng của chúng tôi làm ứng dụng tự mở khi bật máy không?
+      <span class="why">Đây là thứ tạo cảm giác máy là của mình, không phải máy Philips có cài thêm app.</span>
+    </li>
+    <li>
+      Philips có chương trình đối tác để đưa phần mềm lên ProStore không, điều kiện là gì và mất bao lâu?
+      <span class="why">Đây là cửa duy nhất dẫn tới chuyện được bán kèm.</span>
+    </li>
+    <li>
+      Có làm được bản cài sẵn từ nhà máy cho đơn hàng số lượng lớn không, và số lượng tối thiểu là bao nhiêu?
+      <span class="why">Cài sẵn từ nhà máy khác hẳn cài thủ công từng phòng về mặt chi phí triển khai.</span>
+    </li>
+    <li>
+      Máy còn được hỗ trợ nâng cấp hệ điều hành và vá bảo mật tới khi nào?
+      <span class="why">Trường mua máy dùng năm tới tám năm. Nếu hãng ngừng hỗ trợ sau ba năm thì phần mềm sẽ dần hỏng.</span>
+    </li>
+    <li>
+      Phần mềm Philips Genius có kèm máy miễn phí không, hay tính phí riêng theo năm?
+      <span class="why">Ảnh hưởng trực tiếp tới cách chúng ta định giá và tới việc có giẫm chân nhau không.</span>
+    </li>
+    <li>
+      Có camera chính hãng gắn được lên màn hình không, và có tài liệu để phần mềm bên thứ ba gọi được camera đó không?
+      <span class="why">Quyết định tính năng điểm danh khuôn mặt có dùng được ngay trên màn hình hay không.</span>
+    </li>
+    <li>
+      Cho mượn một máy để chạy thử trong hai tuần được không?
+      <span class="why">Rẻ hơn mua, và giải quyết được rủi ro lớn nhất hiện nay.</span>
+    </li>
+    <li>
+      Nếu chúng tôi làm ứng dụng thay màn hình chính của máy, có vi phạm điều khoản bảo hành hay chứng nhận Google không?
+      <span class="why">Câu này ít người hỏi nhưng nếu sau này bị vướng thì rất mất công gỡ.</span>
+    </li>
+  </ol>
+</section>
+
+<!-- ============================================================
+     9. NGUỒN
+     ============================================================ -->
+<section id="s9">
+  <div class="eyebrow">Phần 9</div>
+  <h2>Nguồn tham khảo</h2>
+  <p class="col small">
+    Ưu tiên tài liệu gốc của hãng. Chỗ nào phải dùng nguồn thứ cấp đều đã ghi rõ trong bài. Ngày
+    truy cập: 24 tháng 8 năm 2026.
+  </p>
+
+  <div class="src-group">Tài liệu chính thức của Philips và PPDS</div>
+  <ol class="srcs">
+    <li>Philips. <em>Signage Solutions Collaboration Display 86BDL4152E/00</em> — thông số chính thức. <a href="https://www.usa.philips.com/p-p/86BDL4152E_00/signage-solutions-e-line-display">usa.philips.com</a></li>
+    <li>Philips. <em>Signage Solutions Collaboration Display 86BDL4252E/00</em> — thông số chính thức. <a href="https://www.usa.philips.com/p-p/86BDL4252E_00/signage-solutions-e-line-display">usa.philips.com</a></li>
+    <li>Philips. <em>Signage Solutions E-Line Display 75BDL4052E/02</em> — thông số chính thức. <a href="https://www.usa.philips.com/p-p/75BDL4052E_02/signage-solutions-e-line-display">usa.philips.com</a></li>
+    <li>Philips PPDS. <em>Professional Display Solutions E-Line 65BDL4052E / 75BDL4052E / 86BDL4052E — User Manual (English)</em>, 84 trang. Nguồn của hai trích dẫn ở phần 3. <a href="https://www.documents.philips.com/assets/20240207/b4828df13f8843db8c06b10f00b6ec96.pdf">documents.philips.com (PDF)</a></li>
+    <li>Philips PPDS. <em>Signage Display 4000 Series — User Manual</em>. Dùng để đối chiếu chéo tính năng nền tảng. <a href="https://www.documents.philips.com/assets/20241017/383fdc8875804d72a2e2b20c006c8e1a.pdf">documents.philips.com (PDF)</a></li>
+    <li>PPDS. <em>Philips E-Line — Interactive Displays</em>. <a href="https://www.ppds.com/display-solutions/interactive-displays/e-line">ppds.com</a></li>
+    <li>PPDS. <em>Philips Genius education software</em>. <a href="https://www.ppds.com/innovations/philips-genius">ppds.com</a></li>
+    <li>PPDS. <em>Philips Wave — Remote Digital Display Management</em>. <a href="https://www.ppds.com/wave">ppds.com</a></li>
+    <li>PPDS. <em>Philips ProStore</em>. <a href="https://prostore.ppds.com/en-GB/home">prostore.ppds.com</a></li>
+    <li>PPDS. <em>i3LEARNHUB software</em>. <a href="https://www.ppds.com/innovations/i3learnhub">ppds.com</a></li>
+    <li>Philips. <em>Signage Solutions Multi-Touch Display 65BDL3652T/00</em> — dòng T-Line. <a href="https://www.usa.philips.com/p-p/65BDL3652T_00/signage-solutions-multi-touch-display">usa.philips.com</a></li>
+  </ol>
+
+  <div class="src-group">Tin tức và phân tích ngành về Philips</div>
+  <ol class="srcs" start="12">
+    <li>Digital Signage Today. <em>PPDS launches Philips Genius for education</em>. <a href="https://www.digitalsignagetoday.com/news/ppds-launches-philips-genius-for-education/">digitalsignagetoday.com</a></li>
+    <li>AV Interactive. <em>PPDS partners with education software firm i3 Technologies</em>, 26/05/2021. <a href="https://www.avinteractive.com/news/products/ppds-partners-education-software-firm-i3-technologies-26-05-2021/">avinteractive.com</a></li>
+    <li>rAVe Pubs. <em>PPDS (aka: Philips) Adds Appspace to the Wave Platform</em> — mô tả cơ chế ProStore. <a href="https://ravepubs.com/ppds-aka-philips-appspace/">ravepubs.com</a></li>
+    <li>JP-UK. <em>Philips Touchscreen Displays for Education</em> — nguồn thứ cấp, dùng để đối chiếu phiên bản Android. <a href="https://www.jp-uk.co.uk/education-interactive-touchscreens/philips-interactive-touchscreens.html">jp-uk.co.uk</a></li>
+  </ol>
+
+  <div class="src-group">Các hãng khác</div>
+  <ol class="srcs" start="16">
+    <li>ViewSonic. <em>Education Software</em> — myViewBoard, AirSync, Manager, ClassSwift. <a href="https://www.viewsonic.com/edu/software">viewsonic.com</a></li>
+    <li>ViewSonic. <em>What is EDLA Certification and Why It Matters for Interactive Displays in K-12 Classrooms</em>. <a href="https://www.viewsonic.com/us/blog/what-is-edla-certification-and-why-it-matters-for-interactive-displays-in-k-12-classrooms/">viewsonic.com</a></li>
+    <li>BenQ. <em>BenQ Launches First EDLA-Certified Smart Boards for Education with Google Mobile Services</em>. <a href="https://www.benq.com/en-us/education/news/benq-launches-first-edla-certified-smart-boards-for-education-with-google-mobile-services-gms.html">benq.com</a></li>
+    <li>Promethean. <em>ActivPanel LE</em> và tài liệu về ActivInspire, ClassFlow, Explain Everything. <a href="https://www.prometheanworld.com/products/interactive-displays/activpanel-le/">prometheanworld.com</a></li>
+    <li>SMART Technologies. <em>SMART Board GX Plus series</em> và <em>iQ OS</em>. <a href="https://www.smarttech.com/education/products/interactive-displays/gx-plus-series">smarttech.com</a></li>
+    <li>SMART Technologies. <em>About Lumio</em>. <a href="https://support.smarttech.com/docs/software/lumio/en/about/about-lumio.cshtml">support.smarttech.com</a></li>
+    <li>Samsung. <em>Interactive Display WAD series</em>. <a href="https://www.samsung.com/ie/business/smart-signage/interactive-display/75-inch-interactive-e-board-android-wad-lh75wadwlgcxen/">samsung.com</a></li>
+    <li>LG. <em>CreateBoard</em>. <a href="https://solutions.lg.com/us/createboard">solutions.lg.com</a></li>
+    <li>MAXHUB. <em>U3 Series</em>. <a href="https://www.maxhub.com/en/u3_series/">maxhub.com</a></li>
+    <li>CVTE. <em>About CVTE</em> — xác nhận Seewo và MAXHUB cùng một công ty mẹ. <a href="https://global.cvte.com/about_intro">global.cvte.com</a></li>
+  </ol>
+
+  <div class="src-group">Tài liệu kỹ thuật nền tảng</div>
+  <ol class="srcs" start="26">
+    <li>Chromium Project. <em>WebView Providers</em> — cơ chế cập nhật thành phần trình duyệt trên máy có và không có dịch vụ Google. <a href="https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/docs/webview-providers.md">chromium.googlesource.com</a></li>
+    <li>Chromium Project. <em>WebView for AOSP system integrators</em> — cảnh báo về bản dựng sẵn không được cập nhật đều. <a href="https://chromium.googlesource.com/chromium/src/+/HEAD/android_webview/docs/aosp-system-integration.md">chromium.googlesource.com</a></li>
+    <li>Intel. <em>Improving Classroom Experience with Display Panels Based on Intel's Open Pluggable Specification</em>, 09/2024. <a href="https://cdrdv2-public.intel.com/834843/Ops-In-Edu_SB_Sept2024.pdf">intel.com (PDF)</a></li>
+  </ol>
+
+  <div class="src-group">Bối cảnh Việt Nam và thị trường</div>
+  <ol class="srcs" start="29">
+    <li>ICT Việt Nam. <em>Giảng dạy, học tập và quản lý hiệu quả với hệ thống K12Online</em>. <a href="https://ictvietnam.vn/giang-day-hoc-tap-va-quan-ly-hieu-qua-voi-he-thong-k12online-27084.html">ictvietnam.vn</a></li>
+    <li>Viettel Solutions. <em>K12Online</em>. <a href="https://solutions.viettel.vn/vi/k12online-bang-den-phan-trang-duoi-hinh-hai-ky-thuat-so">solutions.viettel.vn</a></li>
+    <li>VNPT. <em>Trường học thông minh — Nền tảng số đào tạo công dân số</em>. <a href="https://vnpt.vn/gioi-thieu/tin-tuc/truong-hoc-thong-minh-%E2%80%93-nen-tang-so-dao-tao-cong-dan-so.html">vnpt.vn</a></li>
+    <li>MobiFone. <em>mobiEdu</em>. <a href="https://mobiedu.vn/">mobiedu.vn</a></li>
+    <li>Global Market Insights. <em>Interactive Flat Panel Display Market</em> — dùng cho quy mô thị trường, không dùng làm căn cứ chính xác. <a href="https://www.gminsights.com/industry-analysis/interactive-flat-panel-display-market">gminsights.com</a></li>
+  </ol>
+
+  <div class="src-group">Nguồn nội bộ</div>
+  <ol class="srcs" start="34">
+    <li>Mã nguồn <code>prj-ths-smart-class</code>, nhánh <code>neo-build-app</code>: cấu hình đóng gói, danh sách thư viện, phần xử lý 3D, tệp cấu hình Android.</li>
+    <li>Tài liệu <em>Phân tích thiết bị — THS</em>: kết quả đo thực tế trên hai máy tính bảng Android 4GB và 6GB.</li>
+    <li>Mười hai kho mã nguồn trong workspace, dùng để đối chiếu phần nói về hệ sinh thái ở phần 6.</li>
+  </ol>
+</section>
+
+<hr class="sep">
+
+<section style="border-top:none; padding-top:0">
+  <div class="col">
+    <h3 style="margin-top:0">Ghi chú về cách làm bản này</h3>
+    <p class="small">
+      Bản nghiên cứu này được thực hiện với sự hỗ trợ của công cụ AI cho phần tìm kiếm, đọc tài
+      liệu và tổng hợp. Các trích dẫn từ sách hướng dẫn Philips được lấy trực tiếp từ file PDF gốc
+      tải về từ máy chủ tài liệu của Philips, không qua nguồn trung gian. Thông số máy lấy từ trang
+      sản phẩm chính thức. Phần nói về mã nguồn được đọc trực tiếp trong dự án.
+    </p>
+    <p class="small">
+      Chỗ nào không tìm được tài liệu, bản này ghi rõ là không tìm được, thay vì suy đoán. Chỗ nào
+      là suy luận đều có nhãn. Cách làm này khiến bản đọc dài hơn, nhưng đổi lại khi đem ra tranh
+      luận thì biết chỗ nào đứng được.
+    </p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p style="margin:0">
+      Hồ sơ nghiên cứu nội bộ · Trường học số · 24/08/2026 ·
+      Đối tượng: Lớp học thông minh trên màn hình tương tác Philips
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

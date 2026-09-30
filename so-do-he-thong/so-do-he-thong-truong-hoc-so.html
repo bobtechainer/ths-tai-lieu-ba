@@ -1,0 +1,1392 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sơ đồ hệ thống Trường học số</title>
+<style>
+  /* ─────────────────────────────────────────────────────────────
+     Màu chỉ dùng để mã hoá LOẠI LIÊN KẾT — không trang trí, và
+     không dùng để phân biệt chặng. Một ký hiệu một nghĩa.
+     ───────────────────────────────────────────────────────────── */
+  :root{
+    --bg:#F8FAFC;
+    --surface:#FFFFFF;
+    --surface-2:#FCFDFE;
+    --ink:#1E293B;
+    --ink-soft:#475569;
+    --ink-mute:#64748B;
+    --line:#E2E8F0;
+    --line-soft:#EDF1F5;
+    --nav:#2563EB;        /* đi tiếp — có hướng */
+    --data:#0F766E;       /* dùng chung kho — không hướng */
+    --back:#B45309;       /* kết quả quay lại */
+    --embed:#6D28D9;      /* app riêng nhúng vào */
+
+    --gap:46px;           /* khoảng giữa hai chặng = chỗ cho đường liên kết */
+    --col-body:432px;     /* CỐ ĐỊNH: mở thẻ không làm trang nhảy */
+    --lane:52px;          /* dải dưới trục cho đường đi ngược */
+    --r:10px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  }
+  .page{max-width:1460px;margin:0 auto;padding:22px 28px 34px}
+
+  /* ── Đầu trang ───────────────────────────────────────────────── */
+  .top{display:flex;align-items:flex-start;justify-content:space-between;gap:30px;margin-bottom:16px}
+  h1{font-size:26px;line-height:1.22;font-weight:650;margin:0 0 6px;letter-spacing:-0.015em}
+  .sub{font-size:13px;line-height:1.5;color:var(--ink-soft);max-width:88ch;margin:0}
+  .hint{font-size:12.5px;color:var(--ink-mute);margin:7px 0 0;display:flex;align-items:center;gap:7px}
+  .hint svg{flex:none}
+  .top-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;flex:none}
+
+  .lang{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+  .lang button{appearance:none;border:0;background:transparent;cursor:pointer;font:inherit;
+    font-size:12px;font-weight:600;letter-spacing:.04em;color:var(--ink-mute);
+    padding:6px 13px;min-height:32px;transition:background .18s ease,color .18s ease}
+  .lang button+button{border-left:1px solid var(--line)}
+  .lang button[aria-pressed="true"]{background:var(--ink);color:#fff}
+  .lang button:focus-visible{outline:2px solid var(--nav);outline-offset:-2px}
+
+  /* Chú giải đặt ngay trên trục, cạnh chỗ các đường chạy. Để ở góc
+     trên phải thì người đọc phải ngước lên tra lại mỗi lần. */
+  .key{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:6px 20px;
+    align-items:center;margin:0 0 7px;padding:0 2px}
+  .key-row{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--ink-soft);white-space:nowrap}
+  .key-row svg{flex:none}
+  .key-badge{display:inline-flex;align-items:center;border:1px solid var(--embed);color:var(--embed);
+    border-radius:4px;padding:0 5px;font-size:10px;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;line-height:16px}
+
+  /* ── Khung sơ đồ = gốc toạ độ của lớp vẽ đường ───────────────── */
+  .wrap{position:relative}
+  /* thứ tự lớp: nền chặng 0 · đường 1 · thẻ 2 · dải trên 3 · nhãn 5 */
+  #edges{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:1}
+  /* nhãn nằm trên thẻ, nếu không thì nhãn của đường trong máng bị thẻ che */
+  #edges-top{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:5}
+
+  /* ── Dải xuyên suốt ──────────────────────────────────────────── */
+  /* z-index 3: phải cao hơn .stage (0) nếu không panel của thẻ dải
+     trên sẽ bị các cột chặng vẽ đè lên. Không đường nào chạy vào
+     trong khung dải này nên nâng lớp không che mất đường. */
+  .band{position:relative;z-index:3;border:1px solid var(--line);border-radius:var(--r);
+    background:var(--surface);padding:8px 12px;margin-bottom:9px;
+    display:grid;grid-template-columns:auto repeat(3,1fr);gap:12px;align-items:stretch}
+  .band-label,.ground-label{display:flex;align-items:center;font-size:10.5px;font-weight:700;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--ink-mute);line-height:1.3}
+  .band-label{padding-right:12px;border-right:1px solid var(--line-soft);max-width:15ch}
+
+  /* ── Trục 4 chặng ────────────────────────────────────────────── */
+  .spine{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap)}
+  .stage{position:relative;z-index:0;border:1px solid var(--line);border-radius:var(--r);
+    background:var(--surface-2);display:flex;flex-direction:column}
+  .stage:not(:last-child)::after{content:"";position:absolute;top:25px;
+    right:calc(-1 * var(--gap) / 2 - 5px);width:10px;height:10px;
+    border-top:1.5px solid #94A3B8;border-right:1.5px solid #94A3B8;transform:rotate(45deg)}
+  .stage-head{padding:10px 12px 9px;border-bottom:1px solid var(--line-soft);
+    display:flex;gap:9px;align-items:baseline}
+  .stage-no{font-size:15px;font-weight:700;color:var(--ink-mute);font-variant-numeric:tabular-nums;
+    line-height:1;flex:none;min-width:13px}
+  .stage-name{font-size:12.5px;font-weight:700;letter-spacing:.055em;text-transform:uppercase;
+    line-height:1.3;margin:0}
+  .stage-body{height:var(--col-body);padding:10px;overflow:hidden;
+    display:flex;flex-direction:column;gap:6px;
+    justify-content:center;justify-content:safe center}
+
+  /* ── Thẻ module ──────────────────────────────────────────────── */
+  .card{position:relative;z-index:2;background:var(--surface);
+    border:1px solid var(--line);border-radius:8px;padding:0;overflow:visible;
+    display:flex;flex-direction:column;flex:none;min-height:0;
+    transition:border-color .18s ease,box-shadow .18s ease,opacity .18s ease,
+      flex-grow .2s ease,flex-basis .2s ease}
+  .card:hover{border-color:#B6C2D2;box-shadow:0 1px 3px rgba(15,23,42,.07)}
+  .card-btn{appearance:none;border:0;background:transparent;width:100%;font:inherit;color:inherit;
+    text-align:left;cursor:pointer;padding:8px 11px;display:flex;flex-direction:column;gap:3px;
+    flex:none;transition:padding .18s ease}
+  .card-btn:focus-visible{outline:2px solid var(--nav);outline-offset:-2px;border-radius:7px}
+  .card-name{font-size:14.5px;font-weight:600;line-height:1.28;display:flex;align-items:center;gap:6px}
+  /* Ai dùng khối này. Chữ thường, lùi về phải, không viền — để không
+     tranh chấp với tên khối mà vẫn trả lời được câu "ai dùng cái này". */
+  .roles{margin-left:auto;flex:none;font-size:10.5px;font-weight:400;
+    color:var(--ink-mute);white-space:nowrap;letter-spacing:.01em}
+  .card.is-collapsed .roles{display:none}
+  .card-one{font-size:12.5px;line-height:1.42;color:var(--ink-soft);
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .embed-badge{flex:none;border:1px solid var(--embed);color:var(--embed);border-radius:4px;
+    padding:0 4px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;line-height:15px}
+
+  /* trạng thái */
+  /* .42 chứ không .32: thẻ mờ vẫn bấm được và Tab vẫn tới được, nên
+     phải còn đọc nổi; và hễ được focus thì sáng lại hẳn. */
+  .card.is-dim{opacity:.42}
+  .card.is-dim:focus-within,.card.is-dim:hover{opacity:1}
+  .card.is-partner{border-color:#94A3B8;box-shadow:0 0 0 1px #94A3B8 inset}
+  .card.is-open{border-color:var(--ink);box-shadow:0 0 0 1px var(--ink) inset,0 2px 10px rgba(15,23,42,.08)}
+  .stage .card.is-open{flex:1 1 auto;min-height:0;overflow:hidden}
+  .card.is-collapsed .card-btn{padding:5px 11px;gap:0}
+  .card.is-collapsed .card-one{display:none}
+  .card.is-collapsed .card-name{font-size:12.5px;font-weight:500;color:var(--ink-mute)}
+  .card.is-collapsed .embed-badge{display:none}
+
+  /* ── Tầng chi tiết ───────────────────────────────────────────── */
+  .detail{display:none}
+  .card.is-open>.detail{display:flex;flex-direction:column;min-height:0}
+  .stage .card.is-open>.detail{flex:1 1 auto;padding:0 11px 9px}
+  /* Thẻ ở dải xuyên suốt: mở thành panel neo dưới thẻ, không đẩy layout */
+  /* Panel trải hết bề rộng sơ đồ và thấp xuống, chia hai cột chữ:
+     không thể tràn lề, chỉ che một dải mỏng trên cùng của trục, và
+     vừa đủ chỗ nên không phải cuộn. Mũi nhọn chỉ về đúng thẻ (JS đặt). */
+  .band{position:relative}
+  .band .card{position:static}
+  .band .card.is-open>.detail{
+    position:absolute;top:calc(100% + 9px);left:0;right:0;
+    max-height:232px;z-index:30;
+    background:var(--surface);border:1px solid var(--ink);border-radius:9px;
+    padding:11px 14px 10px;box-shadow:0 10px 30px rgba(15,23,42,.14)}
+  .band .card.is-open>.detail .detail-scroll{
+    display:grid;grid-template-columns:1.15fr 1fr;gap:0 26px;align-content:start}
+  /* Các bước xếp thành hai cột nhỏ nữa, để cả panel thấp xuống và
+     không phải cuộn — panel càng thấp thì càng che ít trục. */
+  /* display:block vì ol.steps mặc định là flex, mà flex thì bỏ qua
+     thuộc tính chia cột. */
+  .band .card.is-open>.detail ol.steps{display:block;columns:2;column-gap:22px}
+  .band .card.is-open>.detail ol.steps li{break-inside:avoid;margin-bottom:5px}
+  .band .card.is-open>.detail::before{
+    content:"";position:absolute;top:-6px;left:var(--arrow-x,50%);margin-left:-6px;
+    width:11px;height:11px;background:var(--surface);
+    border-left:1px solid var(--ink);border-top:1px solid var(--ink);
+    transform:rotate(45deg)}
+
+  /* Thanh cuộn để hiện thường trực: nếu ẩn thì chữ dừng giữa câu
+     bị đọc thành lỗi hiển thị chứ không phải "còn nữa, cuộn xuống". */
+  .detail-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;padding-right:8px;
+    scrollbar-width:thin;scrollbar-gutter:stable;scrollbar-color:#B6C2D2 #EDF1F5}
+  .detail-scroll::-webkit-scrollbar{width:7px}
+  .detail-scroll::-webkit-scrollbar-track{background:#EDF1F5;border-radius:4px}
+  .detail-scroll::-webkit-scrollbar-thumb{background:#B6C2D2;border-radius:4px}
+
+  .d-head{font-size:10.5px;font-weight:700;letter-spacing:.02em;
+    color:var(--ink-mute);margin:10px 0 5px}
+  .d-head:first-child{margin-top:0}
+  ol.steps{margin:0;padding:0;list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:4px}
+  ol.steps li{counter-increment:s;position:relative;padding-left:20px;
+    font-size:12.4px;line-height:1.45;color:var(--ink-soft)}
+  ol.steps li::before{content:counter(s);position:absolute;left:0;top:1px;width:15px;height:15px;
+    border-radius:50%;background:var(--line-soft);color:var(--ink-mute);font-size:9.5px;
+    font-weight:700;display:flex;align-items:center;justify-content:center}
+  .d-note{font-size:12.2px;line-height:1.5;color:var(--ink);background:var(--line-soft);
+    border-radius:6px;padding:7px 9px;margin-top:6px}
+  ul.links{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+  ul.links li{display:flex;gap:7px;align-items:flex-start;font-size:12.2px;line-height:1.4;color:var(--ink-soft)}
+  ul.links .tick{flex:none;margin-top:5px}
+  ul.links b{color:var(--ink);font-weight:600}
+  ul.links li{border-radius:5px;padding:1px 4px;margin-left:-4px;cursor:default;
+    transition:background .15s ease}
+  ul.links li:hover{background:var(--line-soft)}
+  .edge.is-solo{stroke-width:2.6}
+  /* gợi ý còn nội dung bên dưới, để người đọc biết mà cuộn */
+  .stage .card.is-open>.detail{position:relative}
+  .stage .card.is-open>.detail.has-more::after{content:"";position:absolute;left:11px;right:16px;
+    bottom:37px;height:13px;pointer-events:none;
+    background:linear-gradient(180deg,rgba(255,255,255,0),#fff)}
+
+  .close{align-self:flex-start;margin-top:8px;flex:none;appearance:none;background:transparent;
+    border:1px solid var(--line);border-radius:6px;font:inherit;font-size:11.5px;
+    color:var(--ink-mute);cursor:pointer;padding:4px 10px;min-height:26px}
+  .close:hover{border-color:#B6C2D2;color:var(--ink)}
+  .close:focus-visible{outline:2px solid var(--nav);outline-offset:2px}
+
+  /* ── Dải dưới trục + nền chung ───────────────────────────────── */
+  .lane-band{height:var(--lane)}
+  .ground{position:relative;z-index:0;border:1px solid var(--line);border-radius:var(--r);
+    background:linear-gradient(180deg,#F1F5F9,#E9EEF4);padding:10px 14px;
+    display:grid;grid-template-columns:auto 1fr 1fr;gap:16px;align-items:center}
+  .ground-label{padding-right:14px;border-right:1px solid #D5DEE8;max-width:12ch}
+  .ground-item{display:flex;flex-direction:column;gap:2px;transition:opacity .18s ease}
+  .ground-item.is-dim{opacity:.45}
+  .ground-item .gname{font-size:13px;font-weight:600}
+  .ground-item .gone{font-size:12.2px;line-height:1.42;color:var(--ink-soft)}
+
+  .notice{display:none;margin:0 0 10px;padding:7px 11px;border-radius:7px;
+    background:#FEF6E7;border:1px solid #E8D9B8;color:#7A5B12;
+    font-size:12px;line-height:1.45}
+  .foot{margin-top:18px;font-size:11.5px;color:var(--ink-mute);line-height:1.6;max-width:110ch}
+  .foot b{color:var(--ink-soft);font-weight:600}
+
+  /* ── Đường liên kết ──────────────────────────────────────────── */
+  .edge{fill:none;stroke-linecap:round;stroke-linejoin:round}
+  .edge-nav{stroke:var(--nav);stroke-width:1.6}
+  .edge-data{stroke:var(--data);stroke-width:1.6;stroke-dasharray:5 4}
+  .edge-back{stroke:var(--back);stroke-width:1.7}
+  .edge.is-ghost{opacity:.34;stroke-width:1.3}
+  .elabel rect{fill:#fff;stroke:var(--line)}
+  .elabel.k-nav rect{stroke:var(--nav)}
+  .elabel.k-data rect{stroke:var(--data)}
+  .elabel.k-back rect{stroke:var(--back)}
+  .elabel text{font-size:10.5px;fill:var(--ink-soft);font-weight:500}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+  /* ── Màn hình hẹp: xếp dọc, bỏ lớp vẽ đường ──────────────────── */
+  @media (max-width:1180px){
+    #edges,#edges-top,.lane-band{display:none}
+    /* Ẩn lớp đường thì phải ẩn cả chú giải của nó và nói rõ ra, không
+       thì người đọc thấy chú giải mô tả những đường không tồn tại. */
+    .key{display:none}
+    .notice{display:block}
+    .spine{grid-template-columns:repeat(2,1fr);gap:18px}
+    .stage:not(:last-child)::after{display:none}
+    .stage-body{height:auto;overflow:visible}
+    .stage .card.is-open{flex:none;overflow:visible}
+    .card.is-collapsed .card-btn{padding:8px 11px;gap:3px}
+    .card.is-collapsed .card-one{display:-webkit-box}
+    .card.is-collapsed .card-name{font-size:14.5px;font-weight:600;color:inherit}
+    .detail-scroll{overflow:visible}
+    .band{grid-template-columns:1fr}
+    .band-label{border-right:0;border-bottom:1px solid var(--line-soft);padding:0 0 8px;max-width:none}
+    .band .card{position:relative}
+    .band .card.is-open>.detail{position:static;max-height:none;
+      z-index:auto;border:0;border-radius:0;padding:0 11px 9px;box-shadow:none}
+    .band .card.is-open>.detail .detail-scroll{display:block}
+    .band .card.is-open>.detail::before{display:none}
+    .ground{grid-template-columns:1fr}
+    .ground-label{border-right:0;border-bottom:1px solid #D5DEE8;padding:0 0 8px;max-width:none}
+  }
+  @media (max-width:720px){
+    .spine{grid-template-columns:1fr}
+    .top{flex-direction:column}
+    .top-right{align-items:flex-start}
+    .key{align-items:flex-start}
+  }
+
+  /* ── Bản in: giữ cấu trúc, bỏ lớp vẽ đường vì toạ độ tính theo
+        màn hình sẽ lệch khi đổi khổ giấy ─────────────────────────── */
+  @page{size:A4 landscape;margin:9mm}
+  @media print{
+    body{background:#fff}
+    .page{padding:0;max-width:none}
+    .lang,.hint,.close,#edges,#edges-top,.lane-band{display:none!important}
+    .card{opacity:1!important;box-shadow:none!important;border-color:#94A3B8!important}
+    .card.is-collapsed .card-btn{padding:8px 11px;gap:3px}
+    .card.is-collapsed .card-one{display:-webkit-box}
+    .card.is-collapsed .card-name{font-size:14.5px;font-weight:600;color:inherit}
+    .detail{display:none!important}
+    .stage,.band,.ground{break-inside:avoid;page-break-inside:avoid}
+    .stage-body{height:auto;overflow:visible}
+    /* Ở khổ A4 ngang (~1123px) bộ quy tắc màn-hình-hẹp sẽ nhảy vào và
+       xếp 4 chặng thành 2x2, làm mất mạch trái-sang-phải. Ép lại 4 cột
+       và thu cỡ chữ để gọn trong một trang. */
+    .spine{grid-template-columns:repeat(4,1fr)!important;gap:13px!important}
+    .band{grid-template-columns:auto repeat(3,1fr)!important;gap:10px!important}
+    .band-label{border-right:1px solid var(--line-soft)!important;border-bottom:0!important;
+      padding:0 10px 0 0!important;max-width:11ch!important}
+    .ground{grid-template-columns:auto 1fr 1fr!important;gap:12px!important}
+    .ground-label{border-right:1px solid #D5DEE8!important;border-bottom:0!important;
+      padding:0 12px 0 0!important;max-width:11ch!important}
+    .stage:not(:last-child)::after{display:block!important;top:22px;
+      right:calc(-13px / 2 - 5px);width:8px;height:8px}
+    h1{font-size:19px}
+    .sub{font-size:10.5px;max-width:none}
+    .key-row{font-size:9.5px}
+    .stage-head{padding:8px 10px 7px}
+    .stage-name{font-size:10.5px}
+    .stage-no{font-size:12px}
+    .stage-body{padding:8px;gap:5px}
+    .card-btn{padding:6px 9px}
+    .card-name{font-size:12px}
+    .card-one{font-size:10.4px;line-height:1.36;-webkit-line-clamp:4}
+    .ground-item .gname{font-size:11px}
+    .ground-item .gone{font-size:10.2px;line-height:1.36}
+    .foot{font-size:9.5px;margin-top:12px}
+    #print-note{display:block!important}
+    .ground{background:#F1F5F9!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="top">
+    <div>
+      <h1 id="t-title"></h1>
+      <p class="sub" id="t-sub"></p>
+      <p class="hint">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 9 5 12 1.8-5.2L21 14Z"/><path d="M7.2 2.2 8 5.1"/><path d="m5.1 8-2.9-.8"/><path d="M14 4.1 12 6"/><path d="m6 12-1.9 2"/></svg>
+        <span id="t-hint"></span>
+      </p>
+    </div>
+    <div class="top-right">
+      <div class="lang" role="group" aria-label="Language / Ngôn ngữ">
+        <button type="button" data-lang="vi" aria-pressed="true">VI</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap" id="wrap">
+    <svg id="edges" aria-hidden="true">
+      <defs>
+        <marker id="ah-nav" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#2563EB"/>
+        </marker>
+        <marker id="ah-back" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#B45309"/>
+        </marker>
+      </defs>
+      <g id="edge-layer"></g>
+    </svg>
+    <svg id="edges-top" aria-hidden="true"><g id="label-layer"></g></svg>
+
+    <div class="band" id="band"></div>
+    <div class="key" id="t-key"></div>
+    <p class="notice" id="narrow-note"></p>
+    <div class="spine" id="spine"></div>
+    <div class="lane-band"></div>
+    <div class="ground" id="ground"></div>
+  </div>
+
+  <p class="foot" id="print-note" style="display:none"></p>
+  <p class="foot" id="t-foot"></p>
+</div>
+
+<script>
+"use strict";
+
+/* ══════════════════════════════════════════════════════════════════
+   NỘI DUNG
+   ══════════════════════════════════════════════════════════════════ */
+
+const ROLE_TEXT = {
+  vi:{gv:"giáo viên", hs:"học sinh", truong:"cán bộ trường", khach:"khách", all:"ai cũng xem"},
+  en:{gv:"teacher", hs:"student", truong:"school staff", khach:"guest", all:"everyone"}
+};
+function roleLabel(csv){
+  if(!csv) return "";
+  const r = csv.split(",");
+  if(r.indexOf("khach") >= 0) return ROLE_TEXT[lang].all;
+  return r.map(function(k){ return ROLE_TEXT[lang][k]; }).join(" · ");
+}
+
+const UI = {
+  vi:{
+    title:"Trường học số — một hệ sinh thái dạy và học",
+    sub:"Bản đồ chức năng và mạch dạy-học, đọc từ trái sang phải theo vòng đời một tiết học: lớp và lịch sẵn sàng, giáo viên làm ra nội dung, nội dung đến lớp, học sinh làm và hệ thống đo lại. Hai mươi khối chức năng.",
+    hint:"Bấm vào một khối để xem các bước từ đầu đến cuối và nó nối với khối nào. Khối liên quan sẽ đậm viền, khối không liên quan mờ đi.",
+    keyNav:"liền có mũi — đi tiếp: bấm sang, hoặc dữ liệu chảy sang",
+    keyData:"gạch, không mũi — dùng chung: cùng một kho, hoặc cùng một bộ máy",
+    keyBack:"nâu — kết quả quay lại vòng trước",
+    keyEmbed:"một ứng dụng riêng, chạy lồng bên trong hệ này",
+    narrowNote:"<b>Cửa sổ đang hẹp nên lớp đường nối giữa các khối tạm ẩn.</b> Mở rộng cửa sổ (từ khoảng 1200 px) là các đường hiện lại. Phần chữ trong mỗi khối vẫn nói đủ khối đó nối với ai.",
+    printNote:"<b>Bản in này chỉ có bản đồ khối.</b> Phần các bước từ đầu đến cuối và các đường liên kết giữa các khối nằm ở bản trên máy — mở file rồi bấm vào từng khối.",
+    bandLabel:"Dùng ở mọi lúc",
+    groundLabel:"Nền chung",
+    stages:["Lớp & lịch","Làm ra nội dung","Đưa đến lớp","Học và đo"],
+    dFlow:"Từ đầu đến cuối",
+    dLinks:"Nối với khối nào",
+    close:"Đóng",
+    foot:"<b>Cách đọc:</b> bốn chặng là vòng đời một tiết học, không phải bốn tầng kỹ thuật. Một khối nằm ở chặng nào là theo lúc người ta dùng nó nhiều nhất, còn dữ liệu thì chảy qua nhiều chặng — vì thế mới có đường gạch. <b>Điều đáng chú ý nhất:</b> mọi thứ soạn ra đều rơi vào một kho chung, và mọi thứ đem đi dùng đều lấy từ kho đó ra. Hai mặt tiền và các ứng dụng riêng không gọi nhau qua giao diện — chúng gặp nhau ở kho."
+  },
+  en:{
+    title:"Digital School — one teaching-and-learning ecosystem",
+    sub:"A map of the features and the teaching flow, read left to right along the life of a lesson: classes and schedule ready, teachers build content, content reaches the class, students do the work and the system measures it back. Twenty functional blocks.",
+    hint:"Click a block for its start-to-finish flow and its links. Related blocks get a dark outline; unrelated ones fade.",
+    keyNav:"solid arrow — you move on: by clicking, or the data flows on",
+    keyData:"dashed, no arrow — shared: one library, or one engine",
+    keyBack:"brown — results feed back to an earlier stage",
+    keyEmbed:"a separate application running inside this one",
+    narrowNote:"<b>The window is too narrow, so the layer of links between blocks is hidden.</b> Widen it (from about 1200 px) and the lines come back. Each block still lists its links in words.",
+    printNote:"<b>This printout shows the block map only.</b> The start-to-finish flows and the links between blocks live in the on-screen version — open the file and click a block.",
+    bandLabel:"Always at hand",
+    groundLabel:"Shared",
+    stages:["Class & schedule","Build the content","Get it to the class","Do it & measure it"],
+    dFlow:"Start to finish",
+    dLinks:"Connects to",
+    close:"Close",
+    foot:"<b>How to read this:</b> the four stages are the life of a lesson, not four technical tiers. A block sits in the stage where people use it most, while the data crosses several stages — that is what the dashed lines are for. <b>The thing worth noticing:</b> everything authored lands in one shared store, and everything used is drawn back out of it. The two front doors and the separate apps do not call each other through their interfaces — they meet in the library."
+  }
+};
+
+/* ─ Ba khối chạm mọi chặng ────────────────────────────────────── */
+const CROSS = [
+{
+  id:"trangchu", roles:"gv,hs",
+  vi:{ name:"Trang chủ",
+    one:"Mở lên là thấy ngay việc phải làm hôm nay, bấm thẳng vào đó.",
+    flow:[
+      "Vào trang chủ, hệ thống nhận ra người đang xem là giáo viên hay học sinh rồi dựng đúng bộ thẻ cho người đó.",
+      "Giáo viên thấy bài đang cần chấm, lịch dạy trong ngày, các lớp mình phụ trách và học liệu mới.",
+      "Học sinh thấy lịch học, bài chưa làm và bảng tin của lớp.",
+      "Bấm một thẻ là vào thẳng chỗ cần làm, không phải đi qua menu."
+    ],
+    note:"Trang chủ không giữ việc gì của riêng nó. Nó đọc lại dữ liệu của các khối khác rồi mở đường — nên đây là khối có nhiều đường đi ra nhất." },
+  en:{ name:"Home",
+    one:"Open it and today's work is already there, one click away.",
+    flow:[
+      "On arrival the system recognises whether this is a teacher or a student and builds the right set of cards.",
+      "A teacher sees work waiting to be graded, today's teaching schedule, their classes and new content.",
+      "A student sees their timetable, work not yet done and the class board.",
+      "Clicking a card goes straight to the job — no menu hunting."
+    ],
+    note:"Home holds no work of its own. It re-reads other blocks' data and opens doors, which is why more paths leave it than any other block." }
+},
+{
+  id:"thongbao", roles:"gv,hs",
+  vi:{ name:"Thông báo",
+    one:"Việc cần biết tự tìm đến người, kèm đường tới đúng chỗ xử lý.",
+    flow:[
+      "Có việc mới: bài được giao, bài đã chấm, bài đăng của lớp, hay tin của trường.",
+      "Chuông đổ ngay trong lúc người dùng đang làm việc khác, không phải tải lại trang.",
+      "Bấm vào một thông báo, mỗi loại đi một đường khác nhau — bài tập về trang bài tập, bài đăng về bảng tin lớp.",
+      "Mở rồi thì tự đánh dấu đã đọc, số đếm trên chuông giảm theo."
+    ],
+    note:"Đây là bộ chuyển hướng chung. Mỗi thông báo mang theo mã của thứ nó nói tới, nên bấm là mở đúng bài đó chứ không phải mở danh sách rồi tự tìm." },
+  en:{ name:"Notifications",
+    one:"What matters comes to the person, with a path to where it gets handled.",
+    flow:[
+      "Something happens: work assigned, work graded, a class post, or school news.",
+      "The bell rings while the user is doing something else — no page reload needed.",
+      "Each notification type routes differently: an assignment opens the assignment, a post opens the class board.",
+      "Opening it marks it read and the bell count drops."
+    ],
+    note:"This is the shared router. Each notification carries the id of the thing it refers to, so one click opens that exact item instead of a list to search through." }
+},
+{
+  id:"tintuc", roles:"gv,hs,khach",
+  vi:{ name:"Tin tức & bảng tin trường",
+    one:"Tin của hệ thống và của trường, ai cũng đọc được kể cả khi chưa đăng nhập.",
+    flow:[
+      "Trang tin liệt kê bài mới, có vài bài nổi bật đặt lên trước.",
+      "Mở một bài ra đọc; nội dung được kiểm tra trước khi hiện lên trang.",
+      "Bảng tin trường thì chỉ lấy tin của đúng trường mình, không lẫn tin trường khác."
+    ],
+    note:"Đây là khối đứng riêng nhất trong sơ đồ: nó gần như không dính vào mạch dạy và học, chỉ nhận đường dẫn từ thông báo và từ trang giới thiệu." },
+  en:{ name:"News & school board",
+    one:"Platform and school news, readable by anyone — even before signing in.",
+    flow:[
+      "The news page lists what is new, with a few featured items pulled to the top.",
+      "Open an article to read it; the content is checked before it reaches the page.",
+      "The school board only pulls that school's own announcements, never another school's."
+    ],
+    note:"This is the most self-contained block on the diagram: it barely touches the teaching flow, taking links only from notifications and the public landing page." }
+}
+];
+
+/* ─ Bốn chặng ─────────────────────────────────────────────────── */
+const STAGES = [
+/* ① LỚP & LỊCH ──────────────────────────────────────────────── */
+[
+{
+  id:"lophoc", roles:"gv,hs",
+  vi:{ name:"Lớp học",
+    one:"Nơi cả lớp gặp nhau: thành viên, bài đăng, học liệu và tình hình từng em.",
+    flow:[
+      "Mở danh sách lớp mình dạy hoặc mình học; lớp hay dùng thì ghim lên đầu.",
+      "Vào một lớp, nội dung chia theo tab, và tab hiện ra khác nhau tuỳ vai trò: giáo viên có tab thành viên và kho học liệu của lớp, học sinh có tab học liệu.",
+      "Tab tổng quan cho thấy thông tin lớp, thống kê theo tuần và bảng tin lớp; giáo viên viết bài ngay ở đây, đính kèm học liệu hoặc tệp.",
+      "Giáo viên đính học liệu vào lớp và ghim những cái quan trọng lên trước.",
+      "Bấm tên một học sinh trong tab thành viên để mở báo cáo riêng của em đó.",
+      "Giao nhiệm vụ ngay từ trong lớp, không phải sang chỗ khác."
+    ],
+    note:"Lớp chủ nhiệm và lớp bộ môn không giống nhau: chỉ lớp chủ nhiệm mới có thêm tab lớp bộ môn, và quyền ghi chỉ mở cho giáo viên thật sự được phân công lớp đó." },
+  en:{ name:"Classes",
+    one:"Where the class meets: members, posts, content, and how each student is doing.",
+    flow:[
+      "Open the list of classes you teach or attend; pin the ones you use often to the top.",
+      "Inside a class, content splits into tabs, and which tabs appear depends on role: teachers get members and the class content store, students get content.",
+      "The overview tab shows class details, weekly statistics and the class board; teachers write posts right here, attaching content or files.",
+      "Teachers attach content to the class and pin the important pieces first.",
+      "Click a student's name in the members tab to open that student's own report.",
+      "Assign work from inside the class — no need to go elsewhere."
+    ],
+    note:"A homeroom class and a subject class are not the same: only homeroom classes get the extra subject-class tab, and write access opens only to the teacher actually assigned to it." }
+},
+{
+  id:"tkb", roles:"gv,hs",
+  vi:{ name:"Thời khóa biểu",
+    one:"Lịch dạy và lịch học theo ngày, tuần, tháng — bấm vào tiết là làm việc luôn.",
+    flow:[
+      "Mở lịch, chọn xem theo ngày, tuần hay tháng; mặc định là tháng đang chạy.",
+      "Lịch của giáo viên và của học sinh lấy từ hai nguồn khác nhau, nên mỗi người chỉ thấy đúng phần của mình.",
+      "Mỗi tiết hiện môn, phòng, số tiết, tô màu theo buổi sáng hay chiều.",
+      "Bấm vào một tiết thì rẽ theo vai trò: giáo viên vào điểm danh tiết đó, học sinh vào lớp."
+    ],
+    note:"Lịch của giáo viên và của học sinh là hai nguồn riêng, nên cùng một tuần mà hai người thấy hai bảng khác nhau — đúng phần việc của mỗi người." },
+  en:{ name:"Timetable",
+    one:"Schedules by day, week or month — click a period and you are working.",
+    flow:[
+      "Open the calendar and pick day, week or month; the current month loads by default.",
+      "Teacher and student schedules come from two different sources, so each person sees only their own.",
+      "Each period shows subject, room and period number, colour-coded morning or afternoon.",
+      "Clicking a period branches by role: teachers land on attendance for that period, students land in the class."
+    ],
+    note:"Teacher and student schedules are two separate sources, so in the same week two people see two different boards, each their own work." }
+},
+{
+  id:"diemdanh", roles:"gv,truong",
+  vi:{ name:"Điểm danh",
+    one:"Mở tiết ra, đánh dấu ai có mặt ai vắng, rồi lưu.",
+    flow:[
+      "Vào từ tiết trên thời khóa biểu, hoặc vào bảng lớp rồi chọn lớp mình cần.",
+      "Danh sách học sinh hiện ra kèm phần thống kê nhanh của tiết đó.",
+      "Tích trạng thái từng em; sửa lại được trước khi lưu.",
+      "Nếu lớp có thiết bị nhận diện thì bản ghi tự chạy về màn hình đang mở, không phải tải lại trang.",
+      "Bấm lưu, rồi theo đường dẫn quay về lớp."
+    ],
+    note:"Bảng lớp mở cho cả cán bộ quản lý của trường, không chỉ giáo viên đứng lớp. Bản ghi chuyên cần ở đây là một trong hai nguồn của báo cáo học sinh." },
+  en:{ name:"Attendance",
+    one:"Open the period, mark who is present and who is absent, save.",
+    flow:[
+      "Arrive from a period on the timetable, or from the class table by picking a class.",
+      "The student list appears with a quick summary for that period.",
+      "Tick each student's status; corrections are possible before saving.",
+      "If the room has recognition hardware, records arrive on the open screen by themselves — no reload.",
+      "Save, then follow the breadcrumb back to the class."
+    ],
+    note:"The class table is open to school administrators too, not only the teacher in the room. The attendance record here is one of two sources feeding the student report." }
+},
+{
+  id:"hoso", roles:"gv,hs",
+  vi:{ name:"Hồ sơ cá nhân",
+    one:"Thông tin của mình, ảnh, mật khẩu, và những thiết bị đang đăng nhập.",
+    flow:[
+      "Bấm ảnh đại diện ở góc trên bên phải rồi vào hồ sơ.",
+      "Tab thông tin: sửa họ tên, ngày sinh, đổi ảnh đại diện; nếu đăng nhập bằng tài khoản mạng xã hội thì một số trường bị khoá lại.",
+      "Tab bảo mật: đổi mật khẩu, xem danh sách thiết bị đang đăng nhập và đăng xuất thiết bị lạ."
+    ],
+    note:"Khối này nhỏ nhưng quyết định mọi thứ còn lại: vai trò ghi trong hồ sơ là thứ quyết định người dùng thấy gì. Giáo viên thấy phần chấm bài và không vào được phần làm bài; học sinh thì ngược lại. Khối lớp trong hồ sơ còn quyết định danh sách môn hiện ra ở phần tự học." },
+  en:{ name:"Profile",
+    one:"Your own details, photo, password, and the devices currently signed in.",
+    flow:[
+      "Click the avatar in the top right and open the profile.",
+      "Info tab: edit name and date of birth, change the avatar; some fields lock if the account signed in through a social login.",
+      "Security tab: change the password, review signed-in devices and sign out any you do not recognise."
+    ],
+    note:"A small block that decides everything else: the role recorded here determines what a user sees. Teachers get grading and cannot open the answering screens; students get the reverse. The grade recorded here also decides which subjects appear under self-study." }
+}
+],
+/* ② LÀM RA NỘI DUNG ─────────────────────────────────────────── */
+[
+{
+  id:"kho", roles:"gv,hs",
+  vi:{ name:"Kho học liệu",
+    one:"Kho dùng chung của cả hệ: mọi thứ soạn ra đều rơi vào đây, kể cả sách và đề.",
+    flow:[
+      "Mở kho, nội dung xếp thành từng hàng theo chuyên mục.",
+      "Lọc theo khối, môn, loại học liệu, hoặc tìm theo từ khóa ở thanh trên.",
+      "Mở một học liệu ra xem trước ngay trong trang, kèm học liệu bổ trợ và học liệu liên quan.",
+      "Thích thì lưu vào thư viện riêng, tải xuống, đính vào lớp, hoặc mang đi giao bài.",
+      "Giáo viên tạo học liệu mới hoặc tải tệp lên; học liệu vừa tạo mở ra luôn để soạn tiếp."
+    ],
+    note:"Đây là điểm giao lớn nhất của cả hệ thống, và lý do nằm ở chỗ này: sách, bộ đề, bài giảng, video, mô hình 3D, gói nội dung chuẩn — tất cả đều là học liệu, chỉ khác nhau ở mã loại. Nên khối nào cần nội dung cũng lấy từ đây ra. Học liệu tạo ở nền tảng chảy xuống mọi trường; học liệu trường tự tạo thì nằm trong trường đó, không chảy lên. Kho của trường có bộ lọc ba trạng thái để chọn xem của trường, của nền tảng, hay cả hai." },
+  en:{ name:"Content library",
+    one:"The shared library: everything authored lands here, books and papers included.",
+    flow:[
+      "Open the store; content is laid out in rows by category.",
+      "Filter by grade, subject or content type, or search from the top bar.",
+      "Open an item to preview it in place, along with its supporting and related content.",
+      "Save it to your own library, download it, attach it to a class, or take it away to assign.",
+      "Teachers create new content or upload files; a newly created item opens straight away for further work."
+    ],
+    note:"This is the largest junction in the system, and here is why: books, exams, lessons, video, 3D models, standards-packaged content — all of them are content records, differing only by a type code. So every block that needs content draws from here. Content created on the platform flows down to every school; content a school creates stays inside that school and does not flow up. A school's store has a three-way filter to show its own, the platform's, or both." }
+},
+{
+  id:"sach", roles:"gv,hs,khach",
+  vi:{ name:"Bộ sách số",
+    one:"Sách giáo khoa đọc ngay trên web, chạm vào trang là mở được câu hỏi.",
+    flow:[
+      "Chọn bộ sách theo khối và môn; đổi lựa chọn thì địa chỉ trang đổi theo nên chia lại được cho người khác.",
+      "Mở trang chi tiết xem mục lục và thông tin, rồi bấm bắt đầu để vào trình đọc.",
+      "Trong trình đọc: lật trang, dùng mục lục, dùng bút và ghi chú trên trang.",
+      "Chạm vào điểm nóng trong trang: mở video, tài liệu, hoặc mở thẳng câu hỏi.",
+      "Trả lời câu hỏi trong sách và được chấm ngay tại đó.",
+      "Đọc tới đâu hệ thống nhớ tới đó, lần sau mở lại đúng chỗ đang dở."
+    ],
+    note:"Sách xem được mà không cần đăng nhập, nên nó là cửa vào cho người mới. Trình đọc này còn được ứng dụng lớp học thông minh nhúng lại để dùng trong tiết." },
+  en:{ name:"Digital books",
+    one:"Textbooks read in the browser; touch the page and a question opens.",
+    flow:[
+      "Pick a book set by grade and subject; changing the selection changes the address, so a view can be shared.",
+      "Open the detail page for the table of contents and information, then start reading.",
+      "In the reader: turn pages, use the contents, draw and take notes on the page.",
+      "Touch a hotspot in the page to open a video, a document, or a question directly.",
+      "Answer a question inside the book and it is marked right there.",
+      "Reading position is remembered, so next time it reopens where you stopped."
+    ],
+    note:"Books are viewable without signing in, which makes them the entry point for newcomers. This reader is also embedded back into the smart-classroom app for use during a lesson." }
+},
+{
+  id:"nhch", roles:"gv", embed:true,
+  vi:{ name:"Ngân hàng câu hỏi",
+    one:"Câu hỏi xếp theo bài học và mức khó; đặt tỉ lệ là hệ thống tự rút thành đề.",
+    flow:[
+      "Dựng khung chương trình và khung độ khó trước, để câu hỏi sau này có chỗ mà gắn vào.",
+      "Thêm câu hỏi bằng ba cách: tự soạn, tải tệp lên, hoặc để máy đọc tài liệu rồi bóc câu hỏi ra.",
+      "Câu hỏi mới ở trạng thái nháp; người soạn gửi đi chờ duyệt.",
+      "Người có quyền duyệt mở ra xem rồi duyệt hoặc từ chối.",
+      "Câu hỏi đã duyệt mới vào ngân hàng cho người khác dùng.",
+      "Lập ma trận đề theo tỉ lệ mong muốn, rồi bấm sinh đề — hệ thống tự rút câu cho khớp ma trận."
+    ],
+    note:"Có hai tầng phạm vi: ngân hàng của nền tảng dùng chung cho mọi trường, và ngân hàng riêng của từng trường; quyền duyệt hai tầng này là hai quyền khác nhau. Ma trận đề còn có tầng thứ ba là ma trận cá nhân của từng giáo viên. Bản thân đây là một ứng dụng riêng, được nhúng vào khung của cả hai hệ, và nó tự nhận biết đang chạy trong hệ nào để bật đúng bộ quyền." },
+  en:{ name:"Question bank",
+    one:"Questions filed by lesson and difficulty; set the mix and papers get built for you.",
+    flow:[
+      "Build the curriculum frame and the difficulty frame first, so questions have somewhere to hang.",
+      "Add questions three ways: write them, upload a file, or let the machine read a document and extract them.",
+      "A new question starts as a draft; the author submits it for review.",
+      "A reviewer with the right permission opens it and approves or rejects it.",
+      "Only approved questions enter the bank for others to use.",
+      "Build a matrix with the mix you want, then generate — the system draws questions to match it."
+    ],
+    note:"There are two scope tiers: the platform bank shared by every school, and each school's own bank; reviewing those two is two separate permissions. Matrices add a third tier — each teacher's personal matrices. The block itself is a separate application, embedded in both systems' frames, and it detects which one it is running inside to enable the right permission set." }
+},
+{
+  id:"bode", roles:"gv,truong",
+  vi:{ name:"Bộ đề",
+    one:"Đề kiểm tra và đề luyện: chọn dạng câu, nhập nội dung, xem trước, xuất bản.",
+    flow:[
+      "Tạo bộ đề mới; ngay lúc tạo nó đã thành một học liệu trong kho.",
+      "Thêm câu hỏi bằng hai đường: soạn tay từng câu, hoặc tải tài liệu lên rồi để máy bóc câu hỏi ra.",
+      "Chọn dạng câu: trắc nghiệm, tự luận, nối, kéo thả, điền khuyết, gán nhãn ảnh, ghi âm, và câu hỏi nhóm.",
+      "Kéo thả sắp thứ tự, đặt điểm từng câu, đặt thời gian, bật tắt hiện đáp án.",
+      "Xem trước cả bộ đúng như học sinh sẽ thấy.",
+      "Xuất bản; từ lúc này bộ đề dùng được để giao bài hoặc để tự luyện."
+    ],
+    note:"Phần soạn đề đầy đủ nằm ở nền tảng; bên LMS của trường thì giáo viên sửa và thêm câu hỏi vào bộ đề có sẵn chứ không tạo đề mới từ đầu. Máy đọc tài liệu để bóc câu hỏi có giới hạn cỡ tệp và số trang." },
+  en:{ name:"Exams & quizzes",
+    one:"Test papers and practice papers: pick question types, write, preview, publish.",
+    flow:[
+      "Create a paper; the moment it exists it is already a content record in the store.",
+      "Add questions two ways: write each one, or upload a document and let the machine extract them.",
+      "Choose the type: multiple choice, essay, matching, drag and drop, fill in the blank, image labelling, audio recording, and grouped questions.",
+      "Drag to reorder, set marks per question, set timing, show or hide answers.",
+      "Preview the whole paper exactly as a student will see it.",
+      "Publish; from here the paper can be assigned or used for practice."
+    ],
+    note:"Full authoring lives on the platform; inside a school's LMS a teacher edits and adds questions to an existing paper rather than starting one from scratch. Machine extraction from documents has file-size and page limits." }
+},
+{
+  id:"thuvien", roles:"gv,hs",
+  vi:{ name:"Thư viện của tôi",
+    one:"Chính kho chung đó, lọc còn riêng mình: đã tạo, đã thích, còn nháp.",
+    flow:[
+      "Mở thư viện, chọn tab theo trạng thái: đã xuất bản, bản nháp, hoặc lưu trữ.",
+      "Lọc theo loại, môn, khối; cuộn để tải thêm.",
+      "Mở một món ra: bộ đề thì vào trang soạn đề, học liệu thì vào trang sửa.",
+      "Khi giao bài, đây là một trong hai chỗ để chọn bộ đề, cùng với kho học liệu."
+    ],
+    note:"Thư viện và kho học liệu là cùng một dữ liệu, chỉ khác bộ lọc — thư viện lọc theo người tạo và theo cái mình đã thích. Bên nền tảng còn có thêm thư viện câu hỏi riêng, cũng lọc theo người tạo." },
+  en:{ name:"My library",
+    one:"That same library, filtered down to yours: made, liked, still a draft.",
+    flow:[
+      "Open the library and choose a status tab: published, draft, or archived.",
+      "Filter by type, subject or grade; scroll to load more.",
+      "Open an item: a paper goes to the authoring screen, other content goes to its edit screen.",
+      "When assigning work, this is one of two places to pick a paper from, alongside the content store."
+    ],
+    note:"The library and the content store are the same data with a different filter — the library filters by author and by what you liked. The platform also has a separate question library, filtered the same way." }
+}
+],
+/* ③ ĐƯA ĐẾN LỚP ─────────────────────────────────────────────── */
+[
+{
+  id:"duyet", roles:"truong",
+  vi:{ name:"Duyệt nội dung",
+    one:"Nội dung phải có người xem và đồng ý, rồi mới đến tay người khác dùng.",
+    flow:[
+      "Người soạn gửi câu hỏi đi duyệt; câu hỏi chuyển từ nháp sang chờ duyệt.",
+      "Người có quyền duyệt mở danh sách theo trạng thái và xem từng câu.",
+      "Duyệt hoặc từ chối; từ chối thì câu hỏi quay lại cho người soạn sửa.",
+      "Câu hỏi đã duyệt mới xuất hiện cho người khác dùng trong ngân hàng."
+    ],
+    note:"Quyền duyệt tách theo phạm vi: duyệt nội dung của nền tảng và duyệt nội dung của trường là hai quyền khác nhau, nên một người có thể duyệt được cho trường mình mà không duyệt được cho toàn nền tảng." },
+  en:{ name:"Content review",
+    one:"Content needs someone to read it and agree before anyone else can use it.",
+    flow:[
+      "The author submits a question for review; it moves from draft to pending.",
+      "A reviewer with permission opens the list by status and reads each one.",
+      "Approve or reject; a rejection sends it back to the author to fix.",
+      "Only approved questions become visible to others in the bank."
+    ],
+    note:"Review permission splits by scope: reviewing platform content and reviewing school content are two different permissions, so a person can clear their own school's work without clearing the whole platform's." }
+},
+{
+  id:"nhiemvu", roles:"gv,hs",
+  vi:{ name:"Nhiệm vụ",
+    one:"Giao bài cho lớp, theo dõi ai đã nộp, rồi chấm.",
+    flow:[
+      "Trong lớp bấm tạo nhiệm vụ; hộp soạn đi theo ba bước.",
+      "Bước một: đặt tên, đặt hạn nộp, chọn có cho phép nộp muộn hay không.",
+      "Bước hai: chọn hình thức — làm bộ đề, viết tự luận, hay nộp tệp.",
+      "Bước ba nếu là bộ đề: chọn đề từ kho học liệu hoặc từ thư viện của mình, rồi bật tắt từng tuỳ chọn — tính điểm hay không, trộn câu hỏi, trộn phương án, cho làm lại câu sai, cho xem kết quả, có AI hỗ trợ trong lúc làm, có AI chấm.",
+      "Giao xong, cả lớp nhận thông báo.",
+      "Bảng theo dõi hiện ai đã nộp, ai còn thiếu, bài nào cần chấm."
+    ],
+    note:"Nhiệm vụ là nút thắt của cả sơ đồ: nó nhận nội dung từ chặng trước và đẩy sang chặng sau. Quyền trên từng nhiệm vụ tính theo người tạo, giáo viên bộ môn và giáo viên chủ nhiệm của lớp đó, nên không phải giáo viên nào cũng sửa được nhiệm vụ của người khác." },
+  en:{ name:"Assignments",
+    one:"Assign work to a class, track who has handed in, then grade.",
+    flow:[
+      "Inside a class, create an assignment; the form runs in three steps.",
+      "Step one: title, due date, and whether late submissions are allowed.",
+      "Step two: pick the form — answer a paper, write an essay, or upload a file.",
+      "Step three for a paper: pick it from the content store or your own library, then set each option — counts for marks or not, shuffle questions, shuffle options, allow retrying wrong answers, show results, AI help while answering, AI grading.",
+      "Once assigned, the whole class is notified.",
+      "The tracking table shows who has submitted, who has not, and what needs grading."
+    ],
+    note:"Assignments are the knot of the whole diagram: they take content from the previous stage and push it into the next. Permission on an assignment is computed from its creator, the subject teacher and the homeroom teacher of that class, so not every teacher can edit someone else's." }
+},
+{
+  id:"bangtin", roles:"gv,hs",
+  vi:{ name:"Bảng tin lớp",
+    one:"Bài đăng của lớp: thông báo, nhắc nhở, kèm học liệu hoặc tệp.",
+    flow:[
+      "Giáo viên viết bài ngay trong phần tổng quan của lớp, đính kèm học liệu hoặc tệp.",
+      "Bài lên bảng tin, cả lớp nhận thông báo.",
+      "Học sinh bấm thông báo là mở đúng bài đó, không phải tự tìm trong danh sách."
+    ],
+    note:"Bài chỉ tạo được từ trong lớp; trang bảng tin là chỗ đọc chứ không phải chỗ viết, và nó không có trang danh sách riêng — chỉ vào được bằng đường dẫn từ thông báo hoặc từ trang chủ." },
+  en:{ name:"Class board",
+    one:"Class posts: announcements, reminders, with content or files attached.",
+    flow:[
+      "The teacher writes the post in the class overview, attaching content or files.",
+      "The post appears on the board and the whole class is notified.",
+      "A student clicking the notification opens that exact post, with no list to search."
+    ],
+    note:"Posts can only be written from inside a class; the board page is for reading, not writing, and it has no list page of its own — you reach it by link from a notification or from home." }
+}
+],
+/* ④ HỌC VÀ ĐO ───────────────────────────────────────────────── */
+[
+{
+  id:"lambai", roles:"hs",
+  vi:{ name:"Làm bài",
+    one:"Cùng một màn làm bài cho mọi đường vào: bài được giao, bài tự luyện, câu trong sách.",
+    flow:[
+      "Mở bài; nếu đề có giới hạn thời gian thì đồng hồ chạy ngay.",
+      "Trả lời từng câu; đang làm mà mất mạng hay đóng máy thì bài đã lưu, mở lại vào đúng chỗ đang dở.",
+      "Tuỳ nhiệm vụ cho phép, có thể được bật AI hỗ trợ trong lúc làm.",
+      "Nộp bài.",
+      "Hiện kết quả ngay: điểm, số câu đúng, phần trăm, thời gian đã làm.",
+      "Từ đó đi tiếp sang trang báo cáo của mình, hoặc quay về chỗ vừa xuất phát."
+    ],
+    note:"Chỗ đáng nói nhất là chỉ có đúng một bộ máy này. Bài giáo viên giao, bài học sinh tự luyện, và câu hỏi gắn trong trang sách — cả ba đi qua cùng một bộ máy, nên cách trả lời và cách chấm giống nhau ở mọi nơi, không phải học lại cách dùng." },
+  en:{ name:"Doing the work",
+    one:"The same answering screen however you got there: assigned work, practice, book questions.",
+    flow:[
+      "Open the work; if the paper is timed, the clock starts immediately.",
+      "Answer question by question; lose the connection or close the laptop and the work is saved — reopen at the exact spot.",
+      "Where the assignment allows it, AI help can be switched on while answering.",
+      "Submit.",
+      "Results appear at once: marks, number correct, percentage, time taken.",
+      "From there, continue to your own report or return to wherever you started."
+    ],
+    note:"The point worth making is that there is exactly one of these. Teacher-assigned work, student self-practice, and questions embedded in a book page all run through the same engine, so answering and marking behave the same everywhere and nothing has to be relearned." }
+},
+{
+  id:"tuhoc", roles:"gv,hs",
+  vi:{ name:"Tự học",
+    one:"Học sinh tự chọn đề mà luyện, không cần ai giao.",
+    flow:[
+      "Chọn khối và môn; khối lấy sẵn từ hồ sơ, môn nào chưa có nội dung thì nói rõ là đang cập nhật.",
+      "Hoặc vào kho học liệu chọn thẳng một bộ đề rồi bấm dùng.",
+      "Chọn chế độ: luyện tập, kiểm tra, hoặc chơi dạng game.",
+      "Đang luyện dở thì lần sau vào được hỏi có làm tiếp hay làm lại từ đầu.",
+      "Làm bài bằng đúng bộ máy như bài được giao.",
+      "Xem lại kết quả trong hồ sơ luyện tập."
+    ],
+    note:"Có hai đường vào tự học: chọn khối và môn để luyện theo môn, hoặc lấy thẳng một bộ đề trong kho ra luyện. Đường thứ hai đi qua đúng màn làm bài của bài được giao." },
+  en:{ name:"Self-study",
+    one:"Students pick their own paper and practise, with nobody assigning it.",
+    flow:[
+      "Pick grade and subject; the grade is taken from the profile, and any subject without content says so plainly.",
+      "Or go to the content store, pick a paper directly and use it.",
+      "Choose a mode: practice, test, or game.",
+      "If a session was left unfinished, the next visit asks whether to continue or start again.",
+      "Answer using the same engine as assigned work.",
+      "Review the results in the practice record."
+    ],
+    note:"Two ways in: pick grade and subject to practise by subject, or take a paper straight out of the library. The second goes through the same answering screen as assigned work." }
+},
+{
+  id:"chamdiem", roles:"gv",
+  vi:{ name:"Chấm điểm",
+    one:"Chấm từng câu và ghi nhận xét; có thể để AI chấm trước rồi giáo viên sửa lại.",
+    flow:[
+      "Mở bảng theo dõi nhiệm vụ rồi chọn một học sinh.",
+      "Xem bài làm từng câu: trắc nghiệm máy đã chấm sẵn, tự luận và tệp nộp thì giáo viên chấm.",
+      "Bấm gợi ý AI để có nhận xét nháp, rồi sửa lại theo ý mình chứ không lấy nguyên.",
+      "Cho điểm từng câu và viết nhận xét chung cho cả bài.",
+      "Chuyển sang học sinh tiếp theo bằng một nút, không phải quay ra danh sách rồi vào lại."
+    ],
+    note:"Chấm xong thì điểm và nhận xét về hồ sơ của em đó, trạng thái bài đổi sang đã chấm, và em nhận thông báo. Nếu nhiệm vụ bật AI chấm thì bài được chấm tự động trước, giáo viên xem lại và sửa." },
+  en:{ name:"Grading",
+    one:"Mark question by question and comment; AI can mark first and the teacher corrects.",
+    flow:[
+      "Open the assignment tracking table and pick a student.",
+      "Read the work question by question: multiple choice is already marked, essays and uploaded files are marked by the teacher.",
+      "Ask for an AI suggestion to get a draft comment, then rewrite it in your own words rather than taking it as is.",
+      "Give marks per question and write an overall comment.",
+      "Move to the next student with one button, without going back out to the list."
+    ],
+    note:"Once graded, marks and comments land in that student's record, the submission changes to graded, and the student is notified. If the assignment has AI grading on, the work is marked automatically first and the teacher reviews and corrects." }
+},
+{
+  id:"baocao", roles:"gv",
+  vi:{ name:"Báo cáo học sinh",
+    one:"Gom lại: em đó đi học thế nào, làm bài thế nào, gửi được cho phụ huynh.",
+    flow:[
+      "Từ tab thành viên của lớp, bấm vào tên một em.",
+      "Trang hiện biểu đồ chuyên cần và điểm theo tuần, chọn được tuần muốn xem.",
+      "Xem lại từng bài em đã làm và điểm từng bài.",
+      "Viết nhận xét rồi gửi cho phụ huynh."
+    ],
+    note:"Đây là chỗ hai dòng số liệu gặp nhau: chuyên cần từ điểm danh và điểm từ chấm bài. Và đây cũng là chỗ vòng lặp khép lại — nhìn vào chỗ lớp còn yếu để soạn lại nội dung và giao lại bài." },
+  en:{ name:"Student report",
+    one:"One page: how the student attends, how they perform, ready to send to parents.",
+    flow:[
+      "From the class members tab, click a student's name.",
+      "The page shows attendance and marks charted by week, with a week picker.",
+      "Review each piece of work the student did and the marks for it.",
+      "Write a comment and send it to the parents."
+    ],
+    note:"This is where the two streams of numbers meet: attendance from the register and marks from grading. It is also where the loop closes — look at where the class is weak, then rebuild the content and reassign." }
+},
+{
+  id:"holt", roles:"gv,hs",
+  vi:{ name:"Hồ sơ luyện tập",
+    one:"Lịch sử tự luyện: đã làm đề nào, đúng sai chỗ nào, còn đề nào đang dở.",
+    flow:[
+      "Mở hồ sơ, thấy các đề đã làm và đề đang làm dở.",
+      "Bấm tiếp tục để vào đúng chỗ đang dở, tiến độ cũ được nạp lại.",
+      "Bấm chi tiết để xem bảng điểm và phân tích từng câu đúng sai.",
+      "Bên nền tảng còn có trang báo cáo hoạt động, thống kê thời gian học theo ngày."
+    ],
+    note:"Tiến độ luyện gắn với từng học liệu cụ thể, nên mở lại đúng đề đó là thấy lại đúng chỗ dừng." },
+  en:{ name:"Practice record",
+    one:"Practice history: which papers, right and wrong where, what is still unfinished.",
+    flow:[
+      "Open the record to see finished papers and ones still in progress.",
+      "Click continue to resume exactly where you stopped, with the old progress reloaded.",
+      "Click detail for the mark sheet and a right-wrong breakdown per question.",
+      "The platform also has an activity report, totalling study time by day."
+    ],
+    note:"Practice progress is tied to a specific content item, so reopening that paper brings back the exact stopping point." }
+}
+]
+];
+
+/* ─ Nền chung ─────────────────────────────────────────────────── */
+const GROUND = [
+{ id:"f_auth",
+  vi:{ name:"Một lần đăng nhập cho mọi phần",
+       one:"Đăng nhập một lần ở cửa chung rồi đi khắp các phần, kể cả những phần là ứng dụng riêng, mà không phải nhập lại. Thoát ở một chỗ thì các chỗ khác cũng thoát theo." },
+  en:{ name:"One sign-in for everything",
+       one:"Sign in once at the shared door, then move through every part — including the ones that are separate applications — without signing in again. Sign out in one place and the others follow." } },
+{ id:"f_data",
+  vi:{ name:"Một kho dữ liệu dùng chung",
+       one:"Hai mặt tiền và nhiều ứng dụng riêng, nhưng cùng đọc và ghi vào một kho. Vì thế thứ soạn ở chỗ này dùng được ngay ở chỗ khác, không cần bước đồng bộ nào." },
+  en:{ name:"One shared data store",
+       one:"Two front doors and several separate applications, all reading and writing one store. That is why something authored in one place is usable in another with no syncing step." } }
+];
+
+/* ─ Liên kết. type: nav (có hướng) | data (không hướng) | back ─
+   spine:true = hiện sẵn ở lớp đầu
+   ───────────────────────────────────────────────────────────── */
+const EDGES = [
+{from:"lophoc",  to:"nhiemvu", type:"nav",  spine:1, vi:"giao bài trong lớp",        en:"assign inside the class"},
+{from:"tkb",     to:"diemdanh",type:"nav",  spine:1, vi:"bấm tiết là điểm danh",     en:"a period opens attendance"},
+{from:"kho",     to:"bode",    type:"data", spine:1, vi:"bộ đề là một loại học liệu",en:"a paper is a content record"},
+{from:"nhch",    to:"bode",    type:"data", spine:1, vi:"cùng một kho câu hỏi",      en:"the same question store"},
+{from:"bode",    to:"nhiemvu", type:"nav",  spine:1, vi:"chọn đề để giao",           en:"pick a paper to assign"},
+{from:"nhiemvu", to:"lambai",  type:"nav",  spine:1, vi:"học sinh vào làm",          en:"students answer"},
+{from:"lambai",  to:"chamdiem",type:"nav",  spine:1, vi:"nộp rồi là sang chấm",      en:"submit, then grade"},
+{from:"chamdiem",to:"baocao",  type:"nav",  spine:1, vi:"điểm về báo cáo",           en:"marks into the report"},
+{from:"baocao",  to:"kho",     type:"back", spine:1, vi:"dựa kết quả mà soạn lại",   en:"rebuild from the results"},
+
+{from:"lophoc",  to:"bangtin", type:"nav",  vi:"đăng bài cho lớp",              en:"post to the class"},
+{from:"lophoc",  to:"baocao",  type:"nav",  vi:"bấm tên một em",                en:"click a student's name"},
+{from:"lophoc",  to:"tkb",     type:"data", vi:"cùng lớp, cùng tiết",           en:"same class, same period"},
+{from:"lophoc",  to:"kho",     type:"data", vi:"ghim học liệu vào lớp",         en:"pin content to the class"},
+{from:"tkb",     to:"lophoc",  type:"nav",  vi:"học sinh bấm tiết là vào lớp",  en:"a student's click enters the class"},
+{from:"diemdanh",to:"lophoc",  type:"nav",  vi:"quay về lớp",                   en:"back to the class"},
+{from:"diemdanh",to:"baocao",  type:"nav",  vi:"chuyên cần vào báo cáo",        en:"attendance into the report"},
+{from:"hoso",    to:"f_auth",  type:"data", vi:"vai trò quyết định thấy gì",    en:"role decides what is visible"},
+
+{from:"kho",     to:"sach",    type:"data", vi:"sách cũng là học liệu",         en:"books are content records too"},
+{from:"kho",     to:"thuvien", type:"data", vi:"cùng dữ liệu, khác bộ lọc",     en:"same data, different filter"},
+{from:"duyet",   to:"kho",     type:"nav",  vi:"duyệt xong mới cho người khác dùng", en:"cleared before others can use it"},
+{from:"kho",     to:"nhiemvu", type:"nav",  vi:"chọn đề từ kho",                en:"pick a paper from the store"},
+{from:"kho",     to:"tuhoc",   type:"nav",  vi:"lấy đề ra tự luyện",            en:"take a paper out to practise"},
+{from:"kho",     to:"bangtin", type:"data", vi:"bài đăng đính kèm học liệu",    en:"posts attach content"},
+{from:"kho",     to:"holt",    type:"data", vi:"tiến độ gắn với học liệu",      en:"progress tied to an item"},
+{from:"kho",     to:"f_data",  type:"data", vi:"chỗ hai hệ gặp nhau",           en:"where the two systems meet"},
+
+{from:"sach",    to:"lambai",  type:"nav",  vi:"câu hỏi trong trang sách",      en:"questions inside a book page"},
+{from:"nhch",    to:"duyet",   type:"nav",  vi:"câu hỏi chờ duyệt",             en:"questions await review"},
+{from:"bode",    to:"lambai",  type:"nav",  vi:"mở đề ra làm",                  en:"open the paper and answer"},
+{from:"thuvien", to:"bode",    type:"nav",  vi:"mở ra sửa tiếp",                en:"reopen to keep working"},
+{from:"thuvien", to:"nhiemvu", type:"nav",  vi:"chọn đề từ thư viện",           en:"pick from your library"},
+
+{from:"nhiemvu", to:"chamdiem",type:"nav",  vi:"giáo viên vào chấm",            en:"teachers mark"},
+{from:"nhiemvu", to:"thongbao",type:"nav",  vi:"lớp nhận thông báo",            en:"the class is notified"},
+{from:"bangtin", to:"thongbao",type:"nav",  vi:"thông báo mở đúng bài",         en:"the notification opens the post"},
+
+{from:"lambai",  to:"tuhoc",   type:"data", vi:"dùng chung bộ máy làm bài",     en:"the same answering engine"},
+{from:"lambai",  to:"holt",    type:"nav",  vi:"kết quả về hồ sơ",              en:"results into the record"},
+{from:"tuhoc",   to:"holt",    type:"nav",  vi:"kết quả về hồ sơ",              en:"results into the record"},
+{from:"chamdiem",to:"thongbao",type:"nav",  vi:"em nhận thông báo có điểm",     en:"the student is notified"},
+
+{from:"trangchu",to:"lophoc",  type:"nav",  vi:"cửa vào",               en:"door in"},
+{from:"trangchu",to:"tkb",     type:"nav",  vi:"cửa vào",               en:"door in"},
+{from:"trangchu",to:"kho",     type:"nav",  vi:"cửa vào",               en:"door in"},
+{from:"trangchu",to:"nhiemvu", type:"nav",  vi:"cửa vào",               en:"door in"},
+{from:"trangchu",to:"thongbao",type:"nav",  vi:"xem đầy đủ việc mới",   en:"see everything new"},
+{from:"thongbao",to:"nhiemvu", type:"nav",  vi:"tới bài cần làm",       en:"to the work to be done"},
+{from:"thongbao",to:"tintuc",  type:"nav",  vi:"tin của trường",        en:"school news"}
+];
+
+/* ══════════════════════════════════════════════════════════════════
+   DỰNG TRANG
+   ══════════════════════════════════════════════════════════════════ */
+
+let lang = "vi";
+let openId = null;
+
+const wrap   = document.getElementById("wrap");
+const band   = document.getElementById("band");
+const spine  = document.getElementById("spine");
+const ground = document.getElementById("ground");
+const svg    = document.getElementById("edges");
+const eLayer = document.getElementById("edge-layer");
+const lLayer = document.getElementById("label-layer");
+
+/* id -> {n, col}. col: -1 dải trên · 0..3 chặng · 9 nền chung */
+const NODE = {};
+CROSS.forEach(n => NODE[n.id] = {n, col:-1});
+STAGES.forEach((col,i) => col.forEach(n => NODE[n.id] = {n, col:i}));
+GROUND.forEach(n => NODE[n.id] = {n, col:9});
+
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+                          .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+
+const ARROW = function(color,dir){
+  return '<svg class="tick" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="'
+    + color + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+    + (dir === "out" ? '<path d="M5 12h13"/><path d="m12 5 7 7-7 7"/>'
+                     : '<path d="M19 12H6"/><path d="m12 19-7-7 7-7"/>') + '</svg>';
+};
+const DASH = '<svg class="tick" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 4" aria-hidden="true"><path d="M4 12h16"/></svg>';
+const GLYPH = {
+  "nav-out": ARROW("#2563EB","out"), "nav-in": ARROW("#2563EB","in"),
+  "back-out":ARROW("#B45309","out"), "back-in":ARROW("#B45309","in"),
+  "data":    DASH
+};
+
+const TICK = {
+  nav:'<svg class="tick" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h13"/><path d="m12 5 7 7-7 7"/></svg>',
+  data:'<svg class="tick" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 4" aria-hidden="true"><path d="M4 12h16"/></svg>',
+  back:'<svg class="tick" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#B45309" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H6"/><path d="m12 19-7-7 7-7"/></svg>'
+};
+
+/* Bản diễn giải dài, chỉ dùng cho danh sách chữ trong thẻ mở.
+   Nhãn ngắn dán trên đường vẽ vẫn lấy từ EDGES. */
+const LONG = {
+  "lophoc>nhiemvu":{vi:"giao bài ngay trong lớp, không phải sang chỗ khác",
+                    en:"assign from inside the class, no need to go elsewhere"},
+  "lophoc>kho":    {vi:"học liệu ghim vào lớp được lấy từ kho ra",
+                    en:"content pinned to a class is drawn from the store"},
+  "diemdanh>baocao":{vi:"chuyên cần chảy vào báo cáo của từng em",
+                    en:"attendance flows into each student's report"},
+  "hoso>f_auth":   {vi:"vai trò và khối lớp trong hồ sơ quyết định mỗi người thấy gì",
+                    en:"the role and grade in the profile decide what each person sees"},
+  "kho>bode":      {vi:"bộ đề cũng là một loại học liệu; tài liệu trong kho còn là nguồn để máy bóc câu hỏi",
+                    en:"a paper is a content record too; documents here are also what machines extract questions from"},
+  "duyet>kho":     {vi:"duyệt xong thì nội dung mới hiện cho người khác dùng",
+                    en:"once cleared, the content becomes usable by others"},
+  "kho>nhiemvu":   {vi:"chọn bộ đề từ kho khi giao bài",
+                    en:"pick a paper from the store when assigning"},
+  "kho>tuhoc":     {vi:"lấy đề trong kho ra tự luyện",
+                    en:"take a paper out of the store to practise"},
+  "kho>holt":      {vi:"tiến độ luyện gắn với từng học liệu cụ thể",
+                    en:"practice progress is tied to a specific item"},
+  "kho>f_data":    {vi:"kho này chính là chỗ hai hệ gặp nhau",
+                    en:"this store is where the two systems meet"},
+  "nhch>bode":     {vi:"cùng một kho câu hỏi; đề sinh ra từ ma trận nằm cùng bảng đề",
+                    en:"the same question store; papers generated from a matrix land in the same exam table"},
+  "sach>lambai":   {vi:"câu hỏi trong trang sách chạy bằng đúng bộ máy làm bài",
+                    en:"questions inside a book page run on the same answering engine"},
+  "lambai>tuhoc":  {vi:"dùng chung một bộ máy làm bài",
+                    en:"both share one answering engine"},
+  "baocao>kho":    {vi:"dựa vào kết quả mà soạn lại, dạy lại",
+                    en:"use the results to rebuild the content and reteach"},
+  "trangchu>lophoc":{vi:"bấm thẻ trên trang chủ là tới đúng chỗ", en:"a card on home takes you straight there"},
+  "trangchu>tkb":  {vi:"bấm thẻ trên trang chủ là tới đúng chỗ", en:"a card on home takes you straight there"},
+  "trangchu>kho":  {vi:"bấm thẻ trên trang chủ là tới đúng chỗ", en:"a card on home takes you straight there"},
+  "trangchu>nhiemvu":{vi:"bấm thẻ trên trang chủ là tới đúng chỗ", en:"a card on home takes you straight there"}
+};
+
+/* Danh sách liên kết trong thẻ được SINH RA từ EDGES, để chữ và
+   đường vẽ không thể lệch nhau. */
+const RANK = {nav:0, data:1, back:2};
+function linksFor(id){
+  const out = [];
+  EDGES.forEach(function(e, i){
+    const isFrom = e.from === id, isTo = e.to === id;
+    if(!isFrom && !isTo) return;
+    const other = isFrom ? e.to : e.from;
+    const long = LONG[e.from + ">" + e.to];
+    out.push({
+      idx: i,
+      type: e.type,
+      name: NODE[other].n[lang].name,
+      why:  (long && long[lang]) || e[lang],
+      key:  e.type === "data" ? "data" : (e.type + (isFrom ? "-out" : "-in"))
+    });
+  });
+  out.sort(function(a,b){ return (RANK[a.type]-RANK[b.type]) || a.name.localeCompare(b.name); });
+  return out;
+}
+
+function cardHTML(n, bandpos){
+  const d = n[lang];
+  const badge = n.embed ? '<span class="embed-badge">'+(lang==="vi"?"app riêng":"separate app")+'</span>' : "";
+  const steps = d.flow.map(s => "<li>"+esc(s)+"</li>").join("");
+  const links = linksFor(n.id).map(function(l){
+    return '<li data-edge="'+l.idx+'">'+GLYPH[l.key]
+         + "<span><b>"+esc(l.name)+"</b> — "+esc(l.why)+"</span></li>";
+  }).join("");
+  return ''
+   + '<div class="card" data-node="'+n.id+'" data-id="'+n.id+'"'
+   +   (bandpos ? ' data-bandpos="'+bandpos+'"' : "") + '>'
+   +   '<button class="card-btn" type="button" aria-expanded="false">'
+   +     '<span class="card-name">'+esc(d.name)+badge
+   +       '<span class="roles">'+esc(roleLabel(n.roles))+'</span></span>'
+   +     '<span class="card-one">'+esc(d.one)+'</span>'
+   +   '</button>'
+   +   '<div class="detail">'
+   +     '<div class="detail-scroll">'
+   +       '<div class="d-flow">'
+   +         '<p class="d-head">'+esc(UI[lang].dFlow)+'</p>'
+   +         '<ol class="steps">'+steps+'</ol>'
+   +         (d.note ? '<p class="d-note">'+esc(d.note)+'</p>' : "")
+   +       '</div>'
+   +       (links ? '<div class="d-links"><p class="d-head">'+esc(UI[lang].dLinks)+'</p><ul class="links">'+links+'</ul></div>' : "")
+   +     '</div>'
+   +     '<button class="close" type="button">'+esc(UI[lang].close)+'</button>'
+   +   '</div>'
+   + '</div>';
+}
+
+function render(){
+  const t = UI[lang];
+  document.documentElement.lang = lang;
+  document.getElementById("t-title").textContent = t.title;
+  document.getElementById("t-sub").textContent   = t.sub;
+  document.getElementById("t-hint").textContent  = t.hint;
+  document.getElementById("t-foot").innerHTML    = t.foot;
+  document.getElementById("print-note").innerHTML = t.printNote;
+  document.getElementById("narrow-note").innerHTML = t.narrowNote;
+  document.getElementById("t-key").innerHTML = ''
+    + '<span class="key-row">'+TICK.nav +esc(t.keyNav)+'</span>'
+    + '<span class="key-row">'+TICK.data+esc(t.keyData)+'</span>'
+    + '<span class="key-row">'+TICK.back+esc(t.keyBack)+'</span>'
+    + '<span class="key-row"><span class="key-badge">'+(lang==="vi"?"app riêng":"separate app")+'</span>'+esc(t.keyEmbed)+'</span>';
+
+  band.innerHTML = '<span class="band-label">'+esc(t.bandLabel)+'</span>'
+    + CROSS.map(function(n,i){ return cardHTML(n, i+1); }).join("");
+
+  spine.innerHTML = STAGES.map(function(col,i){
+    return '<section class="stage">'
+      + '<header class="stage-head"><span class="stage-no">'+(i+1)+'</span>'
+      + '<h2 class="stage-name">'+esc(t.stages[i])+'</h2></header>'
+      + '<div class="stage-body">'+col.map(cardHTML).join("")+'</div>'
+      + '</section>';
+  }).join("");
+
+  ground.innerHTML = '<span class="ground-label">'+esc(t.groundLabel)+'</span>'
+    + GROUND.map(function(n){
+        return '<div class="ground-item" data-node="'+n.id+'">'
+          + '<span class="gname">'+esc(n[lang].name)+'</span>'
+          + '<span class="gone">'+esc(n[lang].one)+'</span></div>';
+      }).join("");
+
+  applyState();
+}
+
+function applyState(){
+  const partners = new Set();
+  if(openId){
+    EDGES.forEach(function(e){
+      if(e.from===openId) partners.add(e.to);
+      if(e.to===openId)   partners.add(e.from);
+    });
+  }
+  document.querySelectorAll(".card").forEach(function(el){
+    const id = el.dataset.id;
+    /* chi thu the cung cot trong TRUC - dai xuyen suot khong co
+       chieu cao co dinh nen thu lai se lam ca trang dich len */
+    const oc = openId ? NODE[openId].col : null;
+    const sameCol = openId && oc >= 0 && oc <= 3 && NODE[id].col === oc;
+    el.classList.toggle("is-open",      id===openId);
+    el.classList.toggle("is-collapsed", !!openId && id!==openId && !!sameCol);
+    el.classList.toggle("is-partner",   !!openId && partners.has(id));
+    el.classList.toggle("is-dim",       !!openId && id!==openId && !partners.has(id));
+    el.querySelector(".card-btn").setAttribute("aria-expanded", id===openId ? "true" : "false");
+  });
+  document.querySelectorAll(".ground-item").forEach(function(el){
+    el.classList.toggle("is-dim", !!openId && !partners.has(el.dataset.node));
+  });
+  requestAnimationFrame(function(){ drawEdges(openId, null); updateFade(); aimPanelArrow(); });
+}
+
+/* Mũi nhọn của panel dải trên chỉ về giữa thẻ đang mở. Đo thật vì
+   bề rộng thẻ đổi theo cỡ cửa sổ. */
+function aimPanelArrow(){
+  const card = band.querySelector(".card.is-open");
+  if(!card) return;
+  const det = card.querySelector(".detail");
+  if(!det) return;
+  const bb = band.getBoundingClientRect(), cb = card.getBoundingClientRect();
+  if(!bb.width) return;
+  det.style.setProperty("--arrow-x", ((cb.left + cb.width/2 - bb.left) / bb.width * 100).toFixed(2) + "%");
+}
+
+/* Vệt mờ ở đáy chỉ hiện khi thật sự còn nội dung chưa đọc tới,
+   không thì nó làm câu đang đọc trông như bị cắt. */
+function updateFade(){
+  document.querySelectorAll(".card.is-open>.detail").forEach(function(d){
+    const sc = d.querySelector(".detail-scroll");
+    if(!sc) return;
+    d.classList.toggle("has-more", sc.scrollHeight - sc.scrollTop - sc.clientHeight > 4);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   VẼ ĐƯỜNG
+   ══════════════════════════════════════════════════════════════════ */
+
+function geo(){
+  const box = wrap.getBoundingClientRect();
+  const rectOf = function(el){
+    if(!el) return null;
+    const r = el.getBoundingClientRect();
+    return {x:r.left-box.left, y:r.top-box.top, w:r.width, h:r.height,
+            cx:r.left-box.left+r.width/2, cy:r.top-box.top+r.height/2};
+  };
+  const cols = Array.prototype.map.call(wrap.querySelectorAll(".stage"), function(el){
+    const r = el.getBoundingClientRect();
+    return {left:r.left-box.left, right:r.right-box.left};
+  });
+  return {
+    cols:cols,
+    W:box.width,
+    bandR:rectOf(band),
+    spineR:rectOf(spine),
+    groundR:rectOf(ground),
+    node:function(id){ return rectOf(wrap.querySelector('[data-node="'+id+'"]')); }
+  };
+}
+
+function unit(a,b){
+  const dx=b.x-a.x, dy=b.y-a.y, m=Math.hypot(dx,dy)||1;
+  return {x:dx/m, y:dy/m, m:m};
+}
+
+function roundPath(pts, r){
+  if(pts.length < 2) return "";
+  let d = "M "+pts[0].x.toFixed(1)+" "+pts[0].y.toFixed(1);
+  for(let i=1;i<pts.length-1;i++){
+    const p0=pts[i-1], p1=pts[i], p2=pts[i+1];
+    const v1=unit(p1,p0), v2=unit(p1,p2);
+    const rr = Math.max(0, Math.min(r, v1.m/2, v2.m/2));
+    d += " L "+(p1.x+v1.x*rr).toFixed(1)+" "+(p1.y+v1.y*rr).toFixed(1);
+    d += " Q "+p1.x.toFixed(1)+" "+p1.y.toFixed(1)+" "+(p1.x+v2.x*rr).toFixed(1)+" "+(p1.y+v2.y*rr).toFixed(1);
+  }
+  const z = pts[pts.length-1];
+  return d + " L "+z.x.toFixed(1)+" "+z.y.toFixed(1);
+}
+
+function buildPath(e, g, off){
+  const a = g.node(e.from), b = g.node(e.to);
+  if(!a || !b) return null;
+  const ca = NODE[e.from].col, cb = NODE[e.to].col;
+  const GUT = 15;
+  const gL = function(c){ return Math.max(7, g.cols[c] ? g.cols[c].left  - GUT : a.x - GUT); };
+  const gR = function(c){ return Math.min(g.W-7, g.cols[c] ? g.cols[c].right + GUT : a.x + a.w + GUT); };
+  const laneY = g.spineR.y + g.spineR.h + 13 + off*13;
+  const topY  = g.spineR.y - 12;
+  const gndY  = g.groundR.y - 12;
+  const bbY   = g.bandR.y + g.bandR.h + 6 + off*6;
+
+  /* dải trên -> thẻ trong chặng */
+  if(ca === -1 && cb >= 0 && cb <= 3)
+    return roundPath([{x:a.cx,y:a.y+a.h},{x:a.cx,y:topY},{x:gL(cb),y:topY},
+                      {x:gL(cb),y:b.cy},{x:b.x,y:b.cy}], 9);
+  /* thẻ trong chặng -> dải trên */
+  if(cb === -1 && ca >= 0 && ca <= 3)
+    return roundPath([{x:a.x,y:a.cy},{x:gL(ca),y:a.cy},{x:gL(ca),y:topY},
+                      {x:b.cx,y:topY},{x:b.cx,y:b.y+b.h}], 9);
+  /* hai khối cùng ở dải trên -> chạy dưới dải */
+  if(ca === -1 && cb === -1)
+    return roundPath([{x:a.cx,y:a.y+a.h},{x:a.cx,y:bbY},{x:b.cx,y:bbY},{x:b.cx,y:b.y+b.h}], 8);
+  /* xuống nền chung / lên từ nền chung */
+  if(cb === 9)
+    return roundPath([{x:a.x,y:a.cy},{x:gL(ca),y:a.cy},{x:gL(ca),y:gndY},
+                      {x:b.cx,y:gndY},{x:b.cx,y:b.y}], 9);
+  if(ca === 9)
+    return roundPath([{x:a.cx,y:a.y},{x:a.cx,y:gndY},{x:gL(cb),y:gndY},
+                      {x:gL(cb),y:b.cy},{x:b.x,y:b.cy}], 9);
+  /* cùng một chặng -> vòng qua bên trái */
+  /* Hai thẻ có thể nối nhau bằng nhiều loại liên kết (ví dụ Lớp học
+     và Thời khóa biểu vừa dùng chung dữ liệu vừa bấm qua được), nên
+     phải đẩy mỗi đường ra một làn riêng, không thì chúng trùng khít. */
+  if(ca === cb){
+    /* Chặng ① nằm sát lề trái: đi vòng bên trái là chạy ra ngoài trang,
+       nên chặng ① phải đi vòng bên phải. */
+    const right = (ca === 0);
+    const x  = right ? gR(ca) + off*8 : gL(ca) - off*8;
+    const ax = right ? a.x + a.w : a.x;
+    const bx = right ? b.x + b.w : b.x;
+    return roundPath([{x:ax,y:a.cy},{x:x,y:a.cy},{x:x,y:b.cy},{x:bx,y:b.cy}], 8);
+  }
+  /* hai chặng liền nhau, đi xuôi -> cong ngang gọn */
+  if(cb === ca + 1){
+    const x1=a.x+a.w, x2=b.x, mx=(x1+x2)/2;
+    return "M "+x1.toFixed(1)+" "+a.cy.toFixed(1)
+         + " C "+mx.toFixed(1)+" "+a.cy.toFixed(1)+" "+mx.toFixed(1)+" "+b.cy.toFixed(1)
+         + " "+x2.toFixed(1)+" "+b.cy.toFixed(1);
+  }
+  /* đi xuôi nhưng nhảy chặng -> chạy dưới trục */
+  if(cb > ca)
+    return roundPath([{x:a.x+a.w,y:a.cy},{x:gR(ca),y:a.cy},{x:gR(ca),y:laneY},
+                      {x:gL(cb),y:laneY},{x:gL(cb),y:b.cy},{x:b.x,y:b.cy}], 9);
+  /* đi ngược -> chạy dưới trục, vào từ bên phải */
+  return roundPath([{x:a.x,y:a.cy},{x:gL(ca),y:a.cy},{x:gL(ca),y:laneY},
+                    {x:gR(cb),y:laneY},{x:gR(cb),y:b.cy},{x:b.x+b.w,y:b.cy}], 9);
+}
+
+const NS = "http://www.w3.org/2000/svg";
+
+function drawEdges(activeId, hoverId, solo){
+  eLayer.textContent = "";
+  lLayer.textContent = "";
+  if(getComputedStyle(svg).display === "none") return;
+
+  const g = geo();
+  if(!g.spineR || !g.groundR || !g.cols.length) return;
+
+  const focus = activeId || hoverId;
+  const ghost = !!hoverId && !activeId;
+  const list  = (solo != null && EDGES[solo]) ? [EDGES[solo]]
+              : focus ? EDGES.filter(function(e){ return e.from===focus || e.to===focus; })
+              : EDGES.filter(function(e){ return e.spine; });
+
+  const seat = {lane:0, col:0, band:0};
+
+  list.forEach(function(e){
+    const ca = NODE[e.from].col, cb = NODE[e.to].col;
+    const bothInSpine = ca>=0 && ca<=3 && cb>=0 && cb<=3;
+    let off = 0;
+    if(bothInSpine && ca === cb){          off = seat.col;  seat.col  = (seat.col+1)%4; }
+    else if(bothInSpine && (cb<ca || cb>ca+1)){ off = seat.lane; seat.lane = (seat.lane+1)%4; }
+    else if(ca === -1 && cb === -1){       off = seat.band; seat.band = (seat.band+1)%3; }
+    const d = buildPath(e, g, off);
+    if(!d) return;
+
+    const p = document.createElementNS(NS, "path");
+    p.setAttribute("d", d);
+    p.setAttribute("class", "edge edge-"+e.type
+      + (ghost ? " is-ghost" : "") + (solo != null ? " is-solo" : ""));
+    if(e.type === "nav")  p.setAttribute("marker-end", "url(#ah-nav)");
+    if(e.type === "back") p.setAttribute("marker-end", "url(#ah-back)");
+    eLayer.appendChild(p);
+
+    /* Nhãn chỉ dán khi người đọc rê vào đúng một dòng liên kết, cộng
+       với mũi quay lại ở lớp đầu vì đó là mũi kể chuyện chính.
+       Dán tất cả nhãn cùng lúc thì chúng che mất tên thẻ. */
+    if(solo != null || (!focus && e.type === "back")){
+      let mid;
+      try{ mid = p.getPointAtLength(p.getTotalLength()/2); }catch(err){ return; }
+      const txt = e[lang];
+      const w = Math.max(34, txt.length*5.8 + 12);
+      /* kẹp tâm nhãn để pill không chạy ra ngoài lề trang */
+      mid = {x: Math.min(Math.max(mid.x, w/2 + 2), g.W - w/2 - 2), y: mid.y};
+      const grp = document.createElementNS(NS, "g");
+      grp.setAttribute("class","elabel k-"+e.type);
+      const r = document.createElementNS(NS, "rect");
+      r.setAttribute("x",(mid.x-w/2).toFixed(1)); r.setAttribute("y",(mid.y-8.5).toFixed(1));
+      r.setAttribute("width",w.toFixed(1)); r.setAttribute("height","17"); r.setAttribute("rx","4");
+      const tx = document.createElementNS(NS, "text");
+      tx.setAttribute("x",mid.x.toFixed(1)); tx.setAttribute("y",(mid.y+3.6).toFixed(1));
+      tx.setAttribute("text-anchor","middle");
+      tx.textContent = txt;
+      grp.appendChild(r); grp.appendChild(tx);
+      lLayer.appendChild(grp);
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   TƯƠNG TÁC
+   ══════════════════════════════════════════════════════════════════ */
+
+document.querySelectorAll(".lang button").forEach(function(b){
+  b.addEventListener("click", function(){
+    if(lang === b.dataset.lang) return;
+    lang = b.dataset.lang;
+    document.querySelectorAll(".lang button").forEach(function(x){
+      x.setAttribute("aria-pressed", x.dataset.lang === lang ? "true" : "false");
+    });
+    render();
+  });
+});
+
+wrap.addEventListener("click", function(ev){
+  if(ev.target.closest(".close")){ openId = null; applyState(); return; }
+  const card = ev.target.closest(".card");
+  if(!card) return;
+  /* Bôi đen để copy một bước, hay bấm một dòng liên kết, thì không
+     được coi là bấm để đóng thẻ. */
+  if(openId === card.dataset.id && ev.target.closest(".detail")) return;
+  openId = (openId === card.dataset.id) ? null : card.dataset.id;
+  applyState();
+  if(openId){
+    const btn = card.querySelector(".card-btn");
+    if(btn) btn.focus();
+  }
+});
+
+wrap.addEventListener("mouseover", function(ev){
+  const row = ev.target.closest("ul.links li");
+  if(row && openId){ drawEdges(openId, null, +row.dataset.edge); return; }
+  if(openId) return;
+  const card = ev.target.closest(".card");
+  if(card) drawEdges(null, card.dataset.id);
+});
+wrap.addEventListener("mouseout", function(ev){
+  if(ev.target.closest("ul.links li")){ drawEdges(openId, null); return; }
+  if(openId) return;
+  if(ev.target.closest(".card")) drawEdges(null, null);
+});
+
+document.addEventListener("keydown", function(ev){
+  if(ev.key === "Escape" && openId){ openId = null; applyState(); }
+});
+
+wrap.addEventListener("scroll", updateFade, true);
+
+let rt;
+window.addEventListener("resize", function(){
+  clearTimeout(rt);
+  rt = setTimeout(function(){ drawEdges(openId, null); aimPanelArrow(); }, 120);
+});
+
+render();
+</script>
+</body>
+</html>

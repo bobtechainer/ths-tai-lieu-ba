@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sơ đồ hệ thống Trường học số</title>
+<style>
+  :root{
+    --bg:#F7F9FB; --ink:#1B2430; --soft:#5A6675; --mute:#8A94A2;
+    --line:#DCE3EA; --white:#fff;
+    --hot:#1D4ED8;            /* mau sang len khi chon */
+    --hotbg:#EEF3FE;
+    --lane-a:#FCFDFE; --lane-b:#F2F5F8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:var(--bg)}
+  body{font-family:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;color:var(--ink)}
+
+  #stage{position:fixed;inset:0;cursor:grab}
+  #cam,#rail{transition:transform .3s cubic-bezier(.22,.61,.36,1)}
+  #cam.snap,#rail.snap{transition:none}
+  #stage.drag{cursor:grabbing}
+  svg{display:block;width:100%;height:100%;user-select:none;-webkit-user-select:none}
+
+  /* ── lan va chang ── */
+  .laneBg{fill:var(--lane-a)}
+  .laneBg.alt{fill:var(--lane-b)}
+  .laneLine{stroke:var(--line);stroke-width:1}
+  .laneName{font-size:14.5px;font-weight:700;letter-spacing:.05em;fill:#4A5764;text-transform:uppercase}
+  .colName{font-size:14.5px;font-weight:700;letter-spacing:.05em;fill:#4A5764;text-transform:uppercase}
+  .colNo{font-size:14.5px;font-weight:700;fill:#93A2B3}
+  .laneHit{fill:transparent;cursor:pointer}
+  .cellHint{stroke:#E8EDF2;stroke-width:1;stroke-dasharray:2 7}
+
+  /* ── khoi ── */
+  .node{cursor:pointer}
+  .node .box{fill:var(--white);stroke:#C9D3DE;stroke-width:1.4;rx:9}
+  .node .nm{font-size:15.5px;font-weight:600;fill:var(--ink)}
+  .node .sub{font-size:11.5px;font-weight:400;fill:var(--mute)}
+  .node:hover .box{stroke:#8FA2B8}
+  .node.on .box{fill:var(--hotbg);stroke:var(--hot);stroke-width:2.4}
+  .node.on .nm{fill:var(--hot)}
+  .node.near .box{stroke:var(--hot);stroke-width:1.9}
+  .node.lane-on .box{stroke:#8FA2B8;stroke-width:1.9}
+  .node .glow{fill:none;stroke:var(--hot);stroke-width:9;opacity:0;rx:12}
+  .node.on .glow{opacity:.16}
+  .node.is-dim .box{fill:#fff;stroke:#E4EAF0}
+  .node.is-dim .nm{fill:#AEB8C4}
+  .node.is-dim .sub{fill:#C7CFD9}
+  .node.is-dim:hover .box{stroke:#B6C2D2}
+  .node.is-dim:hover .nm{fill:var(--soft)}
+  .node:focus{outline:none}
+  .node:focus-visible .box{stroke:var(--hot);stroke-width:2.4}
+
+  /* ── duong ── */
+  .wire{fill:none;stroke:#8D9CAD;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .wire.hot{stroke:var(--hot);stroke-width:2.6}
+  .wire.faint{opacity:.3}
+  .wire.back{stroke-width:2.4}
+  .wlabel rect{fill:#fff;stroke:var(--hot);rx:5}
+  .wlabel text{font-size:12.5px;fill:#1F2A37}
+
+  #railbg{fill:var(--bg)}
+  #rail{pointer-events:none}
+  #dimmer{fill:var(--bg);opacity:0;pointer-events:none;transition:opacity .2s ease}
+  body.sel #dimmer{opacity:.62}
+
+  /* ── dieu khien ── */
+  #ctl{position:fixed;top:14px;right:16px;display:flex;gap:8px;align-items:center;z-index:5}
+  #ctl button{appearance:none;border:1px solid var(--line);background:#fff;border-radius:8px;
+    font:inherit;font-size:12px;font-weight:600;color:var(--soft);padding:7px 11px;cursor:pointer;min-height:34px}
+  #ctl button:hover{border-color:#A9B6C4;color:var(--ink)}
+  #ctl button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+  #ctl .grp{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff}
+  #ctl .grp button{border:0;border-radius:0}
+  #ctl .grp button+button{border-left:1px solid var(--line)}
+
+  /* ── the chi tiet ── */
+  #det{position:fixed;top:0;right:0;bottom:0;width:400px;max-width:100vw;background:#fff;
+    border-left:1px solid var(--line);box-shadow:-12px 0 32px rgba(16,24,40,.10);
+    transform:translateX(100%);transition:transform .22s ease;z-index:6;
+    display:flex;flex-direction:column;padding:20px 22px 16px}
+  #det.open{transform:none}
+  #det h2{margin:0;font-size:20px;line-height:1.25;font-weight:650}
+  #det .lane{margin:6px 0 0;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mute)}
+  #det .one{margin:10px 0 0;font-size:13.5px;line-height:1.5;color:var(--soft)}
+  #det .scroll{margin-top:14px;overflow-y:auto;flex:1;min-height:0;padding-right:6px;
+    scrollbar-width:thin;scrollbar-color:#C2CCD8 #EEF1F5}
+  #det .scroll::-webkit-scrollbar{width:7px}
+  #det .scroll::-webkit-scrollbar-thumb{background:#C2CCD8;border-radius:4px}
+  #det h3{margin:16px 0 7px;font-size:11.5px;font-weight:700;letter-spacing:.05em;color:var(--mute)}
+  #det h3:first-child{margin-top:0}
+  #det ol{margin:0;padding:0;list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:6px}
+  #det ol li{counter-increment:s;position:relative;padding-left:22px;font-size:13px;line-height:1.5;color:var(--soft)}
+  #det ol li::before{content:counter(s);position:absolute;left:0;top:1px;width:16px;height:16px;border-radius:50%;
+    background:#EDF1F5;color:var(--mute);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  #det .note{margin:9px 0 0;font-size:13px;line-height:1.55;background:#F1F5F9;border-radius:7px;padding:9px 11px}
+  #det ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px}
+  #det ul li{font-size:13px;line-height:1.45;color:var(--soft);padding:3px 5px;margin-left:-5px;border-radius:5px;cursor:default}
+  #det ul li:hover{background:#F1F5F9}
+  #det ul li b{color:var(--ink);font-weight:600}
+  #det ul li .ar{color:var(--mute);font-weight:600;font-size:11.5px}
+  #det .wrapscroll{position:relative;flex:1;min-height:0;display:flex;flex-direction:column}
+  #det .wrapscroll.has-more::after{content:"";position:absolute;left:0;right:8px;bottom:0;height:26px;
+    pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,0),#fff)}
+  #det .x{margin-top:14px;align-self:flex-start;appearance:none;border:1px solid var(--line);background:#fff;
+    border-radius:7px;font:inherit;font-size:12px;color:var(--soft);padding:6px 12px;cursor:pointer;min-height:30px}
+  #det .x:hover{border-color:#A9B6C4;color:var(--ink)}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media print{
+    html,body{overflow:visible;height:auto}
+    #ctl,#det{display:none!important}
+    #stage{position:static;inset:auto}
+    @page{size:A3 landscape;margin:8mm}
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="wires" role="img" aria-label="Sơ đồ hệ thống Trường học số">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.6" markerHeight="5.6" orient="auto-start-reverse">
+        <path d="M0 1.6 L9 5 L0 8.4 z" fill="#AFBBC9"/>
+      </marker>
+      <marker id="arh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.6" markerHeight="5.6" orient="auto-start-reverse">
+        <path d="M0 1.6 L9 5 L0 8.4 z" fill="#1D4ED8"/>
+      </marker>
+    </defs>
+    <g id="cam">
+      <g id="bands"></g>
+      <rect id="dimmer" x="-4000" y="-4000" width="12000" height="12000"/>
+      <g id="edges"></g>
+      <g id="nodes"></g>
+      <g id="labels"></g>
+    </g>
+    <!-- Ten lan ghim ngang: khi day so do sang trai de tranh the chi tiet,
+         ten lan khong duoc troi ra ngoai le. Day la thu giu nghia ca trang. -->
+    <g id="rail">
+      <rect id="railbg" x="0" y="-4000" width="138" height="12000"/>
+      <g id="railnames"></g>
+    </g>
+  </svg>
+</div>
+
+<div id="ctl">
+  <div class="grp" role="group" aria-label="Language">
+    <button type="button" data-lang="vi" aria-pressed="true">VI</button>
+    <button type="button" data-lang="en" aria-pressed="false">EN</button>
+  </div>
+  <button type="button" id="fit" aria-label="fit">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M16 3h3a2 2 0 0 1 2 2v3"/><path d="M8 21H5a2 2 0 0 1-2-2v-3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+  </button>
+</div>
+
+<aside id="det" aria-live="polite"></aside>
+
+<script>
+"use strict";
+var D = {"NODES":{"trangchu":{"embed":false,"vi":{"name":"Trang chủ","one":"Mở lên là thấy ngay việc phải làm hôm nay, bấm thẳng vào đó.","flow":["Vào trang chủ, hệ thống nhận ra người đang xem là giáo viên hay học sinh rồi dựng đúng bộ thẻ cho người đó.","Giáo viên thấy bài đang cần chấm, lịch dạy trong ngày, các lớp mình phụ trách và học liệu mới.","Học sinh thấy lịch học, bài chưa làm và bảng tin của lớp.","Bấm một thẻ là vào thẳng chỗ cần làm, không phải đi qua menu."],"note":"Trang chủ không giữ việc gì của riêng nó. Nó đọc lại dữ liệu của các khối khác rồi mở đường — nên đây là khối có nhiều đường đi ra nhất."},"en":{"name":"Home","one":"Open it and today's work is already there, one click away.","flow":["On arrival the system recognises whether this is a teacher or a student and builds the right set of cards.","A teacher sees work waiting to be graded, today's teaching schedule, their classes and new content.","A student sees their timetable, work not yet done and the class board.","Clicking a card goes straight to the job — no menu hunting."],"note":"Home holds no work of its own. It re-reads other blocks' data and opens doors, which is why more paths leave it than any other block."}},"thongbao":{"embed":false,"vi":{"name":"Thông báo","one":"Việc cần biết tự tìm đến người, kèm đường tới đúng chỗ xử lý.","flow":["Có việc mới: bài được giao, bài đã chấm, bài đăng của lớp, hay tin của trường.","Chuông đổ ngay trong lúc người dùng đang làm việc khác, không phải tải lại trang.","Bấm vào một thông báo, mỗi loại đi một đường khác nhau — bài tập về trang bài tập, bài đăng về bảng tin lớp.","Mở rồi thì tự đánh dấu đã đọc, số đếm trên chuông giảm theo."],"note":"Đây là bộ chuyển hướng chung. Mỗi thông báo mang theo mã của thứ nó nói tới, nên bấm là mở đúng bài đó chứ không phải mở danh sách rồi tự tìm."},"en":{"name":"Notifications","one":"What matters comes to the person, with a path to where it gets handled.","flow":["Something happens: work assigned, work graded, a class post, or school news.","The bell rings while the user is doing something else — no page reload needed.","Each notification type routes differently: an assignment opens the assignment, a post opens the class board.","Opening it marks it read and the bell count drops."],"note":"This is the shared router. Each notification carries the id of the thing it refers to, so one click opens that exact item instead of a list to search through."}},"tintuc":{"embed":false,"vi":{"name":"Tin tức & bảng tin trường","one":"Tin của hệ thống và của trường, ai cũng đọc được kể cả khi chưa đăng nhập.","flow":["Trang tin liệt kê bài mới, có vài bài nổi bật đặt lên trước.","Mở một bài ra đọc; nội dung được kiểm tra trước khi hiện lên trang.","Bảng tin trường thì chỉ lấy tin của đúng trường mình, không lẫn tin trường khác."],"note":"Đây là khối đứng riêng nhất trong sơ đồ: nó gần như không dính vào mạch dạy và học, chỉ nhận đường dẫn từ thông báo và từ trang giới thiệu."},"en":{"name":"News & school board","one":"Platform and school news, readable by anyone — even before signing in.","flow":["The news page lists what is new, with a few featured items pulled to the top.","Open an article to read it; the content is checked before it reaches the page.","The school board only pulls that school's own announcements, never another school's."],"note":"This is the most self-contained block on the diagram: it barely touches the teaching flow, taking links only from notifications and the public landing page."}},"lophoc":{"embed":false,"vi":{"name":"Lớp học","one":"Nơi cả lớp gặp nhau: thành viên, bài đăng, học liệu và tình hình từng em.","flow":["Mở danh sách lớp mình dạy hoặc mình học; lớp hay dùng thì ghim lên đầu.","Vào một lớp, nội dung chia theo tab, và tab hiện ra khác nhau tuỳ vai trò: giáo viên có tab thành viên và kho học liệu của lớp, học sinh có tab học liệu.","Tab tổng quan cho thấy thông tin lớp, thống kê theo tuần và bảng tin lớp; giáo viên viết bài ngay ở đây, đính kèm học liệu hoặc tệp.","Giáo viên đính học liệu vào lớp và ghim những cái quan trọng lên trước.","Bấm tên một học sinh trong tab thành viên để mở báo cáo riêng của em đó.","Giao nhiệm vụ ngay từ trong lớp, không phải sang chỗ khác."],"note":"Lớp chủ nhiệm và lớp bộ môn không giống nhau: chỉ lớp chủ nhiệm mới có thêm tab lớp bộ môn, và quyền ghi chỉ mở cho giáo viên thật sự được phân công lớp đó."},"en":{"name":"Classes","one":"Where the class meets: members, posts, content, and how each student is doing.","flow":["Open the list of classes you teach or attend; pin the ones you use often to the top.","Inside a class, content splits into tabs, and which tabs appear depends on role: teachers get members and the class content store, students get content.","The overview tab shows class details, weekly statistics and the class board; teachers write posts right here, attaching content or files.","Teachers attach content to the class and pin the important pieces first.","Click a student's name in the members tab to open that student's own report.","Assign work from inside the class — no need to go elsewhere."],"note":"A homeroom class and a subject class are not the same: only homeroom classes get the extra subject-class tab, and write access opens only to the teacher actually assigned to it."}},"tkb":{"embed":false,"vi":{"name":"Thời khóa biểu","one":"Lịch dạy và lịch học theo ngày, tuần, tháng — bấm vào tiết là làm việc luôn.","flow":["Mở lịch, chọn xem theo ngày, tuần hay tháng; mặc định là tháng đang chạy.","Lịch của giáo viên và của học sinh lấy từ hai nguồn khác nhau, nên mỗi người chỉ thấy đúng phần của mình.","Mỗi tiết hiện môn, phòng, số tiết, tô màu theo buổi sáng hay chiều.","Bấm vào một tiết thì rẽ theo vai trò: giáo viên vào điểm danh tiết đó, học sinh vào lớp."],"note":"Lịch của giáo viên và của học sinh là hai nguồn riêng, nên cùng một tuần mà hai người thấy hai bảng khác nhau — đúng phần việc của mỗi người."},"en":{"name":"Timetable","one":"Schedules by day, week or month — click a period and you are working.","flow":["Open the calendar and pick day, week or month; the current month loads by default.","Teacher and student schedules come from two different sources, so each person sees only their own.","Each period shows subject, room and period number, colour-coded morning or afternoon.","Clicking a period branches by role: teachers land on attendance for that period, students land in the class."],"note":"Teacher and student schedules are two separate sources, so in the same week two people see two different boards, each their own work."}},"diemdanh":{"embed":false,"vi":{"name":"Điểm danh","one":"Mở tiết ra, đánh dấu ai có mặt ai vắng, rồi lưu.","flow":["Vào từ tiết trên thời khóa biểu, hoặc vào bảng lớp rồi chọn lớp mình cần.","Danh sách học sinh hiện ra kèm phần thống kê nhanh của tiết đó.","Tích trạng thái từng em; sửa lại được trước khi lưu.","Nếu lớp có thiết bị nhận diện thì bản ghi tự chạy về màn hình đang mở, không phải tải lại trang.","Bấm lưu, rồi theo đường dẫn quay về lớp."],"note":"Bảng lớp mở cho cả cán bộ quản lý của trường, không chỉ giáo viên đứng lớp. Bản ghi chuyên cần ở đây là một trong hai nguồn của báo cáo học sinh."},"en":{"name":"Attendance","one":"Open the period, mark who is present and who is absent, save.","flow":["Arrive from a period on the timetable, or from the class table by picking a class.","The student list appears with a quick summary for that period.","Tick each student's status; corrections are possible before saving.","If the room has recognition hardware, records arrive on the open screen by themselves — no reload.","Save, then follow the breadcrumb back to the class."],"note":"The class table is open to school administrators too, not only the teacher in the room. The attendance record here is one of two sources feeding the student report."}},"hoso":{"embed":false,"vi":{"name":"Hồ sơ cá nhân","one":"Thông tin của mình, ảnh, mật khẩu, và những thiết bị đang đăng nhập.","flow":["Bấm ảnh đại diện ở góc trên bên phải rồi vào hồ sơ.","Tab thông tin: sửa họ tên, ngày sinh, đổi ảnh đại diện; nếu đăng nhập bằng tài khoản mạng xã hội thì một số trường bị khoá lại.","Tab bảo mật: đổi mật khẩu, xem danh sách thiết bị đang đăng nhập và đăng xuất thiết bị lạ."],"note":"Phần này nhỏ nhưng quyết định mọi thứ còn lại: hồ sơ ghi là giáo viên hay học sinh thì màn hình hiện ra khác nhau. Giáo viên thấy phần chấm bài và không vào được phần làm bài; học sinh thì ngược lại. Hồ sơ ghi đang học lớp mấy thì phần tự học hiện đúng môn của lớp đó."},"en":{"name":"Profile","one":"Your own details, photo, password, and the devices currently signed in.","flow":["Click the avatar in the top right and open the profile.","Info tab: edit name and date of birth, change the avatar; some fields lock if the account signed in through a social login.","Security tab: change the password, review signed-in devices and sign out any you do not recognise."],"note":"A small block that decides everything else: the role recorded here determines what a user sees. Teachers get grading and cannot open the answering screens; students get the reverse. The grade recorded here also decides which subjects appear under self-study."}},"kho":{"embed":false,"vi":{"name":"Kho học liệu","one":"Kho dùng chung của cả hệ: mọi thứ soạn ra đều nằm ở đây, kể cả sách và đề.","flow":["Mở kho, nội dung xếp thành từng hàng theo chuyên mục.","Lọc theo khối, môn, loại học liệu, hoặc tìm theo từ khóa ở thanh trên.","Mở một học liệu ra xem trước ngay trong trang, kèm học liệu bổ trợ và học liệu liên quan.","Thích thì lưu vào thư viện riêng, tải xuống, đính vào lớp, hoặc mang đi giao bài.","Giáo viên tạo học liệu mới hoặc tải tệp lên; học liệu vừa tạo mở ra luôn để soạn tiếp."],"note":"Đây là chỗ mọi thứ gặp nhau. Sách, đề kiểm tra, bài giảng, video, hình khối quay được — tất cả đều được coi là học liệu và nằm chung một chỗ, chỉ đánh dấu khác loại. Nên phần nào cần nội dung cũng lấy từ đây. Học liệu do cấp trên đưa lên thì trường nào cũng dùng được; học liệu trường mình tự làm thì chỉ trường mình thấy. Trong kho có ba lựa chọn xem: của trường mình, của cấp trên, hay cả hai.","sub":"kho chung của cả hệ"},"en":{"name":"Content library","one":"The shared library: everything authored lands here, books and papers included.","flow":["Open the store; content is laid out in rows by category.","Filter by grade, subject or content type, or search from the top bar.","Open an item to preview it in place, along with its supporting and related content.","Save it to your own library, download it, attach it to a class, or take it away to assign.","Teachers create new content or upload files; a newly created item opens straight away for further work."],"note":"This is the largest junction in the system, and here is why: books, exams, lessons, video, 3D models, standards-packaged content — all of them are content records, differing only by a marker for which kind it is. So every block that needs content draws from here. Content created on the shared side flows down to every school; content a school creates stays inside that school and does not flow up. A school's store has a three-way filter to show its own, the shared side's, or both.","sub":"the shared library"}},"sach":{"embed":false,"vi":{"name":"Bộ sách số","one":"Sách giáo khoa đọc ngay trên web, chạm vào trang là mở được câu hỏi.","flow":["Chọn bộ sách theo khối và môn; đổi lựa chọn thì địa chỉ trang đổi theo nên chia lại được cho người khác.","Mở trang chi tiết xem mục lục và thông tin, rồi bấm bắt đầu để vào trình đọc.","Trong trình đọc: lật trang, dùng mục lục, dùng bút và ghi chú trên trang.","Chạm vào điểm nóng trong trang: mở video, tài liệu, hoặc mở thẳng câu hỏi.","Trả lời câu hỏi trong sách và được chấm ngay tại đó.","Đọc tới đâu hệ thống nhớ tới đó, lần sau mở lại đúng chỗ đang dở."],"note":"Sách xem được mà không cần đăng nhập, nên nó là cửa vào cho người mới. Trình đọc này còn được ứng dụng lớp học thông minh nhúng lại để dùng trong tiết.","sub":"sách giáo khoa đọc trên máy"},"en":{"name":"Digital books","one":"Textbooks read in the browser; touch the page and a question opens.","flow":["Pick a book set by grade and subject; changing the selection changes the address, so a view can be shared.","Open the detail page for the table of contents and information, then start reading.","In the reader: turn pages, use the contents, draw and take notes on the page.","Touch a hotspot in the page to open a video, a document, or a question directly.","Answer a question inside the book and it is marked right there.","Reading position is remembered, so next time it reopens where you stopped."],"note":"Books are viewable without signing in, which makes them the entry point for newcomers. This reader is also embedded back into the smart-classroom app for use during a lesson.","sub":"textbooks in the browser"}},"nhch":{"embed":true,"vi":{"name":"Ngân hàng câu hỏi","one":"Câu hỏi xếp theo bài học và mức khó; đặt tỉ lệ là hệ thống tự rút thành đề.","flow":["Dựng khung chương trình và khung độ khó trước, để câu hỏi sau này có chỗ mà gắn vào.","Thêm câu hỏi bằng ba cách: tự soạn, tải tệp lên, hoặc để máy đọc tài liệu rồi bóc câu hỏi ra.","Câu hỏi mới ở trạng thái nháp; người soạn gửi đi chờ duyệt.","Người có quyền duyệt mở ra xem rồi duyệt hoặc từ chối.","Câu hỏi đã duyệt mới vào ngân hàng cho người khác dùng.","Lập ma trận đề theo tỉ lệ mong muốn, rồi bấm sinh đề — hệ thống tự rút câu cho khớp ma trận."],"note":"Có hai kho: kho chung cho mọi trường, và kho riêng của từng trường; người duyệt kho chung và người duyệt kho trường là hai quyền khác nhau. Riêng bảng tỉ lệ ra đề thì mỗi giáo viên còn có bảng riêng của mình. Phần này chạy riêng nhưng mở ra ngay trong trang, không phải cài thêm gì. Nó tự biết đang mở từ bên nào để bật đúng quyền.","sub":"kho câu hỏi để rút ra đề"},"en":{"name":"Question bank","one":"Questions filed by lesson and difficulty; set the mix and papers get built for you.","flow":["Build the curriculum frame and the difficulty frame first, so questions have somewhere to hang.","Add questions three ways: write them, upload a file, or let the machine read a document and extract them.","A new question starts as a draft; the author submits it for review.","A reviewer with the right permission opens it and approves or rejects it.","Only approved questions enter the bank for others to use.","Build a matrix with the mix you want, then generate — the system draws questions to match it."],"note":"There are two scope tiers: the shared side bank shared by every school, and each school's own bank; reviewing those two is two separate permissions. Matrices add a third tier — each teacher's personal matrices. The block itself is a separate application, embedded in both systems' frames, and it detects which one it is running inside to enable the right permission set.","sub":"questions to build papers from"}},"bode":{"embed":false,"vi":{"name":"Bộ đề","one":"Đề kiểm tra và đề luyện: chọn dạng câu, nhập nội dung, xem trước, xuất bản.","flow":["Tạo bộ đề mới; ngay lúc tạo nó đã thành một học liệu trong kho.","Thêm câu hỏi bằng hai đường: soạn tay từng câu, hoặc tải tài liệu lên rồi để máy bóc câu hỏi ra.","Chọn dạng câu: trắc nghiệm, tự luận, nối, kéo thả, điền khuyết, gán nhãn ảnh, ghi âm, và câu hỏi nhóm.","Kéo thả sắp thứ tự, đặt điểm từng câu, đặt thời gian, bật tắt hiện đáp án.","Xem trước cả bộ đúng như học sinh sẽ thấy.","Xuất bản; từ lúc này bộ đề dùng được để giao bài hoặc để tự luyện."],"note":"Soạn đề mới thì làm ở phần chung; ở phần của trường thì giáo viên sửa và thêm câu hỏi vào đề có sẵn. Chỗ để máy tự tách câu hỏi từ tài liệu có giới hạn cỡ tệp và số trang.","sub":"đề kiểm tra, đề luyện"},"en":{"name":"Exams & quizzes","one":"Test papers and practice papers: pick question types, write, preview, publish.","flow":["Create a paper; the moment it exists it is already a content record in the store.","Add questions two ways: write each one, or upload a document and let the machine extract them.","Choose the type: multiple choice, essay, matching, drag and drop, fill in the blank, image labelling, audio recording, and grouped questions.","Drag to reorder, set marks per question, set timing, show or hide answers.","Preview the whole paper exactly as a student will see it.","Publish; from here the paper can be assigned or used for practice."],"note":"Full authoring lives on the shared side; inside a school's LMS a teacher edits and adds questions to an existing paper rather than starting one from scratch. Machine extraction from documents has file-size and page limits.","sub":"test and practice papers"}},"thuvien":{"embed":false,"vi":{"name":"Thư viện của tôi","one":"Chính kho chung đó, lọc còn riêng mình: đã tạo, đã thích, còn nháp.","flow":["Mở thư viện, chọn tab theo trạng thái: đã xuất bản, bản nháp, hoặc lưu trữ.","Lọc theo loại, môn, khối; cuộn để tải thêm.","Mở một món ra: bộ đề thì vào trang soạn đề, học liệu thì vào trang sửa.","Khi giao bài, đây là một trong hai chỗ để chọn bộ đề, cùng với kho học liệu."],"note":"Thư viện và kho học liệu là cùng một chỗ, chỉ khác cách lọc — thư viện chỉ hiện cái mình tự làm và cái mình đã lưu. Bên nền tảng còn có thêm thư viện câu hỏi riêng, cũng lọc theo người tạo.","sub":"những gì tôi đã lưu"},"en":{"name":"My library","one":"That same library, filtered down to yours: made, liked, still a draft.","flow":["Open the library and choose a status tab: published, draft, or archived.","Filter by type, subject or grade; scroll to load more.","Open an item: a paper goes to the authoring screen, other content goes to its edit screen.","When assigning work, this is one of two places to pick a paper from, alongside the content store."],"note":"The library and the content store are the same data with a different filter — the library filters by author and by what you liked. The platform also has a separate question library, filtered the same way.","sub":"what I saved"}},"duyet":{"embed":false,"vi":{"name":"Duyệt nội dung","one":"Nội dung phải có người xem và đồng ý, rồi mới đến tay người khác dùng.","flow":["Người soạn gửi câu hỏi đi duyệt; câu hỏi chuyển từ nháp sang chờ duyệt.","Người có quyền duyệt mở danh sách theo trạng thái và xem từng câu.","Duyệt hoặc từ chối; từ chối thì câu hỏi quay lại cho người soạn sửa.","Câu hỏi đã duyệt mới xuất hiện cho người khác dùng trong ngân hàng."],"note":"Quyền duyệt tách theo phạm vi: duyệt nội dung của nền tảng và duyệt nội dung của trường là hai quyền khác nhau, nên một người có thể duyệt được cho trường mình mà không duyệt được cho toàn nền tảng.","sub":"kiểm trước khi cho dùng"},"en":{"name":"Content review","one":"Content needs someone to read it and agree before anyone else can use it.","flow":["The author submits a question for review; it moves from draft to pending.","A reviewer with permission opens the list by status and reads each one.","Approve or reject; a rejection sends it back to the author to fix.","Only approved questions become visible to others in the bank."],"note":"Review permission splits by scope: reviewing platform content and reviewing school content are two different permissions, so a person can clear their own school's work without clearing the whole platform's.","sub":"checked before others use it"}},"nhiemvu":{"embed":false,"vi":{"name":"Nhiệm vụ","one":"Giao bài cho lớp, theo dõi ai đã nộp, rồi chấm.","flow":["Trong lớp bấm tạo nhiệm vụ; hộp soạn đi theo ba bước.","Bước một: đặt tên, đặt hạn nộp, chọn có cho phép nộp muộn hay không.","Bước hai: chọn hình thức — làm bộ đề, viết tự luận, hay nộp tệp.","Bước ba nếu là bộ đề: chọn đề từ kho học liệu hoặc từ thư viện của mình, rồi bật tắt từng tuỳ chọn — tính điểm hay không, trộn câu hỏi, trộn phương án, cho làm lại câu sai, cho xem kết quả, có AI hỗ trợ trong lúc làm, có AI chấm.","Giao xong, cả lớp nhận thông báo.","Bảng theo dõi hiện ai đã nộp, ai còn thiếu, bài nào cần chấm."],"note":"Đây là chỗ thắt của cả sơ đồ: nội dung soạn ra đi vào đây, rồi từ đây đến tay học sinh. Quyền trên từng nhiệm vụ tính theo người tạo, giáo viên bộ môn và giáo viên chủ nhiệm của lớp đó, nên không phải giáo viên nào cũng sửa được nhiệm vụ của người khác.","sub":"bài giao cho lớp"},"en":{"name":"Assignments","one":"Assign work to a class, track who has handed in, then grade.","flow":["Inside a class, create an assignment; the form runs in three steps.","Step one: title, due date, and whether late submissions are allowed.","Step two: pick the form — answer a paper, write an essay, or upload a file.","Step three for a paper: pick it from the content store or your own library, then set each option — counts for marks or not, shuffle questions, shuffle options, allow retrying wrong answers, show results, AI help while answering, AI grading.","Once assigned, the whole class is notified.","The tracking table shows who has submitted, who has not, and what needs grading."],"note":"Assignments are the knot of the whole diagram: they take content from the previous stage and push it into the next. Permission on an assignment is computed from its creator, the subject teacher and the homeroom teacher of that class, so not every teacher can edit someone else's.","sub":"work set for a class"}},"bangtin":{"embed":false,"vi":{"name":"Bảng tin lớp","one":"Bài đăng của lớp: thông báo, nhắc nhở, kèm học liệu hoặc tệp.","flow":["Giáo viên viết bài ngay trong phần tổng quan của lớp, đính kèm học liệu hoặc tệp.","Bài lên bảng tin, cả lớp nhận thông báo.","Học sinh bấm thông báo là mở đúng bài đó, không phải tự tìm trong danh sách."],"note":"Bài chỉ tạo được từ trong lớp; trang bảng tin là chỗ đọc chứ không phải chỗ viết, và nó không có trang danh sách riêng — chỉ vào được bằng đường dẫn từ thông báo hoặc từ trang chủ.","sub":"bài đăng cho lớp"},"en":{"name":"Class board","one":"Class posts: announcements, reminders, with content or files attached.","flow":["The teacher writes the post in the class overview, attaching content or files.","The post appears on the board and the whole class is notified.","A student clicking the notification opens that exact post, with no list to search."],"note":"Posts can only be written from inside a class; the board page is for reading, not writing, and it has no list page of its own — you reach it by link from a notification or from home.","sub":"posts for the class"}},"lambai":{"embed":false,"vi":{"name":"Làm bài","one":"Cùng một màn làm bài cho mọi đường vào: bài được giao, bài tự luyện, câu trong sách.","flow":["Mở bài; nếu đề có giới hạn thời gian thì đồng hồ chạy ngay.","Trả lời từng câu; đang làm mà mất mạng hay đóng máy thì bài đã lưu, mở lại vào đúng chỗ đang dở.","Tuỳ nhiệm vụ cho phép, có thể được bật AI hỗ trợ trong lúc làm.","Nộp bài.","Hiện kết quả ngay: điểm, số câu đúng, phần trăm, thời gian đã làm.","Từ đó đi tiếp sang trang báo cáo của mình, hoặc quay về chỗ vừa xuất phát."],"note":"Chỗ đáng nói nhất là chỉ có đúng một màn làm bài. Bài giáo viên giao, bài học sinh tự luyện, và câu hỏi gắn trong trang sách — cả ba đều mở ra đúng màn đó, nên cách trả lời và cách chấm giống nhau ở mọi nơi, học sinh không phải học lại cách dùng.","sub":"học sinh trả lời và nộp"},"en":{"name":"Doing the work","one":"The same answering screen however you got there: assigned work, practice, book questions.","flow":["Open the work; if the paper is timed, the clock starts immediately.","Answer question by question; lose the connection or close the laptop and the work is saved — reopen at the exact spot.","Where the assignment allows it, AI help can be switched on while answering.","Submit.","Results appear at once: marks, number correct, percentage, time taken.","From there, continue to your own report or return to wherever you started."],"note":"The point worth making is that there is exactly one of these. Teacher-assigned work, student self-practice, and questions embedded in a book page all run through the same engine, so answering and marking behave the same everywhere and nothing has to be relearned.","sub":"students answer and submit"}},"tuhoc":{"embed":false,"vi":{"name":"Tự học","one":"Học sinh tự chọn đề mà luyện, không cần ai giao.","flow":["Chọn khối và môn; khối lấy sẵn từ hồ sơ, môn nào chưa có nội dung thì nói rõ là đang cập nhật.","Hoặc vào kho học liệu chọn thẳng một bộ đề rồi bấm dùng.","Chọn chế độ: luyện tập, kiểm tra, hoặc chơi dạng game.","Đang luyện dở thì lần sau vào được hỏi có làm tiếp hay làm lại từ đầu.","Làm bài bằng đúng bộ máy như bài được giao.","Xem lại kết quả trong hồ sơ luyện tập."],"note":"Có hai đường vào tự học: chọn khối và môn để luyện theo môn, hoặc lấy thẳng một bộ đề trong kho ra luyện. Đường thứ hai đi qua đúng màn làm bài của bài được giao."},"en":{"name":"Self-study","one":"Students pick their own paper and practise, with nobody assigning it.","flow":["Pick grade and subject; the grade is taken from the profile, and any subject without content says so plainly.","Or go to the content store, pick a paper directly and use it.","Choose a mode: practice, test, or game.","If a session was left unfinished, the next visit asks whether to continue or start again.","Answer using the same engine as assigned work.","Review the results in the practice record."],"note":"Two ways in: pick grade and subject to practise by subject, or take a paper straight out of the library. The second goes through the same answering screen as assigned work."}},"chamdiem":{"embed":false,"vi":{"name":"Chấm điểm","one":"Chấm từng câu và ghi nhận xét; có thể để AI chấm trước rồi giáo viên sửa lại.","flow":["Mở bảng theo dõi nhiệm vụ rồi chọn một học sinh.","Xem bài làm từng câu: trắc nghiệm máy đã chấm sẵn, tự luận và tệp nộp thì giáo viên chấm.","Bấm gợi ý AI để có nhận xét nháp, rồi sửa lại theo ý mình chứ không lấy nguyên.","Cho điểm từng câu và viết nhận xét chung cho cả bài.","Chuyển sang học sinh tiếp theo bằng một nút, không phải quay ra danh sách rồi vào lại."],"note":"Chấm xong thì điểm và nhận xét về hồ sơ của em đó, trạng thái bài đổi sang đã chấm, và em nhận thông báo. Nếu nhiệm vụ bật AI chấm thì bài được chấm tự động trước, giáo viên xem lại và sửa."},"en":{"name":"Grading","one":"Mark question by question and comment; AI can mark first and the teacher corrects.","flow":["Open the assignment tracking table and pick a student.","Read the work question by question: multiple choice is already marked, essays and uploaded files are marked by the teacher.","Ask for an AI suggestion to get a draft comment, then rewrite it in your own words rather than taking it as is.","Give marks per question and write an overall comment.","Move to the next student with one button, without going back out to the list."],"note":"Once graded, marks and comments land in that student's record, the submission changes to graded, and the student is notified. If the assignment has AI grading on, the work is marked automatically first and the teacher reviews and corrects."}},"baocao":{"embed":false,"vi":{"name":"Báo cáo học sinh","one":"Gom lại: em đó đi học thế nào, làm bài thế nào, gửi được cho phụ huynh.","flow":["Từ tab thành viên của lớp, bấm vào tên một em.","Trang hiện biểu đồ chuyên cần và điểm theo tuần, chọn được tuần muốn xem.","Xem lại từng bài em đã làm và điểm từng bài.","Viết nhận xét rồi gửi cho phụ huynh."],"note":"Đây là chỗ hai dòng số liệu gặp nhau: chuyên cần từ điểm danh và điểm từ chấm bài. Và đây cũng là chỗ vòng lặp khép lại — nhìn vào chỗ lớp còn yếu để soạn lại nội dung và giao lại bài.","sub":"chuyên cần và điểm từng em"},"en":{"name":"Student report","one":"One page: how the student attends, how they perform, ready to send to parents.","flow":["From the class members tab, click a student's name.","The page shows attendance and marks charted by week, with a week picker.","Review each piece of work the student did and the marks for it.","Write a comment and send it to the parents."],"note":"This is where the two streams of numbers meet: attendance from the register and marks from grading. It is also where the loop closes — look at where the class is weak, then rebuild the content and reassign.","sub":"attendance and marks per student"}},"holt":{"embed":false,"vi":{"name":"Hồ sơ luyện tập","one":"Lịch sử tự luyện: đã làm đề nào, đúng sai chỗ nào, còn đề nào đang dở.","flow":["Mở hồ sơ, thấy các đề đã làm và đề đang làm dở.","Bấm tiếp tục để vào đúng chỗ đang dở, tiến độ cũ được nạp lại.","Bấm chi tiết để xem bảng điểm và phân tích từng câu đúng sai.","Bên nền tảng còn có trang báo cáo hoạt động, thống kê thời gian học theo ngày."],"note":"Tiến độ luyện gắn với từng học liệu cụ thể, nên mở lại đúng đề đó là thấy lại đúng chỗ dừng.","sub":"lịch sử làm bài của mỗi em"},"en":{"name":"Practice record","one":"Practice history: which papers, right and wrong where, what is still unfinished.","flow":["Open the record to see finished papers and ones still in progress.","Click continue to resume exactly where you stopped, with the old progress reloaded.","Click detail for the mark sheet and a right-wrong breakdown per question.","The platform also has an activity report, totalling study time by day."],"note":"Practice progress is tied to a specific content item, so reopening that paper brings back the exact stopping point.","sub":"each student practice history"}},"f_auth":{"embed":false,"vi":{"name":"Một lần đăng nhập cho mọi phần","one":"Đăng nhập một lần ở cửa chung rồi đi khắp các phần, kể cả những phần là ứng dụng riêng, mà không phải nhập lại. Thoát ở một chỗ thì các chỗ khác cũng thoát theo.","flow":[],"note":"","sub":"vào một lần, đi khắp các phần"},"en":{"name":"One sign-in for everything","one":"Sign in once at the shared door, then move through every part — including the ones that are separate applications — without signing in again. Sign out in one place and the others follow.","flow":[],"note":"","sub":"sign in once, go everywhere"}},"f_data":{"embed":false,"vi":{"name":"Một kho dữ liệu dùng chung","one":"Hai bên và mấy phần chạy riêng đều đọc và ghi vào cùng một chỗ. Vì thế cái soạn ở bên này dùng được ngay ở bên kia, không phải chuyển qua chuyển lại.","flow":[],"note":"","sub":"cả hai bên cùng đọc cùng ghi"},"en":{"name":"One shared data store","one":"Two front doors and several separate applications, all reading and writing one store. That is why something authored in one place is usable in another with no syncing step.","flow":[],"note":"","sub":"both sides read and write it"}}},"EDGES":[{"from":"lophoc","to":"nhiemvu","type":"nav","vi":"giao bài trong lớp","en":"assign inside the class","viLong":"giao bài ngay trong lớp, không phải sang chỗ khác","enLong":"assign from inside the class, no need to go elsewhere"},{"from":"tkb","to":"diemdanh","type":"nav","vi":"bấm tiết là điểm danh","en":"a period opens attendance","viLong":"bấm tiết là điểm danh","enLong":"a period opens attendance"},{"from":"kho","to":"bode","type":"data","vi":"bộ đề là một loại học liệu","en":"a paper is a content record","viLong":"bộ đề cũng là một loại học liệu; tài liệu trong kho còn là nguồn để máy bóc câu hỏi","enLong":"a paper is a content record too; documents here are also what machines extract questions from"},{"from":"nhch","to":"bode","type":"data","vi":"cùng một kho câu hỏi","en":"the same question store","viLong":"cùng một kho câu hỏi; đề sinh ra từ ma trận nằm cùng bảng đề","enLong":"the same question store; papers generated from a matrix land in the same exam table"},{"from":"bode","to":"nhiemvu","type":"nav","vi":"chọn đề để giao","en":"pick a paper to assign","viLong":"chọn đề để giao","enLong":"pick a paper to assign"},{"from":"nhiemvu","to":"lambai","type":"nav","vi":"học sinh vào làm","en":"students answer","viLong":"học sinh vào làm","enLong":"students answer"},{"from":"lambai","to":"chamdiem","type":"nav","vi":"nộp rồi là sang chấm","en":"submit, then grade","viLong":"nộp rồi là sang chấm","enLong":"submit, then grade"},{"from":"chamdiem","to":"baocao","type":"nav","vi":"điểm về báo cáo","en":"marks into the report","viLong":"điểm về báo cáo","enLong":"marks into the report"},{"from":"baocao","to":"kho","type":"back","vi":"dựa kết quả mà soạn lại","en":"rebuild from the results","viLong":"dựa vào kết quả mà soạn lại, dạy lại","enLong":"use the results to rebuild the content and reteach"},{"from":"lophoc","to":"bangtin","type":"nav","vi":"đăng bài cho lớp","en":"post to the class","viLong":"đăng bài cho lớp","enLong":"post to the class"},{"from":"lophoc","to":"baocao","type":"nav","vi":"bấm tên một em","en":"click a student's name","viLong":"bấm tên một em","enLong":"click a student's name"},{"from":"lophoc","to":"tkb","type":"data","vi":"cùng lớp, cùng tiết","en":"same class, same period","viLong":"cùng lớp, cùng tiết","enLong":"same class, same period"},{"from":"lophoc","to":"kho","type":"data","vi":"ghim học liệu vào lớp","en":"pin content to the class","viLong":"học liệu ghim vào lớp được lấy từ kho ra","enLong":"content pinned to a class is drawn from the store"},{"from":"tkb","to":"lophoc","type":"nav","vi":"học sinh bấm tiết là vào lớp","en":"a student's click enters the class","viLong":"học sinh bấm tiết là vào lớp","enLong":"a student's click enters the class"},{"from":"diemdanh","to":"lophoc","type":"nav","vi":"quay về lớp","en":"back to the class","viLong":"quay về lớp","enLong":"back to the class"},{"from":"diemdanh","to":"baocao","type":"nav","vi":"chuyên cần vào báo cáo","en":"attendance into the report","viLong":"chuyên cần chảy vào báo cáo của từng em","enLong":"attendance flows into each student's report"},{"from":"hoso","to":"f_auth","type":"data","vi":"vai trò quyết định thấy gì","en":"role decides what is visible","viLong":"vai trò và khối lớp trong hồ sơ quyết định mỗi người thấy gì","enLong":"the role and grade in the profile decide what each person sees"},{"from":"kho","to":"sach","type":"data","vi":"sách cũng là học liệu","en":"books are content records too","viLong":"sách cũng là học liệu","enLong":"books are content records too"},{"from":"kho","to":"thuvien","type":"data","vi":"cùng dữ liệu, khác bộ lọc","en":"same data, different filter","viLong":"cùng dữ liệu, khác bộ lọc","enLong":"same data, different filter"},{"from":"duyet","to":"kho","type":"nav","vi":"duyệt xong mới cho người khác dùng","en":"cleared before others can use it","viLong":"duyệt xong thì nội dung mới hiện cho người khác dùng","enLong":"once cleared, the content becomes usable by others"},{"from":"kho","to":"nhiemvu","type":"nav","vi":"chọn đề từ kho","en":"pick a paper from the store","viLong":"chọn bộ đề từ kho khi giao bài","enLong":"pick a paper from the store when assigning"},{"from":"kho","to":"tuhoc","type":"nav","vi":"lấy đề ra tự luyện","en":"take a paper out to practise","viLong":"lấy đề trong kho ra tự luyện","enLong":"take a paper out of the store to practise"},{"from":"kho","to":"bangtin","type":"data","vi":"bài đăng đính kèm học liệu","en":"posts attach content","viLong":"bài đăng đính kèm học liệu","enLong":"posts attach content"},{"from":"kho","to":"holt","type":"data","vi":"tiến độ gắn với học liệu","en":"progress tied to an item","viLong":"tiến độ luyện gắn với từng học liệu cụ thể","enLong":"practice progress is tied to a specific item"},{"from":"kho","to":"f_data","type":"data","vi":"chỗ hai hệ gặp nhau","en":"where the two systems meet","viLong":"kho này chính là chỗ hai hệ gặp nhau","enLong":"this store is where the two systems meet"},{"from":"sach","to":"lambai","type":"nav","vi":"câu hỏi trong trang sách","en":"questions inside a book page","viLong":"câu hỏi trong trang sách chạy bằng đúng bộ máy làm bài","enLong":"questions inside a book page run on the same answering engine"},{"from":"nhch","to":"duyet","type":"nav","vi":"câu hỏi chờ duyệt","en":"questions await review","viLong":"câu hỏi chờ duyệt","enLong":"questions await review"},{"from":"bode","to":"lambai","type":"nav","vi":"mở đề ra làm","en":"open the paper and answer","viLong":"mở đề ra làm","enLong":"open the paper and answer"},{"from":"thuvien","to":"bode","type":"nav","vi":"mở ra sửa tiếp","en":"reopen to keep working","viLong":"mở ra sửa tiếp","enLong":"reopen to keep working"},{"from":"thuvien","to":"nhiemvu","type":"nav","vi":"chọn đề từ thư viện","en":"pick from your library","viLong":"chọn đề từ thư viện","enLong":"pick from your library"},{"from":"nhiemvu","to":"chamdiem","type":"nav","vi":"giáo viên vào chấm","en":"teachers mark","viLong":"giáo viên vào chấm","enLong":"teachers mark"},{"from":"nhiemvu","to":"thongbao","type":"nav","vi":"lớp nhận thông báo","en":"the class is notified","viLong":"lớp nhận thông báo","enLong":"the class is notified"},{"from":"bangtin","to":"thongbao","type":"nav","vi":"thông báo mở đúng bài","en":"the notification opens the post","viLong":"thông báo mở đúng bài","enLong":"the notification opens the post"},{"from":"lambai","to":"tuhoc","type":"data","vi":"dùng chung bộ máy làm bài","en":"the same answering engine","viLong":"dùng chung một bộ máy làm bài","enLong":"both share one answering engine"},{"from":"lambai","to":"holt","type":"nav","vi":"kết quả về hồ sơ","en":"results into the record","viLong":"kết quả về hồ sơ","enLong":"results into the record"},{"from":"tuhoc","to":"holt","type":"nav","vi":"kết quả về hồ sơ","en":"results into the record","viLong":"kết quả về hồ sơ","enLong":"results into the record"},{"from":"chamdiem","to":"thongbao","type":"nav","vi":"em nhận thông báo có điểm","en":"the student is notified","viLong":"em nhận thông báo có điểm","enLong":"the student is notified"},{"from":"trangchu","to":"lophoc","type":"nav","vi":"cửa vào","en":"door in","viLong":"bấm thẻ trên trang chủ là tới đúng chỗ","enLong":"a card on home takes you straight there"},{"from":"trangchu","to":"tkb","type":"nav","vi":"cửa vào","en":"door in","viLong":"bấm thẻ trên trang chủ là tới đúng chỗ","enLong":"a card on home takes you straight there"},{"from":"trangchu","to":"kho","type":"nav","vi":"cửa vào","en":"door in","viLong":"bấm thẻ trên trang chủ là tới đúng chỗ","enLong":"a card on home takes you straight there"},{"from":"trangchu","to":"nhiemvu","type":"nav","vi":"cửa vào","en":"door in","viLong":"bấm thẻ trên trang chủ là tới đúng chỗ","enLong":"a card on home takes you straight there"},{"from":"trangchu","to":"thongbao","type":"nav","vi":"xem đầy đủ việc mới","en":"see everything new","viLong":"xem đầy đủ việc mới","enLong":"see everything new"},{"from":"thongbao","to":"nhiemvu","type":"nav","vi":"tới bài cần làm","en":"to the work to be done","viLong":"tới bài cần làm","enLong":"to the work to be done"},{"from":"thongbao","to":"tintuc","type":"nav","vi":"tin của trường","en":"school news","viLong":"tin của trường","enLong":"school news"}],"LANES":[{"k":"truong","rows":1,"vi":"Nhà trường","en":"School admin"},{"k":"chung","rows":3,"vi":"Giáo viên & học sinh","en":"Teacher & student"},{"k":"gv","rows":2,"vi":"Giáo viên","en":"Teacher"},{"k":"hs","rows":3,"vi":"Học sinh","en":"Student"},{"k":"nen","rows":1,"vi":"Chạy ngầm","en":"Under the hood"}],"COLS":[{"k":"moiluc","no":"","vi":"Cửa vào","en":"Ways in"},{"k":"lop","no":"1","vi":"Chuẩn bị lớp","en":"Set up the class"},{"k":"soan","no":"2","vi":"Soạn bài, soạn đề","en":"Create the content"},{"k":"giao","no":"3","vi":"Giao cho lớp","en":"Send to the class"},{"k":"do","no":"4","vi":"Làm bài & xem kết quả","en":"Answer & see results"}],"PLACE":{"trangchu":["moiluc","chung",0],"thongbao":["moiluc","chung",1],"tintuc":["moiluc","chung",2],"lophoc":["lop","chung",0],"hoso":["lop","chung",1],"tkb":["lop","chung",2],"diemdanh":["lop","gv",0],"thuvien":["soan","chung",1],"kho":["soan","chung",2],"bode":["soan","gv",0],"nhch":["soan","gv",1],"sach":["soan","hs",0],"duyet":["giao","truong",0],"nhiemvu":["giao","gv",0],"bangtin":["giao","gv",1],"baocao":["do","gv",0],"chamdiem":["do","gv",1],"lambai":["do","hs",0],"tuhoc":["do","hs",1],"holt":["do","hs",2],"f_auth":["lop","nen",0],"f_data":["soan","nen",0]},"SPINE":["kho>bode","nhch>bode","bode>nhiemvu","nhiemvu>lambai","lambai>chamdiem","chamdiem>baocao","baocao>kho","tkb>diemdanh"],"ROLE":{"vi":{"gv":"giáo viên","hs":"học sinh","truong":"cán bộ trường","khach":"khách","all":"ai cũng xem"},"en":{"gv":"teacher","hs":"student","truong":"school staff","khach":"guest","all":"everyone"}}};
+var T = {"vi":{"detFlow":"Từ đầu đến cuối","detLinks":"Nối với phần nào","close":"Đóng","fitTip":"Xem vừa khung","dirOut":"gửi sang","dirIn":"nhận từ","dirBoth":"dùng chung"},"en":{"detFlow":"Start to finish","detLinks":"Connects to","close":"Close","fitTip":"Fit to window","dirOut":"sends to","dirIn":"takes from","dirBoth":"shares with"}};
+
+/* ── hinh hoc luoi ────────────────────────────────────────────────── */
+var NW = 204, NH = 68, RG = 86, CW = 204, CG = 112, X0 = 138, Y0 = 92, LP = 22;
+var laneY = {}, laneOrder = [], yy = Y0;
+D.LANES.forEach(function (L, i) {
+  laneY[L.k] = { y: yy, h: L.rows * RG + LP, i: i };
+  laneOrder.push(L.k); yy += L.rows * RG + LP;
+});
+var colX = {};
+D.COLS.forEach(function (c, i) { colX[c.k] = X0 + i * (CW + CG); });
+/* +104 o cuoi: cot 5 dang dinh sat le phai, ca ba nguoi doc deu noi
+   "nhin nhu bi day tran ra ngoai". */
+var CANW = X0 + D.COLS.length * CW + (D.COLS.length - 1) * CG + 104, CANH = yy + 34;
+
+function box(id) {
+  var p = D.PLACE[id], x = colX[p[0]], y = laneY[p[1]].y + LP / 2 + p[2] * RG;
+  return { x: x, y: y, w: NW, h: NH, cx: x + NW / 2, cy: y + NH / 2, col: p[0], lane: p[1], row: p[2] };
+}
+
+/* ── di duong ─────────────────────────────────────────────────────── */
+/* Truc: duong gap goc, tay dat, da kiem 0 cat 0 xuyen khoi. */
+var SPINE_PATH = {
+  'kho>bode':        function(){ var A=box('kho'),B=box('bode'); return [[A.cx,A.y+A.h],[B.cx,B.y]]; },
+  'nhch>bode':       function(){ var A=box('nhch'),B=box('bode'); return [[A.cx,A.y],[B.cx,B.y+B.h]]; },
+  'bode>nhiemvu':    function(){ var A=box('bode'),B=box('nhiemvu'); return [[A.x+A.w,A.cy],[B.x,B.cy]]; },
+  'nhiemvu>lambai':  function(){ var A=box('nhiemvu'),B=box('lambai'),gx=colX['giao']+CW+CG/2;
+                                 return [[A.x+A.w,A.cy],[gx,A.cy],[gx,B.cy],[B.x,B.cy]]; },
+  'lambai>chamdiem': function(){ var A=box('lambai'),B=box('chamdiem'); return [[A.cx,A.y],[B.cx,B.y+B.h]]; },
+  'chamdiem>baocao': function(){ var A=box('chamdiem'),B=box('baocao'); return [[A.cx,A.y],[B.cx,B.y+B.h]]; },
+  'baocao>kho':      function(){ var A=box('baocao'),B=box('kho');
+                                 return [[A.cx,A.y],[A.cx,B.cy],[B.x+B.w,B.cy]]; },
+  'tkb>diemdanh':    function(){ var A=box('tkb'),B=box('diemdanh'); return [[A.cx,A.y+A.h],[B.cx,B.y]]; }
+};
+function round(pts, r) {
+  if (pts.length < 2) return '';
+  var d = 'M ' + pts[0][0] + ' ' + pts[0][1];
+  for (var i = 1; i < pts.length - 1; i++) {
+    var p0 = pts[i-1], p1 = pts[i], p2 = pts[i+1];
+    var u = function (a, b) { var dx=b[0]-a[0], dy=b[1]-a[1], m=Math.hypot(dx,dy)||1; return [dx/m,dy/m,m]; };
+    var v1 = u(p1,p0), v2 = u(p1,p2), rr = Math.max(0, Math.min(r, v1[2]/2, v2[2]/2));
+    d += ' L ' + (p1[0]+v1[0]*rr) + ' ' + (p1[1]+v1[1]*rr);
+    d += ' Q ' + p1[0] + ' ' + p1[1] + ' ' + (p1[0]+v2[0]*rr) + ' ' + (p1[1]+v2[1]*rr);
+  }
+  var z = pts[pts.length-1];
+  return d + ' L ' + z[0] + ' ' + z[1];
+}
+/* Toa: tu tam khoi dang chon di THANG ra mep khoi kia.
+   Cac doan chung mot diem goc thi khong the cat nhau -> 0 cho cat, dung ve hinh hoc. */
+/* Tia tu khoi dang chon toi khoi kia.
+   - Bat dau tu CHINH TAM khoi dang chon (khong phai mep): moi tia chung dung
+     mot diem goc thi khong the cat nhau. Phan trong hop bi hop ve de len che.
+   - Luoi deu nhau nen co khoi nam dung tren duong thang giua hai khoi khac
+     (Bang tin lop nam giua Kho hoc lieu va Tu hoc). Vi vay tia phai tu VONG
+     TRANH: thu cong dan ra hai ben cho tim duoc duong khong cham hop nao. */
+/* Tia tu TAM khoi dang chon toi khoi kia, thang, khong lech gi.
+   Day la ly do ban nay do duoc 0 cho cat: cac doan chung dung MOT diem goc
+   thi khong the cat nhau. Da thu hai cach khac va deu bi bac bo bang so do:
+     - be cong de tranh hop khac -> cac tia lai cat nhau, 2 len 13 cho cat
+     - day lech goc de tach tia trung goc -> mat luon bao dam, len 32 cho cat
+   Nen giu tia thang. He qua phai chap nhan: co duong di qua PHIA SAU mot hop
+   khac (hop ve de len nen duong bi che doan do). Do la quy uoc binh thuong
+   cua so do, khong phai "dan vao nhau". */
+function ray(fromId, toId) {
+  var A = box(fromId), B = box(toId);
+  var dx = B.cx - A.cx, dy = B.cy - A.cy, m = Math.hypot(dx, dy) || 1;
+  var s = [dx / m, dy / m];
+  var tx = s[0] ? (B.w / 2) / Math.abs(s[0]) : 1e9, ty = s[1] ? (B.h / 2) / Math.abs(s[1]) : 1e9;
+  var t = Math.min(tx, ty);
+  return { a: [A.cx, A.cy], b: [B.cx - s[0] * t, B.cy - s[1] * t] };
+}
+function rayD(r) { return 'M ' + r.a[0] + ' ' + r.a[1] + ' L ' + r.b[0] + ' ' + r.b[1]; }
+function rayAt(r, t) { return [r.a[0] + (r.b[0] - r.a[0]) * t, r.a[1] + (r.b[1] - r.a[1]) * t]; }
+
+/* ── dung nen: lan va chang ───────────────────────────────────────── */
+var lang = 'vi', sel = null, laneHot = null, solo = null, moveGuard = false;
+var rail = document.getElementById('rail'), railNames = document.getElementById('railnames'),
+    bands = document.getElementById('bands'), gE = document.getElementById('edges'),
+    gN = document.getElementById('nodes'), gL = document.getElementById('labels'),
+    svg = document.getElementById('wires'), cam = document.getElementById('cam'),
+    det = document.getElementById('det'), stage = document.getElementById('stage');
+var NS = 'http://www.w3.org/2000/svg';
+function el(n, a) { var e = document.createElementNS(NS, n); for (var k in a) e.setAttribute(k, a[k]); return e; }
+function txt(s) { return document.createTextNode(s); }
+
+function drawBands() {
+  bands.textContent = ''; railNames.textContent = '';
+  D.LANES.forEach(function (L, i) {
+    var g = laneY[L.k];
+    bands.appendChild(el('rect', { x: 0, y: g.y, width: CANW, height: g.h,
+      'class': 'laneBg' + (i % 2 ? ' alt' : '') }));
+    bands.appendChild(el('line', { x1: 0, y1: g.y, x2: CANW, y2: g.y, 'class': 'laneLine' }));
+    /* Ke o rat mo cho tung hang trong lan: o trong doc ra la o trong cua
+       mot cai bang, chu khong phai trang chua tai xong. Ca ba nguoi doc
+       deu tuong may mang trang la loi. */
+    for (var r = 0; r < L.rows; r++) {
+      var cy = g.y + LP / 2 + r * RG + NH / 2;
+      D.COLS.forEach(function (c) {
+        bands.appendChild(el('line', { x1: colX[c.k], y1: cy, x2: colX[c.k] + NW, y2: cy,
+          'class': 'cellHint' }));
+      });
+    }
+    /* Ten lan phai xuong dong: "Giao vien & hoc sinh" dai hon le trai nen
+       bi cot dau cat mat. Dung MOT the text co nhieu tspan de moi lan van
+       la mot phan tu (de dem va de doc bang trinh doc man hinh).
+       Ve vao lop ghim, khong ve vao lop truot. */
+    var ln = wrap(L[lang], 12), ly = g.y + g.h / 2 + 5 - (ln.length - 1) * 8;
+    var t = el('text', { x: 16, y: ly, 'class': 'laneName' });
+    ln.forEach(function (row, k) {
+      var sp = el('tspan', { x: 16, dy: k ? 16 : 0 });
+      sp.appendChild(txt(row)); t.appendChild(sp);
+    });
+    railNames.appendChild(t);
+    var hit = el('rect', { x: 0, y: g.y, width: 130, height: g.h, 'class': 'laneHit', 'data-lane': L.k });
+    hit.style.pointerEvents = 'all';
+    railNames.appendChild(hit);
+  });
+  bands.appendChild(el('line', { x1: 0, y1: yy, x2: CANW, y2: yy, 'class': 'laneLine' }));
+  D.COLS.forEach(function (c, i) {
+    var x = colX[c.k];
+    if (c.no) {
+      var n = el('text', { x: x, y: Y0 - 28, 'class': 'colNo' }); n.appendChild(txt(c.no));
+      bands.appendChild(n);
+    }
+    var t = el('text', { x: x + (c.no ? 17 : 0), y: Y0 - 28, 'class': 'colName' });
+    t.appendChild(txt(c[lang])); bands.appendChild(t);
+    if (i) bands.appendChild(el('line', { x1: x - CG / 2, y1: Y0 - 12, x2: x - CG / 2, y2: yy,
+      'class': 'laneLine', 'stroke-dasharray': '3 6' }));
+  });
+}
+
+function wrap(s, max) {
+  if (s.length <= max) return [s];
+  var w = s.split(' '), a = '', b = '';
+  for (var i = 0; i < w.length; i++) {
+    if ((a + ' ' + w[i]).trim().length <= max && !b) a = (a + ' ' + w[i]).trim();
+    else b = (b + ' ' + w[i]).trim();
+  }
+  return b ? [a, b] : [a];
+}
+
+function drawNodes() {
+  gN.textContent = '';
+  Object.keys(D.PLACE).forEach(function (id) {
+    var b = box(id), n = D.NODES[id], nm = n[lang].name;
+    var g = el('g', { 'class': 'node', 'data-node': id, tabindex: 0, role: 'button',
+                      'aria-label': nm });
+    g.appendChild(el('rect', { x: b.x, y: b.y, width: b.w, height: b.h, 'class': 'glow', rx: 12 }));
+    g.appendChild(el('rect', { x: b.x, y: b.y, width: b.w, height: b.h, 'class': 'box', rx: 9 }));
+    var sub = n[lang].sub || '';
+    var lines = wrap(nm, 22);
+    var y0 = b.y + (sub ? 25 : (lines.length === 1 ? 41 : 31));
+    lines.forEach(function (ln, i) {
+      var t = el('text', { x: b.x + 14, y: y0 + i * 18, 'class': 'nm' });
+      t.appendChild(txt(ln)); g.appendChild(t);
+    });
+    if (sub) {
+      wrap(sub, 30).slice(0, 2).forEach(function (ln, i) {
+        var t2 = el('text', { x: b.x + 14, y: y0 + lines.length * 18 + 2 + i * 14, 'class': 'sub' });
+        t2.appendChild(txt(ln)); g.appendChild(t2);
+      });
+    }
+    /* Re chuot len o la hien no lam gi — khong ton mot pixel giao dien nao.
+       Nhan "app rieng" thi bo han: ca ba nguoi doc deu hieu sai thanh
+       "phai tai them mot phan mem nua". */
+    var tn = document.createElementNS(NS, 'title');
+    tn.appendChild(txt(nm + ' — ' + n[lang].one));
+    g.appendChild(tn);
+    gN.appendChild(g);
+  });
+}
+
+/* ── ve duong ─────────────────────────────────────────────────────── */
+function edgeKey(e) { return e.from + '>' + e.to; }
+function drawEdges() {
+  gE.textContent = ''; gL.textContent = '';
+  var list, star = !!sel;
+  if (star) {
+    list = D.EDGES.filter(function (e) { return e.from === sel || e.to === sel; });
+  } else {
+    list = D.EDGES.filter(function (e) { return D.SPINE.indexOf(edgeKey(e)) >= 0; });
+  }
+  var drawn = {}, hide = {};
+  if (star) {
+    /* Luoi deu nhau nen co khoi nam DUNG TREN duong thang giua hai khoi khac
+       (Bang tin lop nam tren duong tu Kho hoc lieu toi Tu hoc). Hai tia do
+       trung khit mot doan dai. Xu ly: chi ve tia DAI NHAT trong nhom trung
+       goc, tia ngan hon la mot doan nam trong no roi. Khoi nam giua van
+       sang vien nhu moi khoi lien quan khac. */
+    var A0 = box(sel);
+    var tg = list.map(function (e) {
+      var o = e.from === sel ? e.to : e.from, B = box(o);
+      return { o: o, ang: Math.atan2(B.cy - A0.cy, B.cx - A0.cx),
+               len: Math.hypot(B.cx - A0.cx, B.cy - A0.cy) };
+    });
+    tg.forEach(function (x) {
+      tg.forEach(function (y) {
+        if (x.o === y.o) return;
+        var d = Math.abs(x.ang - y.ang);
+        if (d < 0.026 && y.len > x.len) hide[x.o] = 1;   /* ~1.5 do */
+      });
+    });
+  }
+  list.forEach(function (e) {
+    var d, cls = 'wire';
+    if (star) {
+      var other = e.from === sel ? e.to : e.from;
+      /* Hai khoi co the noi nhau bang hai cung (vi du Nhiem vu va Thong bao
+         noi nhau ca hai chieu). Ve hai lan thi hai duong trung khit -> ve
+         mot lan, hai chieu ke trong the chi tiet. */
+      var isSolo = (solo !== null && solo === D.EDGES.indexOf(e));
+      if (hide[other] && !isSolo) return;
+      if (drawn[other] && !isSolo) return;
+      drawn[other] = 1;
+      d = rayD(ray(sel, other));
+      cls += ' hot';
+      if (solo !== null && !isSolo) cls += ' faint';
+    } else {
+      var f = SPINE_PATH[edgeKey(e)];
+      if (!f) return;
+      d = round(f(), 12);
+    }
+    var p = el('path', { d: d, 'class': cls + (e.type === 'back' ? ' back' : ''),
+                         'data-edge': edgeKey(e) });
+    if (e.type !== 'data') p.setAttribute('marker-end', star ? 'url(#arh)' : 'url(#ar)');
+    /* Re chuot len duong la hien duoc no la gi — tooltip cua trinh duyet,
+       khong ton mot pixel giao dien nao. */
+    var ti = document.createElementNS(NS, 'title');
+    ti.appendChild(txt(D.NODES[e.from][lang].name + ' → ' + D.NODES[e.to][lang].name
+      + ' · ' + (e[lang + 'Long'] || e[lang])));
+    p.appendChild(ti);
+    gE.appendChild(p);
+    /* Truoc day ve kep thanh hai soi song song. Ca ba nguoi doc deu noi
+       "nhin nhu hai duong ve trung len nhau, hai dau mui de nhau". Bo. */
+  });
+  /* Chi dan nhan cho DUNG MOT duong, khi nguoi doc re vao dong trong the.
+     Dan het 12 nhan mot luc thi chung che nhau va che ca ten khoi. */
+  if (star && solo !== null && D.EDGES[solo]) label(D.EDGES[solo]);
+}
+function label(e) {
+  var other = e.from === sel ? e.to : e.from;
+  var pt = rayAt(ray(sel, other), 0.6);
+  var x = pt[0], y = pt[1];
+  var s = e[lang], w = s.length * 6.9 + 16, h = 21;
+  var g = el('g', { 'class': 'wlabel' });
+  g.appendChild(el('rect', { x: x - w / 2, y: y - h / 2, width: w, height: h, rx: 5 }));
+  var tx = el('text', { x: x, y: y + 4.5, 'text-anchor': 'middle' });
+  tx.appendChild(txt(s)); g.appendChild(tx); gL.appendChild(g);
+}
+
+/* ── trang thai ───────────────────────────────────────────────────── */
+function near(id) {
+  var s = {};
+  D.EDGES.forEach(function (e) {
+    if (e.from === id) s[e.to] = 1;
+    if (e.to === id) s[e.from] = 1;
+  });
+  return s;
+}
+function apply() {
+  var nb = sel ? near(sel) : {};
+  document.body.classList.toggle('sel', !!sel);
+  [].forEach.call(gN.querySelectorAll('.node'), function (g) {
+    var id = g.dataset.node;
+    g.classList.toggle('on', id === sel);
+    g.classList.toggle('near', !!sel && !!nb[id]);
+    g.classList.toggle('lane-on', !sel && laneHot === D.PLACE[id][1]);
+    g.classList.toggle('is-dim', !!sel && id !== sel && !nb[id]);
+  });
+  drawEdges();
+  drawDet();
+  focusView();
+  selfCheck(sel || 'lop dau');
+}
+
+function drawDet() {
+  if (!sel) { det.classList.remove('open'); det.textContent = ''; solo = null; return; }
+  var n = D.NODES[sel][lang], t = T[lang];
+  var laneKey = D.PLACE[sel][1], colKey = D.PLACE[sel][0];
+  var laneName = D.LANES.filter(function (L) { return L.k === laneKey; })[0][lang];
+  var colName = D.COLS.filter(function (c) { return c.k === colKey; })[0][lang];
+  var inc = D.EDGES.filter(function (e) { return e.from === sel || e.to === sel; });
+  det.innerHTML = '<h2></h2><p class="lane"></p><p class="one"></p>'
+    + '<div class="wrapscroll"><div class="scroll"></div></div>';
+  det.querySelector('h2').textContent = n.name;
+  det.querySelector('.lane').textContent = laneName + ' · ' + colName;
+  det.querySelector('.one').textContent = n.one;
+  var sc = det.querySelector('.scroll');
+  if (n.flow && n.flow.length) {
+    var h3 = document.createElement('h3'); h3.textContent = t.detFlow; sc.appendChild(h3);
+    var ol = document.createElement('ol');
+    n.flow.forEach(function (s) { var li = document.createElement('li'); li.textContent = s; ol.appendChild(li); });
+    sc.appendChild(ol);
+  }
+  if (n.note) { var p = document.createElement('p'); p.className = 'note'; p.textContent = n.note; sc.appendChild(p); }
+  if (inc.length) {
+    var h4 = document.createElement('h3'); h4.textContent = t.detLinks; sc.appendChild(h4);
+    var ul = document.createElement('ul');
+    inc.sort(function (a, b) { return (a.type > b.type ? 1 : -1); }).forEach(function (e) {
+      var out = e.from === sel, other = out ? e.to : e.from;
+      var li = document.createElement('li');
+      li.dataset.edge = D.EDGES.indexOf(e);
+      var ar = document.createElement('span'); ar.className = 'ar';
+      ar.textContent = (e.type === 'data' ? t.dirBoth : (out ? t.dirOut : t.dirIn)) + ' ';
+      var b = document.createElement('b'); b.textContent = D.NODES[other][lang].name;
+      li.appendChild(ar); li.appendChild(b);
+      li.appendChild(document.createTextNode(' \u2014 ' + (e[lang + 'Long'] || e[lang])));
+      ul.appendChild(li);
+    });
+    ul.addEventListener('mouseover', function (ev) {
+      if (moveGuard) return;     /* the vua mo ra duoi con tro, khong tinh */
+      var li = ev.target.closest('li');
+      if (li && li.dataset.edge) { solo = +li.dataset.edge; drawEdges(); }
+    });
+    ul.addEventListener('mouseout', function () { if (solo !== null) { solo = null; drawEdges(); } });
+    sc.appendChild(ul);
+  }
+  var x = document.createElement('button'); x.className = 'x'; x.type = 'button'; x.textContent = t.close;
+  x.addEventListener('click', function () { sel = null; apply(); });
+  det.appendChild(x);
+  det.classList.add('open');
+  /* Vet mo chi hien khi that su con noi dung chua doc toi, khong thi cau
+     dang doc trong nhu bi cat — ca ba nguoi doc deu bao cho nay la loi. */
+  var wrapEl = det.querySelector('.wrapscroll'), scEl = det.querySelector('.scroll');
+  var mark = function () {
+    wrapEl.classList.toggle('has-more', scEl.scrollHeight - scEl.scrollTop - scEl.clientHeight > 4);
+  };
+  scEl.addEventListener('scroll', mark);
+  requestAnimationFrame(mark);
+}
+
+/* ── keo va thu phong ─────────────────────────────────────────────── */
+var view = { x: 0, y: 0, k: 1 };
+function put(smooth) {
+  cam.classList.toggle('snap', !smooth);
+  rail.classList.toggle('snap', !smooth);
+  cam.style.transform = 'translate(' + view.x + 'px,' + view.y + 'px) scale(' + view.k + ')';
+  rail.style.transform = 'translate(0px,' + view.y + 'px) scale(' + view.k + ')';
+}
+var PANEL = 400;
+/* Luon vua khung vao phan con lai sau khi tru cho the chi tiet, ke ca luc
+   the dang dong. Nho vay mo the KHONG lam so do nhay hay bi che. */
+function avail() {
+  var r = svg.getBoundingClientRect();
+  var narrow = r.width < 980;
+  return { w: (sel && !narrow) ? r.width - PANEL : r.width, h: r.height, full: r.width };
+}
+
+/* Mo the thi GIU NGUYEN co chu, chi day ngang cho vua du de o dang chon
+   va cac o lien quan khong bi the che. Truoc day fit lai ca khung nen ca
+   bang co nho lai, giao vien noi "mat dinh vi, khong biet minh dang o dau". */
+function focusView() {
+  if (!sel) { fit(true); return; }
+  var a = avail();
+  if (a.full < 980) { put(true); return; }
+  var ids = [sel];
+  D.EDGES.forEach(function (e) {
+    if (e.from === sel) ids.push(e.to);
+    if (e.to === sel) ids.push(e.from);
+  });
+  var x1 = 1e9, x2 = -1e9, seen = {};
+  ids.forEach(function (id) {
+    if (seen[id]) return; seen[id] = 1;
+    var b = box(id); x1 = Math.min(x1, b.x); x2 = Math.max(x2, b.x + b.w);
+  });
+  var need = (x2 - x1) * view.k, room = a.w - 40;
+  if (need > room) {
+    /* Dai khoi lien quan rong hon phan con lai (khoi hub nhu Kho hoc lieu
+       noi toi ca hai dau so do). Luc do phai thu nho vua du — khong duoc
+       de the che mat dung nhung khoi ma no dang ke ten. */
+    view.k = Math.max(K_FLOOR * 0.82, room / (x2 - x1));
+    view.x = 20 - x1 * view.k;
+    view.y = (a.h - CANH * view.k) / 2;
+  } else {
+    var R = view.x + x2 * view.k;
+    if (R > a.w - 20) view.x -= (R - (a.w - 20));
+    if (view.x + x1 * view.k < 20) view.x = 20 - x1 * view.k;
+  }
+  put(true);
+}
+/* San zoom: co chu ten khoi la 15px trong he toa do so do, nen k khong
+   duoc tut duoi 10/15 = 0.667, khong thi chu nho den muc khong doc noi.
+   Cua so qua hep thi thà de nguoi doc keo ngang, hon la in chu 6px. */
+var K_FLOOR = 0.68, K_CEIL = 1.15;
+function fit(smooth) {
+  var pad = 34, a = avail();
+  var k = Math.min((a.w - pad * 2) / CANW, (a.h - pad * 2) / CANH);
+  view.k = Math.max(K_FLOOR, Math.min(k, K_CEIL));
+  view.x = (a.w - CANW * view.k) / 2;
+  view.y = (a.h - CANH * view.k) / 2;
+  put(smooth);
+}
+var drag = null;
+stage.addEventListener('mousedown', function (ev) {
+  if (ev.target.closest('.node') || ev.target.closest('.laneHit')) return;
+  drag = { x: ev.clientX, y: ev.clientY, vx: view.x, vy: view.y };
+  stage.classList.add('drag');
+});
+window.addEventListener('mousemove', function (ev) {
+  moveGuard = false;
+  if (!drag) return;
+  view.x = drag.vx + (ev.clientX - drag.x); view.y = drag.vy + (ev.clientY - drag.y); put(false);
+});
+window.addEventListener('mouseup', function () { drag = null; stage.classList.remove('drag'); });
+stage.addEventListener('wheel', function (ev) {
+  ev.preventDefault();
+  var r = svg.getBoundingClientRect(), mx = ev.clientX - r.left, my = ev.clientY - r.top;
+  var f = ev.deltaY < 0 ? 1.12 : 1 / 1.12, nk = Math.max(K_FLOOR * 0.8, Math.min(2.6, view.k * f));
+  view.x = mx - (mx - view.x) * (nk / view.k); view.y = my - (my - view.y) * (nk / view.k);
+  view.k = nk; put(false);
+}, { passive: false });
+
+/* ── tuong tac ────────────────────────────────────────────────────── */
+svg.addEventListener('click', function (ev) {
+  var g = ev.target.closest('.node');
+  if (g) {
+    sel = (sel === g.dataset.node) ? null : g.dataset.node;
+    moveGuard = true; solo = null;
+    apply(); return;
+  }
+  if (sel) { sel = null; apply(); }
+});
+svg.addEventListener('keydown', function (ev) {
+  var g = ev.target.closest('.node');
+  if (g && (ev.key === 'Enter' || ev.key === ' ')) {
+    ev.preventDefault(); sel = (sel === g.dataset.node) ? null : g.dataset.node; apply();
+  }
+});
+svg.addEventListener('mouseover', function (ev) {
+  var h = ev.target.closest('.laneHit');
+  if (h && !sel) { laneHot = h.dataset.lane; apply(); }
+});
+svg.addEventListener('mouseout', function (ev) {
+  if (ev.target.closest('.laneHit') && laneHot) { laneHot = null; apply(); }
+});
+document.addEventListener('keydown', function (ev) {
+  if (ev.key === 'Escape' && sel) { sel = null; apply(); }
+});
+document.getElementById('fit').addEventListener('click', function () { sel = null; apply(); });
+[].forEach.call(document.querySelectorAll('#ctl [data-lang]'), function (b) {
+  b.addEventListener('click', function () {
+    if (lang === b.dataset.lang) return;
+    lang = b.dataset.lang;
+    document.documentElement.lang = lang;
+    [].forEach.call(document.querySelectorAll('#ctl [data-lang]'), function (x) {
+      x.setAttribute('aria-pressed', x.dataset.lang === lang ? 'true' : 'false');
+    });
+    boot();
+  });
+});
+window.addEventListener('resize', function () { fit(false); });
+
+/* Tu kiem: dem so cap doan duong CAT NHAU thuc su o trang thai hien tai.
+   Chay mot lan luc khoi tao va sau moi lan chon khoi, chi bao ra console.
+   Neu mot ban sua sau nay lam sinh ra cho cat, se biet ngay. */
+function crossCount() {
+  var ps = [].filter.call(gE.querySelectorAll('path'), function (q) {
+    return !q.classList.contains('back-slit');
+  });
+  var polys = ps.map(function (q) {
+    var L = q.getTotalLength(), n = Math.max(2, Math.ceil(L / 6)), a = [];
+    for (var i = 0; i <= n; i++) { var t = q.getPointAtLength(L * i / n); a.push([t.x, t.y]); }
+    return a;
+  });
+  var o = function (p, q, r) { return (q[1]-p[1])*(r[0]-q[0]) - (q[0]-p[0])*(r[1]-q[1]); };
+  var n = 0;
+  for (var i = 0; i < polys.length; i++) for (var j = i + 1; j < polys.length; j++) {
+    for (var x = 0; x < polys[i].length - 1; x++) for (var y = 0; y < polys[j].length - 1; y++) {
+      var a = polys[i][x], b = polys[i][x+1], c = polys[j][y], d2 = polys[j][y+1];
+      var s1 = o(a,b,c), s2 = o(a,b,d2), s3 = o(c,d2,a), s4 = o(c,d2,b);
+      if (((s1>0)!==(s2>0)) && ((s3>0)!==(s4>0))) { n++; x = polys[i].length; y = polys[j].length; }
+    }
+  }
+  return n;
+}
+function selfCheck(tag) {
+  try {
+    var n = crossCount();
+    if (n) console.error('[so do] ' + (tag || '') + ': ' + n + ' cap duong cat nhau');
+  } catch (err) { /* bo qua */ }
+}
+
+function boot() {
+  var fb = document.getElementById('fit');
+  fb.setAttribute('title', T[lang].fitTip);
+  fb.setAttribute('aria-label', T[lang].fitTip);
+  drawBands(); drawNodes(); apply(); fit(false);
+}
+boot();
+</script>
+</body>
+</html>

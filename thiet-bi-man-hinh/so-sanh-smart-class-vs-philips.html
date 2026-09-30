@@ -1,0 +1,1297 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Class đối đầu Philips</title>
+<meta name="description" content="Đối chiếu từng hạng mục giữa phần mềm có sẵn trên màn hình Philips và Lớp học thông minh: Philips thật sự có gì, chúng ta hơn ở chỗ nào, và chỗ nào đang thua.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS — hai màu định danh: Philips và Smart Class
+   ============================================================ */
+:root{
+  --font-display:'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --font-body:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono:'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+  --bg:#FAFAF9;
+  --bg-alt:#F1F0ED;
+  --surface:#FFFFFF;
+  --surface-2:#F6F5F2;
+  --fg:#191A1C;
+  --fg-muted:#54565C;
+  --fg-faint:#83848B;
+  --border:#E2E0DB;
+  --border-strong:#C7C4BD;
+
+  /* Philips = xanh lam nguội, trung tính */
+  --ph:#3E6B92;
+  --ph-soft:#EAF1F7;
+  --ph-line:#B9CEE0;
+
+  /* Smart Class = cam đất, ấm */
+  --sc:#B5541F;
+  --sc-soft:#FBEEE5;
+  --sc-line:#E8C3A8;
+
+  --accent:var(--sc);
+
+  --ok:#1B7A4B;
+  --ok-soft:#E5F4EC;
+  --warn:#96600A;
+  --warn-soft:#FAF0DD;
+  --bad:#A02323;
+  --bad-soft:#F9E9E9;
+
+  --shadow:0 1px 2px rgba(20,20,25,.04), 0 10px 28px -14px rgba(20,20,25,.13);
+
+  --sp-1:.25rem; --sp-2:.5rem; --sp-3:.75rem; --sp-4:1rem;
+  --sp-5:1.25rem; --sp-6:1.5rem; --sp-8:2rem; --sp-10:2.5rem;
+  --sp-12:3rem; --sp-16:4rem; --sp-20:5rem;
+
+  --measure:40rem;
+  --wide:80rem;
+  --radius:6px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0C0C0D; --bg-alt:#141415; --surface:#171718; --surface-2:#1E1E20;
+    --fg:#F2F2F0; --fg-muted:#ADADB2; --fg-faint:#828289;
+    --border:#2A2A2D; --border-strong:#3D3D42;
+    --ph:#7FADD3; --ph-soft:#12212C; --ph-line:#2E4459;
+    --sc:#E68A4E; --sc-soft:#261709; --sc-line:#4A2E17;
+    --ok:#5FCB92; --ok-soft:#0F2219;
+    --warn:#DDAE58; --warn-soft:#231B0B;
+    --bad:#E88080; --bad-soft:#291212;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0C0C0D; --bg-alt:#141415; --surface:#171718; --surface-2:#1E1E20;
+  --fg:#F2F2F0; --fg-muted:#ADADB2; --fg-faint:#828289;
+  --border:#2A2A2D; --border-strong:#3D3D42;
+  --ph:#7FADD3; --ph-soft:#12212C; --ph-line:#2E4459;
+  --sc:#E68A4E; --sc-soft:#261709; --sc-line:#4A2E17;
+  --ok:#5FCB92; --ok-soft:#0F2219;
+  --warn:#DDAE58; --warn-soft:#231B0B;
+  --bad:#E88080; --bad-soft:#291212;
+  --shadow:0 1px 2px rgba(0,0,0,.5), 0 10px 28px -14px rgba(0,0,0,.7);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:var(--font-body); font-size:16.5px; line-height:1.68;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.wrap{max-width:var(--wide); margin:0 auto; padding:0 var(--sp-6)}
+.col{max-width:var(--measure)}
+section{padding:var(--sp-16) 0; border-top:1px solid var(--border)}
+section:first-of-type{border-top:none}
+
+h1,h2,h3,h4{font-family:var(--font-display); font-weight:600; line-height:1.22; letter-spacing:-.011em; margin:0}
+h1{font-size:clamp(2.1rem,5.4vw,3.5rem); letter-spacing:-.024em}
+h2{font-size:clamp(1.55rem,3.3vw,2.2rem); margin-bottom:var(--sp-3)}
+h3{font-size:1.25rem; margin:var(--sp-10) 0 var(--sp-3)}
+h4{font-size:1.02rem; font-family:var(--font-body); font-weight:650; margin:var(--sp-6) 0 var(--sp-2)}
+p{margin:0 0 var(--sp-4)}
+a{color:var(--sc); text-underline-offset:2px}
+strong{font-weight:640}
+ul,ol{margin:0 0 var(--sp-4); padding-left:1.25rem}
+li{margin-bottom:var(--sp-2)}
+
+.eyebrow{font-size:.735rem; font-weight:650; letter-spacing:.1em; text-transform:uppercase; color:var(--fg-faint); margin-bottom:var(--sp-3)}
+.lede{font-size:1.15rem; color:var(--fg-muted); line-height:1.62}
+.small{font-size:.9rem; color:var(--fg-muted)}
+.tiny{font-size:.82rem; color:var(--fg-faint)}
+
+/* HERO */
+.hero{padding:var(--sp-20) 0 var(--sp-12); background:linear-gradient(180deg,var(--bg-alt) 0%,var(--bg) 100%); border-bottom:1px solid var(--border)}
+.hero h1{margin-bottom:var(--sp-5)}
+.hero h1 .vs{color:var(--fg-faint); font-style:italic; font-weight:400}
+.hero .lede{max-width:45rem; font-size:1.2rem}
+.meta-row{display:flex; flex-wrap:wrap; gap:var(--sp-2) var(--sp-6); margin-top:var(--sp-8); padding-top:var(--sp-5); border-top:1px solid var(--border); font-size:.855rem; color:var(--fg-faint)}
+.meta-row b{color:var(--fg-muted); font-weight:600}
+
+/* TAG PHILIPS / SMART CLASS */
+.tag{display:inline-block; font-size:.7rem; font-weight:680; letter-spacing:.06em; text-transform:uppercase; padding:.18em .6em; border-radius:3px; vertical-align:.1em; white-space:nowrap}
+.t-ph{background:var(--ph-soft); color:var(--ph)}
+.t-sc{background:var(--sc-soft); color:var(--sc)}
+.badge{display:inline-block; font-size:.68rem; font-weight:680; letter-spacing:.05em; text-transform:uppercase; padding:.16em .55em; border-radius:3px; vertical-align:.12em; white-space:nowrap}
+.b-v{background:var(--ok-soft); color:var(--ok)}
+.b-i{background:var(--warn-soft); color:var(--warn)}
+.b-q{background:var(--bad-soft); color:var(--bad)}
+
+/* TOC */
+.toc{background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius); padding:var(--sp-5) var(--sp-6); margin:var(--sp-8) 0 0}
+.toc ol{columns:2; column-gap:var(--sp-8); margin:0; padding-left:1.2rem; font-size:.93rem}
+@media(max-width:44rem){.toc ol{columns:1}}
+.toc li{margin-bottom:var(--sp-2); break-inside:avoid}
+.toc a{text-decoration:none; color:var(--fg-muted)}
+.toc a:hover{color:var(--sc); text-decoration:underline}
+
+/* INVENTORY CARDS */
+.inv{display:grid; gap:var(--sp-4); margin:var(--sp-6) 0}
+@media(min-width:54rem){.inv{grid-template-columns:1fr 1fr}}
+.ic{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:var(--sp-5); box-shadow:var(--shadow)}
+.ic.ph{border-top:3px solid var(--ph)}
+.ic.sc{border-top:3px solid var(--sc)}
+.ic h4{margin:0 0 var(--sp-3); font-size:1.04rem}
+.ic ul{padding-left:1.1rem; font-size:.93rem; margin-bottom:0}
+.ic ul li{margin-bottom:var(--sp-2)}
+.ic .cap{font-size:.82rem; color:var(--fg-faint); margin-top:var(--sp-3); padding-top:var(--sp-3); border-top:1px solid var(--border)}
+
+/* HEAD TO HEAD TABLE */
+.tw{overflow-x:auto; margin:var(--sp-6) 0; border:1px solid var(--border); border-radius:var(--radius); background:var(--surface)}
+table{border-collapse:collapse; width:100%; min-width:50rem; font-size:.9rem}
+th,td{padding:.72rem .85rem; text-align:left; vertical-align:top; border-bottom:1px solid var(--border)}
+th{background:var(--surface-2); font-weight:640; font-size:.77rem; letter-spacing:.03em; text-transform:uppercase; color:var(--fg-muted); position:sticky; top:0}
+th.c-ph{color:var(--ph); border-bottom:2px solid var(--ph-line)}
+th.c-sc{color:var(--sc); border-bottom:2px solid var(--sc-line)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--surface-2)}
+td.who{font-weight:640; white-space:nowrap; font-size:.84rem}
+.w-sc{color:var(--sc)}
+.w-ph{color:var(--ph)}
+.w-eq{color:var(--fg-faint)}
+.rowhead{font-weight:640}
+tr.grp td{background:var(--bg-alt); font-weight:650; font-size:.8rem; letter-spacing:.05em; text-transform:uppercase; color:var(--fg-muted)}
+.t-cap{font-size:.83rem; color:var(--fg-faint); margin-top:calc(-1*var(--sp-3)); margin-bottom:var(--sp-6)}
+.none{color:var(--fg-faint); font-style:italic}
+
+/* GAP BLOCKS */
+.gap{
+  background:var(--surface); border:1px solid var(--border);
+  border-left:4px solid var(--sc); border-radius:0 var(--radius) var(--radius) 0;
+  padding:var(--sp-5) var(--sp-6); margin-bottom:var(--sp-6); box-shadow:var(--shadow);
+}
+.gap .n{font-family:var(--font-mono); font-size:.75rem; color:var(--fg-faint); letter-spacing:.06em; text-transform:uppercase}
+.gap h3{margin:var(--sp-1) 0 var(--sp-4); font-size:1.32rem}
+.split{display:grid; gap:var(--sp-4); margin:var(--sp-4) 0}
+@media(min-width:50rem){.split{grid-template-columns:1fr 1fr}}
+.side{border-radius:var(--radius); padding:var(--sp-4) var(--sp-5); font-size:.93rem}
+.side.ph{background:var(--ph-soft); border:1px solid var(--ph-line)}
+.side.sc{background:var(--sc-soft); border:1px solid var(--sc-line)}
+.side .lbl{display:block; font-size:.72rem; font-weight:700; letter-spacing:.07em; text-transform:uppercase; margin-bottom:var(--sp-2)}
+.side.ph .lbl{color:var(--ph)}
+.side.sc .lbl{color:var(--sc)}
+.side p:last-child,.side ul:last-child{margin-bottom:0}
+.side ul{padding-left:1.05rem; margin-bottom:0}
+.punch{
+  margin-top:var(--sp-4); padding-top:var(--sp-4); border-top:1px solid var(--border);
+  font-size:.97rem; font-weight:600;
+}
+.punch::before{content:"Đánh vào đây: "; color:var(--sc); font-weight:700}
+
+/* HONEST BLOCKS */
+.lose{
+  background:var(--bad-soft); border:1px solid var(--border); border-left:4px solid var(--bad);
+  border-radius:0 var(--radius) var(--radius) 0; padding:var(--sp-5) var(--sp-6); margin-bottom:var(--sp-5);
+}
+.lose h4{margin-top:0}
+.lose p:last-child{margin-bottom:0}
+
+/* LESSON WALKTHROUGH */
+.lesson{margin:var(--sp-8) 0; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; background:var(--surface)}
+.lesson-row{display:grid; border-bottom:1px solid var(--border)}
+@media(min-width:52rem){.lesson-row{grid-template-columns:9rem 1fr 1fr}}
+.lesson-row:last-child{border-bottom:none}
+.lesson-row > div{padding:var(--sp-4) var(--sp-5)}
+.lesson-time{background:var(--bg-alt); font-family:var(--font-mono); font-size:.82rem; color:var(--fg-muted); font-weight:500}
+.lesson-ph{border-left:3px solid var(--ph-line); font-size:.92rem}
+.lesson-sc{border-left:3px solid var(--sc-line); font-size:.92rem; background:var(--surface-2)}
+.lesson-head{font-weight:700; font-size:.75rem; letter-spacing:.07em; text-transform:uppercase}
+.lesson-row.hdr > div{padding-top:var(--sp-3); padding-bottom:var(--sp-3); background:var(--bg-alt)}
+.lesson-row.hdr .lesson-ph{color:var(--ph)}
+.lesson-row.hdr .lesson-sc{color:var(--sc)}
+@media(max-width:52rem){
+  .lesson-ph::before{content:"Philips — "; font-weight:700; color:var(--ph)}
+  .lesson-sc::before{content:"Smart Class — "; font-weight:700; color:var(--sc)}
+  .lesson-row.hdr{display:none}
+}
+
+/* NOTES */
+.note{border-left:3px solid var(--sc); background:var(--sc-soft); padding:var(--sp-4) var(--sp-5); border-radius:0 var(--radius) var(--radius) 0; margin:var(--sp-5) 0}
+.note.n-ph{border-left-color:var(--ph); background:var(--ph-soft)}
+.note.w{border-left-color:var(--warn); background:var(--warn-soft)}
+.note.b{border-left-color:var(--bad); background:var(--bad-soft)}
+.note p:last-child{margin-bottom:0}
+.note-title{font-weight:650; font-size:.95rem; margin-bottom:var(--sp-2); display:block}
+
+.quote{font-family:var(--font-mono); font-size:.85rem; line-height:1.6; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius); padding:var(--sp-3) var(--sp-4); margin:var(--sp-3) 0}
+.quote .src{display:block; margin-top:var(--sp-2); font-family:var(--font-body); font-size:.78rem; color:var(--fg-faint)}
+
+/* SCORE STRIP */
+.score{display:grid; gap:var(--sp-3); margin:var(--sp-8) 0}
+@media(min-width:46rem){.score{grid-template-columns:repeat(3,1fr)}}
+.sbox{border:1px solid var(--border); border-radius:var(--radius); padding:var(--sp-5); background:var(--surface); text-align:center}
+.sbox .big{font-family:var(--font-display); font-size:2.6rem; line-height:1; font-weight:600; display:block; margin-bottom:var(--sp-2)}
+.sbox.a .big{color:var(--sc)}
+.sbox.b .big{color:var(--ph)}
+.sbox.c .big{color:var(--fg-faint)}
+.sbox .lbl{font-size:.88rem; color:var(--fg-muted)}
+
+.srcs{font-size:.88rem; padding-left:1.6rem}
+.srcs li{margin-bottom:var(--sp-3); color:var(--fg-muted)}
+.srcs a{word-break:break-word}
+.src-group{font-weight:650; margin:var(--sp-6) 0 var(--sp-3); font-size:.95rem; color:var(--fg)}
+
+footer{border-top:1px solid var(--border); background:var(--bg-alt); padding:var(--sp-10) 0; margin-top:var(--sp-12); font-size:.87rem; color:var(--fg-faint)}
+hr.sep{border:none; border-top:1px solid var(--border); margin:var(--sp-10) 0}
+code{font-family:var(--font-mono); font-size:.88em; background:var(--surface-2); padding:.1em .35em; border-radius:3px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Hồ sơ đối chiếu · Tài liệu thứ hai</div>
+    <h1>Smart Class <span class="vs">đối đầu</span><br>phần mềm của Philips</h1>
+    <p class="lede">
+      Philips thật sự có những gì trong tay, chúng ta thật sự có những gì, và khi đặt cạnh nhau
+      từng hạng mục một thì hơn thua ra sao. Không nói vo, mỗi bên đều kiểm kê từ tài liệu gốc.
+    </p>
+    <div class="meta-row">
+      <span><b>Ngày:</b> 24/08/2026</span>
+      <span><b>Bên A:</b> Philips Genius + bảng viết tích hợp + Wave</span>
+      <span><b>Bên B:</b> prj-ths-smart-class, nhánh neo-build-app</span>
+      <span><b>Tài liệu đi kèm:</b> bản nghiên cứu phần cứng Philips</span>
+    </div>
+
+    <nav class="toc">
+      <ol>
+        <li><a href="#s1">Ba phút đọc nhanh</a></li>
+        <li><a href="#s2">Philips thật sự có gì</a></li>
+        <li><a href="#s3">Smart Class thật sự có gì</a></li>
+        <li><a href="#s4">Đối đầu từng hạng mục</a></li>
+        <li><a href="#s5">Bảy chỗ Philips không có đường theo</a></li>
+        <li><a href="#s6">Ba chỗ Philips hơn chúng ta</a></li>
+        <li><a href="#s7">Một tiết học đi qua hai hệ thống</a></li>
+        <li><a href="#s8">Nói thế nào cho đúng</a></li>
+        <li><a href="#s9">Nguồn</a></li>
+      </ol>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ==========================================================
+     1
+     ========================================================== -->
+<section id="s1">
+  <div class="eyebrow">Phần 1</div>
+  <h2>Ba phút đọc nhanh</h2>
+
+  <div class="col">
+    <p class="lede">
+      Kết luận ngắn gọn: Philips làm rất tốt phần <strong>trong tiết học</strong>. Chúng ta làm
+      được phần đó, và làm thêm cả phần <strong>trước và sau tiết học</strong> mà họ hoàn toàn
+      không có.
+    </p>
+    <p>
+      Nhưng nói vậy vẫn còn mơ hồ. Chỗ đáng giá nhất nằm ở một chi tiết rất cụ thể: cuối tiết học
+      trên máy Philips, giáo viên bấm chia sẻ, hệ thống gửi nội dung bảng qua đường link hoặc email
+      để học sinh tự chép vào sổ ghi chú của mình. Xong tiết là hết. Không có gì ở lại hệ thống.
+    </p>
+    <p>
+      Cuối tiết học trên Smart Class, hệ thống đã ghi lại: em nào có mặt, ai giơ tay bao nhiêu lần,
+      ai trả lời đúng bao nhiêu câu, ai vẽ bao nhiêu nét trên canvas của mình, ai chưa nói câu nào.
+      Từ đó chấm ra bốn điểm số cho từng em, xếp loại, và viết ra điểm mạnh điểm yếu kèm lời khuyên.
+      Toàn bộ đi thẳng vào hồ sơ học sinh và báo cáo của nhà trường.
+    </p>
+  </div>
+
+  <div class="score">
+    <div class="sbox a">
+      <span class="big">26</span>
+      <span class="lbl">công cụ dạy học trong Smart Class,<br>tự làm chứ không nhúng bên ngoài</span>
+    </div>
+    <div class="sbox b">
+      <span class="big">10</span>
+      <span class="lbl">công cụ Philips Genius công bố:<br>bút, tẩy, thước, êke, đo góc, đèn pin,<br>máy tính, hình khối, bình chọn, gọi video</span>
+    </div>
+    <div class="sbox c">
+      <span class="big">0</span>
+      <span class="lbl">số liệu học tập Philips giữ lại<br>sau khi tiết học kết thúc</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <span class="note-title">Câu nên dùng khi trình bày</span>
+    <p>
+      Philips bán một cái bảng thông minh. Chúng ta bán một hệ thống trường học, mà cái bảng chỉ là
+      một cửa vào. Hai thứ đó không cùng hạng mục, và đó chính là lý do ghép được với nhau chứ
+      không phải loại trừ nhau.
+    </p>
+  </div>
+</section>
+
+<!-- ==========================================================
+     2
+     ========================================================== -->
+<section id="s2">
+  <div class="eyebrow">Phần 2</div>
+  <h2>Philips thật sự có gì</h2>
+  <p class="col lede">
+    Phần này tôi kiểm kê đầy đủ và công bằng, kể cả những chỗ họ mạnh. Nếu chỉ liệt kê chỗ họ yếu
+    thì khi ra bàn đàm phán sẽ bị bắt bẻ ngay.
+  </p>
+
+  <div class="inv">
+    <div class="ic ph">
+      <h4>Bảng viết cài sẵn trong máy</h4>
+      <ul>
+        <li>Bút một điểm, chỉnh được nét</li>
+        <li>Hình khối, đồ hoạ và mẫu dựng sẵn</li>
+        <li>Tẩy theo điểm, tẩy theo vòng, xoá sạch một chạm</li>
+        <li>Lùi một bước và tiến một bước</li>
+        <li>Đổi màu nền, hoa văn nền, nền tự chọn</li>
+        <li>Chọn vùng rồi sao chép, xoá, xoay, đổi lớp trên dưới</li>
+        <li>Viết cùng lúc hai mươi điểm chạm</li>
+        <li>Lưu ra ảnh, PDF hoặc file bảng riêng</li>
+        <li>Gửi bằng quét mã, lưu USB, gửi email, in ra</li>
+        <li>Thêm trang, xem trước trang, chuyển trang</li>
+        <li>Chế độ ghi chú đè lên màn hình đang chiếu</li>
+        <li>Điều khiển bằng cử chỉ</li>
+      </ul>
+      <p class="cap">Nguồn: chương 6 sách hướng dẫn E-Line, đọc trực tiếp từ PDF gốc. <span class="badge b-v">Đã xác minh</span></p>
+    </div>
+
+    <div class="ic ph">
+      <h4>Philips Genius — phần mềm dạy học riêng</h4>
+      <ul>
+        <li>Soạn bài ngay trên màn hình, hoặc soạn từ xa qua trình duyệt</li>
+        <li>Có app riêng cho Android, Windows và iOS</li>
+        <li>Bút, bút dạ quang, tẩy, hình khối và đường kẻ</li>
+        <li>Thước kẻ, êke, thước đo góc</li>
+        <li>Đèn pin che bớt màn hình, máy tính bỏ túi</li>
+        <li>Ứng dụng bình chọn tại lớp</li>
+        <li>Gọi video, hỗ trợ học từ xa</li>
+        <li>Chiếu màn hình sang máy học sinh, cả tại lớp lẫn ở nhà</li>
+        <li>Nhúng video YouTube, PDF, Word, Excel, PowerPoint</li>
+        <li>Truy cập kho ứng dụng và nội dung trả phí của bên thứ ba</li>
+        <li>Tìm kiếm có hỗ trợ AI, lọc ra kết quả hợp với lớp đang dạy</li>
+        <li>Cuối tiết gửi toàn bộ nội dung bảng qua link hoặc email</li>
+        <li>Tuân thủ quy định bảo vệ dữ liệu GDPR</li>
+      </ul>
+      <p class="cap">Nguồn: trang Genius của PPDS và các bài đưa tin khi ra mắt. <span class="badge b-v">Đã xác minh</span></p>
+    </div>
+
+    <div class="ic ph">
+      <h4>Chiếu màn hình và quản lý máy</h4>
+      <ul>
+        <li>Philips ScreenShare, chiếu không dây từ máy Apple, Android, Windows</li>
+        <li>Hỗ trợ các chuẩn chiếu hình phổ biến trên đời máy mới</li>
+        <li>Philips Wave: cài đặt, theo dõi, cập nhật cả dàn máy từ xa</li>
+        <li>Hẹn giờ bật tắt, tự chỉnh độ sáng theo ánh sáng phòng</li>
+        <li>Cảnh báo qua email khi màn hình tắt ngoài lịch hoặc hiện nội dung lạ</li>
+        <li>Đạt chứng chỉ bảo mật ISO 27001</li>
+        <li>ProStore: chợ ứng dụng đối tác, cài từ xa cho hàng loạt máy</li>
+      </ul>
+      <p class="cap">Đây là chỗ Philips mạnh thật, không nên coi thường. <span class="badge b-v">Đã xác minh</span></p>
+    </div>
+
+    <div class="ic ph">
+      <h4>Nội dung từ đối tác</h4>
+      <ul>
+        <li>i3LEARNHUB, nền tảng học tập trên mây của i3 Technologies, đi kèm màn hình giáo dục Philips từ 2021</li>
+        <li>Google Classroom, Docs, Slides chạy sẵn trên đời máy có chứng nhận EDLA</li>
+        <li>Cài thêm ứng dụng giáo dục phổ biến từ kho ứng dụng Google</li>
+      </ul>
+      <p class="cap">Philips không tự làm phần này, họ mượn của đối tác. <span class="badge b-v">Đã xác minh</span></p>
+    </div>
+  </div>
+
+  <div class="note n-ph">
+    <span class="note-title">Đọc lại danh sách trên và để ý một điều</span>
+    <p>
+      Toàn bộ những gì Philips có đều nằm gọn trong khoảng thời gian giáo viên đang đứng trước lớp.
+      Không có một dòng nào nói tới danh sách lớp, hồ sơ học sinh, sổ điểm, giao bài về nhà, theo
+      dõi tiến bộ, hay báo cáo cho nhà trường. Đây không phải họ làm thiếu, mà là họ cố ý không làm,
+      vì bán máy ra hàng chục nước thì không thể làm phần đó cho từng nước.
+    </p>
+  </div>
+</section>
+
+<!-- ==========================================================
+     3
+     ========================================================== -->
+<section id="s3">
+  <div class="eyebrow">Phần 3</div>
+  <h2>Smart Class thật sự có gì</h2>
+  <p class="col lede">
+    Phần này tôi không lấy từ tài liệu giới thiệu, mà đọc thẳng trong mã nguồn. Cách này chậm hơn
+    nhưng đổi lại không có tính năng nào bị kể vống lên.
+  </p>
+
+  <div class="inv">
+    <div class="ic sc">
+      <h4>Bảng viết, nhưng không chỉ có một bảng</h4>
+      <ul>
+        <li>Bảng vẽ dựa trên tldraw, bản sửa riêng của đội</li>
+        <li><strong>Chia bảng thành tối đa bốn vùng</strong>, mỗi vùng một nhóm học sinh làm riêng</li>
+        <li><strong>Mỗi học sinh có canvas cá nhân của mình</strong>, giáo viên chuyển qua lại xem được</li>
+        <li><strong>Chiếu bài của một học sinh lên bảng lớn</strong> cho cả lớp cùng xem, có hỏi ý em đó trước</li>
+        <li>Học sinh xem được bảng của giáo viên ở khung nhỏ góc màn hình</li>
+        <li>Canvas học sinh tự đi theo khung nhìn của giáo viên khi cần</li>
+        <li><strong>Menu tròn theo từng ngón chạm</strong>, hai người cùng đứng bảng thì mỗi người một menu riêng, không giành nhau</li>
+        <li>Phân biệt bút và bàn tay, tì tay lên bảng không ra nét</li>
+      </ul>
+      <p class="cap">Đọc từ <code>splitBoard/</code>, <code>view-student/</code>, <code>rollerMenu/</code>, <code>canvasKeyPolicy</code>. <span class="badge b-v">Đã xác minh</span></p>
+    </div>
+
+    <div class="ic sc">
+      <h4>Hai mươi sáu công cụ dạy học</h4>
+      <ul>
+        <li><strong>Giải phẫu người 3D, năm mươi chín cơ quan</strong>, có thư viện tra cứu riêng</li>
+        <li><strong>Bảng tuần hoàn</strong> với chi tiết từng nguyên tố, đồng vị, cấu hình electron, mô hình 3D xoay được</li>
+        <li>Phòng thí nghiệm Hoá và phòng thí nghiệm Lý</li>
+        <li>GeoGebra, vẽ đồ thị hàm số, máy tính khoa học</li>
+        <li>Sơ đồ tư duy có mẫu dựng sẵn, bảng biểu, ghi chú, sách</li>
+        <li>Xúc xắc 3D, mô hình giao thông 3D có đèn tín hiệu, bánh xe quay chọn tên học sinh</li>
+        <li>Đồng hồ đếm giờ, rèm che màn hình, compa</li>
+        <li>Trình chiếu và trình xem slide, quản lý tệp</li>
+        <li>Trò chơi đố vui: giáo viên mở phòng, học sinh vào bằng mã</li>
+        <li>Trình duyệt nhúng, nhúng liên kết bên ngoài, danh sách học liệu K12</li>
+      </ul>
+      <p class="cap">Riêng bảng tuần hoàn đã là một phần mềm cỡ vừa chứ không phải một nút bấm. <span class="badge b-v">Đã xác minh</span></p>
+    </div>
+
+    <div class="ic sc">
+      <h4>AI làm việc thật, không chỉ để tìm kiếm</h4>
+      <ul>
+        <li><strong>Tạo Quiz</strong> từ nội dung đang dạy</li>
+        <li><strong>Tạo hình ảnh</strong> minh hoạ ngay trong tiết</li>
+        <li><strong>Giải thích</strong> nội dung đang chọn trên bảng</li>
+        <li><strong>Nhận dạng công thức toán viết tay</strong> rồi chuyển thành công thức chuẩn, và vẽ được đồ thị từ đó</li>
+        <li>Gợi ý chuyển nét vẽ nguệch ngoạc thành hình chuẩn</li>
+        <li>Gợi ý chữ viết tay</li>
+        <li><strong>Ra lệnh bằng giọng nói</strong> cho lớp học</li>
+        <li>AI chấm câu trả lời của học sinh</li>
+        <li>Gia sư AI riêng cho từng học sinh, có hạn mức sử dụng</li>
+      </ul>
+      <p class="cap">Đọc từ <code>services/ai/</code>, <code>AIPanelSidebar</code>, <code>mathOcr</code>, <code>voiceCommandRouter</code>. <span class="badge b-v">Đã xác minh</span></p>
+    </div>
+
+    <div class="ic sc">
+      <h4>Điểm danh bằng khuôn mặt</h4>
+      <ul>
+        <li>Nhận diện chạy ngay trên máy, không gửi ảnh lên mây</li>
+        <li>Bám và theo dõi nhiều khuôn mặt cùng lúc</li>
+        <li>Chấm điểm chất lượng từng khuôn mặt, nhận nhiều vòng rồi mới kết luận</li>
+        <li>Xử lý riêng trường hợp mặt lạ không có trong danh sách lớp</li>
+        <li>Tự phát hiện và phục hồi khi camera treo, đứng hình hoặc mất luồng</li>
+        <li>Có bảng điều khiển cho giáo viên, có điểm danh thủ công khi cần</li>
+        <li>Giáo viên xác nhận lại trước khi chốt</li>
+      </ul>
+      <p class="cap">Đọc từ <code>useSmartclassAICameraAttendancePipeline</code> và thư mục <code>attendance/</code>. <span class="badge b-v">Đã xác minh</span></p>
+    </div>
+
+    <div class="ic sc">
+      <h4>Đo lường và báo cáo, đây là phần Philips không có gì</h4>
+      <ul>
+        <li>Năm bộ thu thập chạy nền: điểm danh, mức tham gia, sự kiện, trò chơi, quiz</li>
+        <li><strong>Chấm bốn chiều cho từng học sinh</strong>: Kiến thức chiếm bốn mươi phần trăm, Tham gia, Hợp tác và Hoạt động mỗi thứ hai mươi phần trăm</li>
+        <li>Ra điểm tổng và xếp loại từ S xuống D</li>
+        <li>Tự viết ra <strong>điểm mạnh, điểm yếu và lời khuyên</strong> cho từng em</li>
+        <li>Lấy mẫu theo thời gian: bao nhiêu em đang hoạt động, bao nhiêu tin nhắn, bao nhiêu lượt giơ tay, bao nhiêu lượt trả lời</li>
+        <li>Chỉ ra nhóm học tốt nhất và nhóm cần để ý</li>
+        <li>Bảng theo dõi theo lớp, theo buổi, so sánh giữa các buổi, và gợi ý cho giáo viên</li>
+        <li>Trong báo cáo một buổi có các mục: tổng quan, điểm danh, quiz, trò chơi, phân tích từng em</li>
+        <li>Xuất báo cáo ra PDF</li>
+      </ul>
+      <p class="cap">Đọc từ <code>analytics/metrics/EducationalMetrics.ts</code> và <code>analytics/collectors/</code>. <span class="badge b-v">Đã xác minh</span></p>
+    </div>
+
+    <div class="ic sc">
+      <h4>Nền móng phía dưới</h4>
+      <ul>
+        <li>Chạy được khi mất mạng: có máy chủ nhỏ và cơ sở dữ liệu nằm ngay trong máy</li>
+        <li>Chế độ lớp học trong mạng nội bộ, không cần internet</li>
+        <li>Kết nối thời gian thực nhiều máy, có máy chủ trung chuyển riêng</li>
+        <li>Một tài khoản đăng nhập dùng chung cho toàn hệ sinh thái</li>
+        <li>Tự cập nhật có chữ ký số</li>
+        <li>Giao diện tiếng Việt và tiếng Anh</li>
+        <li>Đóng gói được cho Windows, macOS, Android, iOS và cả bản web</li>
+      </ul>
+      <p class="cap">Đọc từ <code>flow.md</code>, <code>package.json</code>, <code>tauri.conf.json</code>, thư mục <code>locales/</code>. <span class="badge b-v">Đã xác minh</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================
+     4
+     ========================================================== -->
+<section id="s4">
+  <div class="eyebrow">Phần 4</div>
+  <h2>Đối đầu từng hạng mục</h2>
+  <p class="col lede">
+    Bảng này là phần đáng in ra mang đi họp. Cột cuối ghi thẳng ai hơn, kể cả những dòng chúng ta
+    thua hoặc chỉ ngang.
+  </p>
+
+  <div class="tw">
+    <table>
+      <thead>
+        <tr>
+          <th style="min-width:12rem">Hạng mục</th>
+          <th class="c-ph" style="min-width:15rem">Philips</th>
+          <th class="c-sc" style="min-width:15rem">Smart Class</th>
+          <th style="min-width:7rem">Ai hơn</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="grp"><td colspan="4">Bảng viết và tương tác trên màn hình</td></tr>
+        <tr>
+          <td class="rowhead">Bút, tẩy, hình khối</td>
+          <td>Đầy đủ, có thêm thước kẻ, êke, thước đo góc trong Genius</td>
+          <td>Đầy đủ, có compa riêng</td>
+          <td class="who w-eq">Ngang nhau</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Số người viết cùng lúc</td>
+          <td>20 điểm chạm</td>
+          <td>Theo giới hạn của màn hình, thêm menu tròn riêng cho từng ngón</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Chia bảng cho nhiều nhóm</td>
+          <td class="none">Không có</td>
+          <td>Chia tối đa bốn vùng, mỗi nhóm một vùng</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Canvas riêng của từng học sinh</td>
+          <td class="none">Không có</td>
+          <td>Có, giáo viên chuyển qua lại xem được</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Chiếu bài học sinh lên bảng lớn</td>
+          <td class="none">Không có. Chỉ có chiều ngược lại là chiếu từ bảng xuống máy học sinh</td>
+          <td>Có, kèm hỏi ý học sinh trước và nút dừng chiếu</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Lưu và gửi nội dung bảng</td>
+          <td>Ảnh, PDF, quét mã, email, in</td>
+          <td>Lưu vào phiên học, gắn với hồ sơ lớp</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+
+        <tr class="grp"><td colspan="4">Học liệu và công cụ môn học</td></tr>
+        <tr>
+          <td class="rowhead">Nhúng tài liệu có sẵn</td>
+          <td>YouTube, PDF, Word, Excel, PowerPoint</td>
+          <td>Slide, PDF, trình duyệt nhúng, danh sách học liệu K12</td>
+          <td class="who w-ph">Philips</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Mô hình 3D môn Sinh</td>
+          <td class="none">Không có. Phải mua nội dung bên thứ ba</td>
+          <td>Giải phẫu người 59 cơ quan, tự làm</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Bảng tuần hoàn môn Hoá</td>
+          <td class="none">Không có</td>
+          <td>Chi tiết nguyên tố, đồng vị, cấu hình electron, mô hình 3D</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Phòng thí nghiệm ảo</td>
+          <td class="none">Không có</td>
+          <td>Có phòng Hoá và phòng Lý riêng</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Công cụ Toán</td>
+          <td>Máy tính bỏ túi, thước, êke, đo góc</td>
+          <td>Máy tính khoa học, GeoGebra, vẽ đồ thị hàm số, nhận dạng công thức viết tay</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Công cụ điều hành lớp</td>
+          <td>Đèn pin, bình chọn</td>
+          <td>Đồng hồ đếm giờ, rèm che, bánh xe quay chọn tên, xúc xắc, sơ đồ tư duy, bảng biểu</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Trò chơi học tập</td>
+          <td class="none">Không có sẵn. Cài thêm từ kho ứng dụng Google</td>
+          <td>Có sẵn, giáo viên mở phòng, học sinh vào bằng mã</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+
+        <tr class="grp"><td colspan="4">Trí tuệ nhân tạo</td></tr>
+        <tr>
+          <td class="rowhead">AI hỗ trợ tìm kiếm</td>
+          <td>Có, lọc kết quả hợp với lớp đang dạy</td>
+          <td>Có, kèm trợ lý hội thoại</td>
+          <td class="who w-eq">Ngang nhau</td>
+        </tr>
+        <tr>
+          <td class="rowhead">AI soạn câu hỏi kiểm tra</td>
+          <td class="none">Không thấy công bố</td>
+          <td>Có, tạo quiz ngay trong tiết</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">AI chấm bài</td>
+          <td class="none">Không thấy công bố</td>
+          <td>Có, chấm câu trả lời của học sinh</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">AI đọc chữ viết tay</td>
+          <td class="none">Không thấy công bố</td>
+          <td>Đọc công thức toán viết tay, chuyển thành công thức chuẩn rồi vẽ đồ thị</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Điều khiển bằng giọng nói</td>
+          <td class="none">Không thấy công bố</td>
+          <td>Có</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Gia sư riêng cho học sinh</td>
+          <td class="none">Không có</td>
+          <td>Có</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+
+        <tr class="grp"><td colspan="4">Trước và sau tiết học</td></tr>
+        <tr>
+          <td class="rowhead">Điểm danh</td>
+          <td class="none">Không có</td>
+          <td>Nhận diện khuôn mặt chạy trên máy, kèm điểm danh thủ công</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Đo mức tham gia của từng em</td>
+          <td class="none">Không có</td>
+          <td>Đo liên tục theo thời gian, bốn chiều, xếp loại S đến D</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Nhận xét cho từng học sinh</td>
+          <td class="none">Không có</td>
+          <td>Tự viết ra điểm mạnh, điểm yếu và lời khuyên</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Báo cáo buổi học</td>
+          <td class="none">Không có</td>
+          <td>Năm mục, xuất được ra PDF</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Dữ liệu ở lại sau tiết học</td>
+          <td class="none">Không. Gửi link hoặc email rồi thôi</td>
+          <td>Vào hồ sơ học sinh và báo cáo nhà trường</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Danh sách lớp, phân công giáo viên</td>
+          <td class="none">Không có</td>
+          <td>Có, nằm ở hệ thống quản trị nhà trường</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Giao nhiệm vụ về nhà</td>
+          <td class="none">Không có</td>
+          <td>Có</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Ngân hàng câu hỏi</td>
+          <td class="none">Không có</td>
+          <td>Có kho riêng</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+
+        <tr class="grp"><td colspan="4">Vận hành và hạ tầng</td></tr>
+        <tr>
+          <td class="rowhead">Quản lý dàn máy từ xa</td>
+          <td>Philips Wave, rất mạnh, có chứng chỉ ISO 27001, cảnh báo qua email, hẹn giờ bật tắt</td>
+          <td>Có hệ thống quản lý thiết bị riêng nhưng chưa gắn vào phần cứng màn hình</td>
+          <td class="who w-ph">Philips</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Dạy được khi mất mạng</td>
+          <td class="none">Genius là nền tảng trên mây</td>
+          <td>Có máy chủ và cơ sở dữ liệu ngay trong máy, chạy trong mạng nội bộ</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Chiếu màn hình không dây</td>
+          <td>ScreenShare, hỗ trợ đủ hệ điều hành</td>
+          <td>Có, qua kết nối thời gian thực</td>
+          <td class="who w-ph">Philips</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Tiếng Việt và chương trình Việt Nam</td>
+          <td class="none">Không thấy công bố hỗ trợ tiếng Việt</td>
+          <td>Giao diện tiếng Việt, học liệu bám chương trình</td>
+          <td class="who w-sc">Smart Class</td>
+        </tr>
+        <tr>
+          <td class="rowhead">Độ chín của sản phẩm</td>
+          <td>Bán ra thị trường nhiều năm, có đại lý hàng chục nước</td>
+          <td>Chưa từng chạy thử trên màn hình tương tác thật</td>
+          <td class="who w-ph">Philips</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="t-cap">
+    Ô ghi "không thấy công bố" nghĩa là tôi tìm trong tài liệu chính thức của Philips mà không thấy
+    nhắc tới, chứ không phải khẳng định họ không có. Khi đàm phán nên hỏi lại cho chắc.
+  </p>
+
+  <div class="note w">
+    <span class="note-title">Đừng đọc bảng này theo kiểu đếm số dòng</span>
+    <p>
+      Chúng ta thắng nhiều dòng, nhưng phần lớn là những dòng Philips cố ý không làm chứ không phải
+      họ làm không nổi. Lập luận đúng không phải là "chúng tôi nhiều tính năng hơn", mà là "chúng
+      tôi làm phần các anh không định làm". Cách nói thứ hai không đụng chạm, và cũng đúng hơn.
+    </p>
+  </div>
+</section>
+
+<!-- ==========================================================
+     5
+     ========================================================== -->
+<section id="s5">
+  <div class="eyebrow">Phần 5</div>
+  <h2>Bảy chỗ Philips không có đường theo</h2>
+  <p class="col lede">
+    Đây là phần trả lời thẳng câu hỏi "có gì hơn không". Bảy chỗ dưới đây không phải hơn một chút,
+    mà là Philips không có gì tương đương, và cũng khó có trong ngắn hạn.
+  </p>
+
+  <div class="gap">
+    <span class="n">Chỗ hơn thứ nhất</span>
+    <h3>Hết tiết là dữ liệu vẫn ở lại</h3>
+    <div class="split">
+      <div class="side ph">
+        <span class="lbl">Philips</span>
+        <p>
+          Cuối tiết, giáo viên bấm chia sẻ. Hệ thống gửi nội dung bảng qua đường link hoặc email để
+          học sinh chép vào sổ ghi chú của mình. Đó là toàn bộ những gì còn lại.
+        </p>
+        <div class="quote" style="margin-top:.6rem">
+          "All content displayed on the screen can be saved and shared directly, via URL or email,
+          with students at the end of each lesson."
+          <span class="src">Mô tả chính thức Philips Genius</span>
+        </div>
+      </div>
+      <div class="side sc">
+        <span class="lbl">Smart Class</span>
+        <p>
+          Trong suốt tiết học có năm bộ thu thập chạy nền, ghi lại: ai có mặt, ai giơ tay, ai nhắn
+          gì, ai trả lời quiz đúng sai ra sao, ai chơi trò chơi thế nào, ai thao tác gì trên canvas.
+        </p>
+        <p>
+          Hết tiết, hệ thống chấm ra bốn điểm cho từng em, xếp loại từ S xuống D, viết ra điểm mạnh
+          điểm yếu và một lời khuyên. Toàn bộ vào hồ sơ học sinh và báo cáo nhà trường, xuất được
+          PDF.
+        </p>
+      </div>
+    </div>
+    <p class="punch">
+      Hỏi Philips một câu duy nhất: sau tiết học, hiệu trưởng nhìn vào đâu để biết lớp 8A hôm nay
+      học thế nào? Họ không có câu trả lời.
+    </p>
+  </div>
+
+  <div class="gap">
+    <span class="n">Chỗ hơn thứ hai</span>
+    <h3>Bảng không phải chỉ có một, và học sinh không chỉ ngồi nhìn</h3>
+    <div class="split">
+      <div class="side ph">
+        <span class="lbl">Philips</span>
+        <p>
+          Một bảng duy nhất, hai mươi điểm viết. Học sinh xem được bảng của giáo viên trên máy mình,
+          nhưng đó là một chiều: từ bảng xuống máy học sinh.
+        </p>
+        <p>
+          Không có cách nào để mỗi em có một chỗ làm riêng, cũng không có cách nào đưa bài của một
+          em lên bảng lớn cho cả lớp cùng xem.
+        </p>
+      </div>
+      <div class="side sc">
+        <span class="lbl">Smart Class</span>
+        <ul>
+          <li>Chia bảng thành tối đa bốn vùng, bốn nhóm làm bốn bài khác nhau cùng lúc</li>
+          <li>Mỗi học sinh có canvas riêng, giáo viên chuyển qua lại xem ai đang làm tới đâu</li>
+          <li>Chiếu bài của một em lên bảng lớn, có hỏi ý em đó trước và có nút dừng</li>
+          <li>Học sinh xem bảng giáo viên ở khung nhỏ góc màn hình, không mất chỗ làm bài</li>
+          <li>Canvas học sinh tự đi theo khung nhìn giáo viên khi giáo viên muốn cả lớp nhìn cùng chỗ</li>
+          <li>Hai người cùng đứng bảng thì mỗi người một menu công cụ riêng theo ngón chạm của mình</li>
+        </ul>
+      </div>
+    </div>
+    <p class="punch">
+      Đây là khác biệt về cách dạy, không phải khác biệt về tính năng. Philips cho một người viết,
+      cả lớp nhìn. Chúng ta cho cả lớp cùng làm, rồi mang bài lên cho nhau xem.
+    </p>
+  </div>
+
+  <div class="gap">
+    <span class="n">Chỗ hơn thứ ba</span>
+    <h3>Đo được từng em, chứ không chỉ đo cả lớp</h3>
+    <div class="split">
+      <div class="side ph">
+        <span class="lbl">Philips</span>
+        <p>
+          Có ứng dụng bình chọn tại lớp. Bấm xong biết bao nhiêu phần trăm chọn A, bao nhiêu chọn B.
+          Hết. Không lưu lại, không gắn với em nào, không so được với buổi trước.
+        </p>
+      </div>
+      <div class="side sc">
+        <span class="lbl">Smart Class</span>
+        <p>Chấm bốn chiều cho từng học sinh, có trọng số rõ ràng:</p>
+        <ul>
+          <li><strong>Kiến thức</strong> — 40 phần trăm, từ kết quả quiz và bài làm</li>
+          <li><strong>Mức tham gia</strong> — 20 phần trăm, từ số lần giơ tay và trả lời</li>
+          <li><strong>Hợp tác</strong> — 20 phần trăm, từ tương tác với bạn trong lớp</li>
+          <li><strong>Hoạt động</strong> — 20 phần trăm, từ thao tác trên canvas và công cụ</li>
+        </ul>
+        <p>
+          Ra điểm tổng, xếp loại, và chỉ ra nhóm học tốt lẫn nhóm cần để ý. Đo liên tục theo thời
+          gian nên biết được lớp lúc nào sôi nổi, lúc nào chùng xuống.
+        </p>
+      </div>
+    </div>
+    <p class="punch">
+      Với giáo viên, đây là thứ thay được cảm giác chủ quan bằng con số. Với hiệu trưởng, đây là
+      thứ để nhìn cả trường. Philips không có gì ở cả hai tầng.
+    </p>
+  </div>
+
+  <div class="gap">
+    <span class="n">Chỗ hơn thứ tư</span>
+    <h3>AI làm việc, không chỉ để tìm kiếm</h3>
+    <div class="split">
+      <div class="side ph">
+        <span class="lbl">Philips</span>
+        <p>
+          Genius có tìm kiếm hỗ trợ bằng AI, lọc ra kết quả hợp với lớp đang dạy. Đây là tính năng
+          thật và có ích, nhưng dừng ở mức tìm giúp.
+        </p>
+        <p>
+          Trong toàn bộ tài liệu chính thức tôi đọc được, không có chỗ nào nhắc tới AI soạn câu hỏi,
+          AI chấm bài, hay AI đọc chữ viết tay.
+        </p>
+      </div>
+      <div class="side sc">
+        <span class="lbl">Smart Class</span>
+        <ul>
+          <li>Soạn câu hỏi kiểm tra ngay trong tiết, từ nội dung đang dạy</li>
+          <li>Tạo hình ảnh minh hoạ khi cần giải thích gấp</li>
+          <li>Giải thích nội dung giáo viên đang chọn trên bảng</li>
+          <li>Chấm câu trả lời của học sinh</li>
+          <li><strong>Đọc công thức toán viết tay</strong> rồi chuyển thành công thức chuẩn, và vẽ luôn đồ thị từ công thức đó</li>
+          <li>Chuyển nét vẽ nguệch ngoạc thành hình chuẩn</li>
+          <li>Ra lệnh cho lớp học bằng giọng nói</li>
+          <li>Gia sư AI riêng cho từng học sinh</li>
+        </ul>
+      </div>
+    </div>
+    <p class="punch">
+      Cái đáng đem đi demo là viết tay một công thức lên bảng rồi thấy nó tự thành đồ thị. Không
+      hãng màn hình nào trong danh sách tôi khảo sát có tính năng này.
+    </p>
+  </div>
+
+  <div class="gap">
+    <span class="n">Chỗ hơn thứ năm</span>
+    <h3>Học liệu tự làm, không phải nhúng YouTube</h3>
+    <div class="split">
+      <div class="side ph">
+        <span class="lbl">Philips</span>
+        <p>
+          Genius nhúng được YouTube, PDF, Word, Excel, PowerPoint, và cho truy cập kho nội dung trả
+          phí của bên thứ ba. Nghĩa là nội dung không phải của họ, họ làm cái khung để mở nội dung
+          của người khác.
+        </p>
+        <p>
+          Muốn có mô hình 3D môn Sinh hay phòng lab Hoá, nhà trường phải mua thêm từ nhà cung cấp
+          nội dung khác.
+        </p>
+      </div>
+      <div class="side sc">
+        <span class="lbl">Smart Class</span>
+        <p>Nội dung nằm ngay trong phần mềm, không phải mua thêm:</p>
+        <ul>
+          <li>Giải phẫu người 3D với năm mươi chín cơ quan, có thư viện tra cứu</li>
+          <li>Bảng tuần hoàn chi tiết tới đồng vị và cấu hình electron, mô hình nguyên tử xoay được</li>
+          <li>Phòng thí nghiệm Hoá và phòng thí nghiệm Lý</li>
+          <li>Mô hình giao thông 3D, xúc xắc 3D dùng dạy xác suất</li>
+          <li>GeoGebra và công cụ vẽ đồ thị hàm số</li>
+        </ul>
+      </div>
+    </div>
+    <p class="punch">
+      Riêng bảng tuần hoàn trong dự án đã lớn ngang một phần mềm độc lập cỡ vừa. Đây không phải vài
+      cái nút, mà là học liệu thật do đội tự dựng.
+    </p>
+  </div>
+
+  <div class="gap">
+    <span class="n">Chỗ hơn thứ sáu</span>
+    <h3>Điểm danh, thứ Philips hoàn toàn không đụng tới</h3>
+    <div class="split">
+      <div class="side ph">
+        <span class="lbl">Philips</span>
+        <p>
+          Không có tính năng điểm danh dưới bất kỳ hình thức nào. Màn hình cũng không có camera tích
+          hợp, tài liệu ghi rõ muốn gọi video thì phải cắm camera rời.
+        </p>
+      </div>
+      <div class="side sc">
+        <span class="lbl">Smart Class</span>
+        <ul>
+          <li>Nhận diện khuôn mặt <strong>chạy ngay trên máy</strong>, ảnh không rời khỏi lớp học</li>
+          <li>Bám nhiều khuôn mặt cùng lúc, chấm chất lượng từng khuôn, nhận nhiều vòng rồi mới kết luận</li>
+          <li>Xử lý riêng người lạ không có trong danh sách lớp</li>
+          <li>Tự phát hiện và phục hồi khi camera treo hoặc mất luồng</li>
+          <li>Có điểm danh thủ công dự phòng, giáo viên xác nhận trước khi chốt</li>
+        </ul>
+      </div>
+    </div>
+    <p class="punch">
+      Chuyện ảnh không rời khỏi lớp học là điểm nên nhấn khi nói với nhà trường và phụ huynh. Đây là
+      lựa chọn thiết kế có chủ đích, không phải tình cờ.
+    </p>
+    <div class="note w" style="margin-bottom:0">
+      <span class="note-title">Nhưng phải nói kèm chỗ vướng</span>
+      <p>
+        Màn hình Philips không có camera. Muốn dùng tính năng này trên màn hình thì phải kèm camera
+        rời, hoặc để điểm danh chạy trên máy tính bảng của giáo viên rồi đồng bộ sang. Nên chốt
+        trước một hướng để khỏi trả lời vòng vo khi nhà trường hỏi.
+      </p>
+    </div>
+  </div>
+
+  <div class="gap">
+    <span class="n">Chỗ hơn thứ bảy</span>
+    <h3>Mất mạng vẫn dạy được</h3>
+    <div class="split">
+      <div class="side ph">
+        <span class="lbl">Philips</span>
+        <p>
+          Bảng viết cài sẵn trong máy thì chạy được khi không có mạng, nhưng chỉ là bảng viết trơn.
+        </p>
+        <p>
+          Genius là nền tảng trên mây, soạn bài qua trình duyệt, chia sẻ qua link và email. Mất mạng
+          là mất phần lớn giá trị của nó.
+        </p>
+      </div>
+      <div class="side sc">
+        <span class="lbl">Smart Class</span>
+        <ul>
+          <li>Bản chạy trên máy có sẵn một máy chủ nhỏ và một cơ sở dữ liệu nằm ngay trong máy</li>
+          <li>Có chế độ lớp học trong mạng nội bộ, các máy nối trực tiếp với nhau, không cần internet</li>
+          <li>Dữ liệu lưu tại chỗ trước, có mạng thì tự đồng bộ lên sau</li>
+        </ul>
+      </div>
+    </div>
+    <p class="punch">
+      Với trường thành phố, điểm này nghe không quan trọng. Với trường vùng khó, đây là khác biệt
+      giữa dùng được và không dùng được. Nếu nhắm thị trường công, đây là lập luận mạnh nhất.
+    </p>
+  </div>
+</section>
+
+<!-- ==========================================================
+     6
+     ========================================================== -->
+<section id="s6">
+  <div class="eyebrow">Phần 6</div>
+  <h2>Ba chỗ Philips hơn chúng ta</h2>
+  <p class="col lede">
+    Phần này không dễ chịu nhưng cần thiết. Nếu đi đàm phán mà không biết trước mình yếu ở đâu, họ
+    sẽ chỉ ra hộ và lúc đó rất bị động.
+  </p>
+
+  <div class="lose">
+    <h4>Một — Quản lý dàn máy từ xa, họ hơn hẳn</h4>
+    <p>
+      Philips Wave làm được những thứ chúng ta chưa có: cài đặt hàng loạt máy từ một chỗ, giảm thời
+      gian lắp đặt tới khoảng bảy mươi lăm phần trăm theo con số họ công bố, hẹn giờ bật tắt để
+      tiết kiệm điện, tự chỉnh độ sáng theo ánh sáng phòng, gửi cảnh báo qua email khi màn hình tắt
+      ngoài lịch hoặc hiện nội dung lạ. Nền tảng đạt chứng chỉ bảo mật ISO 27001.
+    </p>
+    <p>
+      Chúng ta có một hệ thống quản lý thiết bị riêng, nhưng nó chưa gắn được vào phần cứng màn
+      hình. Đây là chỗ nên hợp tác chứ đừng cạnh tranh: để Wave lo phần cứng, mình lo phần học tập.
+    </p>
+  </div>
+
+  <div class="lose">
+    <h4>Hai — Sản phẩm của họ đã chín, của mình thì chưa thử</h4>
+    <p>
+      Màn hình Philips đã bán ra thị trường nhiều năm, có đại lý ở hàng chục nước, có sách hướng
+      dẫn 84 trang, có quy trình bảo hành. Genius đã chạy trên máy thật trong trường thật.
+    </p>
+    <p>
+      Còn Smart Class thì chưa từng chạy thử trên một màn hình tương tác nào. Mọi con số trong tài
+      liệu này đều đọc từ mã nguồn, không phải từ trải nghiệm thực tế trên phần cứng đó. Đây là rủi
+      ro lớn nhất hiện nay và không có cách nào giải quyết ngoài việc mượn máy về chạy.
+    </p>
+  </div>
+
+  <div class="lose">
+    <h4>Ba — Họ tặng kèm, mình thì chưa rõ tính tiền thế nào</h4>
+    <p>
+      Genius được mô tả là có sẵn như một ứng dụng trên các dòng màn hình tương tác Philips.
+      i3LEARNHUB thì đi kèm máy theo hợp tác giữa hai bên. Nhà trường mua máy là có phần mềm dùng
+      luôn.
+    </p>
+    <p>
+      Nếu chúng ta thu phí riêng, câu hỏi đầu tiên sẽ là tại sao phải trả thêm cho thứ hãng khác cho
+      không. Câu trả lời hợp lý là tách bạch: phần dùng trong tiết học có thể để miễn phí ngang họ,
+      phần hệ thống nhà trường, kho học liệu và báo cáo mới tính phí, vì đó là thứ họ không có. Nên
+      chốt cách nói này trước khi gặp khách.
+    </p>
+  </div>
+
+  <div class="note">
+    <span class="note-title">Một chỗ ngang nhau nên biết</span>
+    <p>
+      Chiếu màn hình không dây và nhúng tài liệu Office thì họ làm tốt hơn hoặc ngang. Đừng đem hai
+      thứ này ra làm điểm bán hàng.
+    </p>
+  </div>
+</section>
+
+<!-- ==========================================================
+     7
+     ========================================================== -->
+<section id="s7">
+  <div class="eyebrow">Phần 7</div>
+  <h2>Một tiết học đi qua hai hệ thống</h2>
+  <p class="col lede">
+    Bảng tính năng dễ đọc nhưng khó cảm. Phần này kể một tiết Toán bốn mươi lăm phút, cùng một
+    giáo viên, cùng một lớp, chạy trên hai hệ thống, để thấy khác biệt bằng câu chuyện.
+  </p>
+
+  <div class="lesson">
+    <div class="lesson-row hdr">
+      <div class="lesson-time lesson-head">Thời điểm</div>
+      <div class="lesson-ph lesson-head">Trên màn hình Philips</div>
+      <div class="lesson-sc lesson-head">Trên Smart Class</div>
+    </div>
+
+    <div class="lesson-row">
+      <div class="lesson-time">Trước giờ vào</div>
+      <div class="lesson-ph">Giáo viên soạn bài trên trình duyệt ở nhà, lưu trên mây Genius.</div>
+      <div class="lesson-sc">Giáo viên soạn bài, lấy sẵn học liệu từ kho, chọn bộ câu hỏi từ ngân hàng đề. Bài gắn với đúng lớp, đúng tiết trong thời khoá biểu.</div>
+    </div>
+
+    <div class="lesson-row">
+      <div class="lesson-time">Phút 0 — Vào lớp</div>
+      <div class="lesson-ph">Bật màn hình, mở Genius, gọi bài đã soạn. Điểm danh làm bằng sổ giấy hoặc phần mềm khác.</div>
+      <div class="lesson-sc">Bật màn hình là vào thẳng lớp. Camera nhận mặt học sinh, danh sách có mặt hiện lên, giáo viên xác nhận. Em nào vắng đã ghi lại.</div>
+    </div>
+
+    <div class="lesson-row">
+      <div class="lesson-time">Phút 5 — Vào bài</div>
+      <div class="lesson-ph">Giáo viên viết lên bảng, dùng thước và êke. Chiếu bảng xuống máy học sinh để các em nhìn rõ.</div>
+      <div class="lesson-sc">Giáo viên viết lên bảng. Học sinh thấy bảng ở khung nhỏ góc màn hình mình, phần còn lại vẫn là chỗ làm bài riêng.</div>
+    </div>
+
+    <div class="lesson-row">
+      <div class="lesson-time">Phút 12 — Minh hoạ</div>
+      <div class="lesson-ph">Mở YouTube tìm video về hàm số. Hoặc nhúng file PowerPoint đã chuẩn bị.</div>
+      <div class="lesson-sc">Viết tay công thức lên bảng. Hệ thống đọc ra công thức chuẩn và vẽ luôn đồ thị. Kéo thanh trượt để đổi tham số, đồ thị đổi theo.</div>
+    </div>
+
+    <div class="lesson-row">
+      <div class="lesson-time">Phút 20 — Làm nhóm</div>
+      <div class="lesson-ph">Chia nhóm ngoài đời, các em làm ra giấy. Màn hình vẫn chỉ có một bảng chung.</div>
+      <div class="lesson-sc">Chia bảng thành bốn vùng, bốn nhóm làm bốn bài trên bốn vùng. Giáo viên đi quanh lớp, nhìn cả bốn vùng cùng lúc trên màn hình.</div>
+    </div>
+
+    <div class="lesson-row">
+      <div class="lesson-time">Phút 30 — Chữa bài</div>
+      <div class="lesson-ph">Gọi một em lên bảng viết lại. Cả lớp chờ.</div>
+      <div class="lesson-sc">Giáo viên thấy em Minh làm cách hay, xin phép chiếu canvas của em lên bảng lớn. Cả lớp xem ngay, em Minh vẫn ngồi tại chỗ.</div>
+    </div>
+
+    <div class="lesson-row">
+      <div class="lesson-time">Phút 38 — Kiểm tra nhanh</div>
+      <div class="lesson-ph">Mở ứng dụng bình chọn, đặt một câu, xem phần trăm chọn A B C D. Xem xong là mất.</div>
+      <div class="lesson-sc">AI soạn năm câu từ nội dung vừa dạy. Học sinh làm trên máy mình. AI chấm, kết quả từng em vào hệ thống ngay.</div>
+    </div>
+
+    <div class="lesson-row">
+      <div class="lesson-time">Phút 44 — Hết tiết</div>
+      <div class="lesson-ph">Bấm chia sẻ, hệ thống gửi ảnh nội dung bảng qua link hoặc email. Học sinh tự chép vào sổ ghi chú của mình.</div>
+      <div class="lesson-sc">Bấm kết thúc. Hệ thống chốt báo cáo buổi học: ai có mặt, ai tham gia nhiều ít, kết quả quiz từng em, điểm bốn chiều, xếp loại, và danh sách em cần để ý.</div>
+    </div>
+
+    <div class="lesson-row">
+      <div class="lesson-time">Tối hôm đó</div>
+      <div class="lesson-ph">Giáo viên nhớ được gì thì ghi vào sổ. Không có dữ liệu nào để nhìn lại.</div>
+      <div class="lesson-sc">Giáo viên mở báo cáo, thấy em Lan cả buổi không nói câu nào dù quiz vẫn đúng. Giao thêm một nhiệm vụ riêng cho em. Hiệu trưởng mở bảng theo dõi, thấy khối 8 tuần này tham gia giảm so với tuần trước.</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <span class="note-title">Điểm rơi của câu chuyện</span>
+    <p>
+      Hai hệ thống chạy gần giống nhau ở giữa tiết. Khác biệt nằm ở đầu tiết và cuối tiết, tức là
+      đúng hai chỗ Philips không làm. Khi trình bày nên kể theo mạch này thay vì đọc bảng tính năng,
+      vì người nghe nhớ câu chuyện lâu hơn nhớ danh sách.
+    </p>
+  </div>
+</section>
+
+<!-- ==========================================================
+     8
+     ========================================================== -->
+<section id="s8">
+  <div class="eyebrow">Phần 8</div>
+  <h2>Nói thế nào cho đúng</h2>
+
+  <div class="col">
+    <h3 style="margin-top:0">Ba câu nên tránh</h3>
+    <ul>
+      <li>
+        <strong>"Phần mềm của chúng tôi tốt hơn Philips."</strong> Câu này vừa sai vừa dễ bị phản
+        bác. Bảng viết của họ ổn, Wave của họ hơn mình, sản phẩm của họ chín hơn.
+      </li>
+      <li>
+        <strong>"Chúng tôi có nhiều tính năng hơn."</strong> Đếm tính năng là cuộc chơi ai cũng
+        thắng được bằng cách đếm khác đi. Và nó không trả lời câu hỏi nhà trường thật sự quan tâm.
+      </li>
+      <li>
+        <strong>"Philips không có phần mềm giáo dục."</strong> Sai. Họ có Genius do chính họ làm, và
+        có i3LEARNHUB của đối tác. Nói câu này là mất uy tín ngay câu đầu.
+      </li>
+    </ul>
+
+    <h3>Ba câu nên dùng</h3>
+    <ul>
+      <li>
+        <strong>"Philips giải bài toán trong tiết học. Chúng tôi giải bài toán của cả nhà trường."</strong>
+        Đúng sự thật, không đụng chạm, và đặt hai bên vào hai hạng mục khác nhau.
+      </li>
+      <li>
+        <strong>"Hết tiết học, dữ liệu của các anh đi đâu?"</strong> Một câu hỏi, không phải một lời
+        khoe. Người nghe tự rút ra kết luận, và kết luận tự rút ra thì thuyết phục hơn.
+      </li>
+      <li>
+        <strong>"Các anh đã làm việc này với i3 rồi. Chúng tôi mang tới đúng thứ đó, nhưng làm sâu
+        cho thị trường Việt Nam."</strong> Dùng chính tiền lệ của họ làm điểm tựa.
+      </li>
+    </ul>
+
+    <h3>Ba thứ nên mang theo khi demo</h3>
+    <ol>
+      <li>
+        <strong>Viết tay công thức rồi ra đồ thị.</strong> Mất mười giây, gây ấn tượng mạnh nhất,
+        và không hãng nào trong danh sách khảo sát có.
+      </li>
+      <li>
+        <strong>Chia bảng bốn vùng rồi chiếu bài một học sinh lên.</strong> Cho thấy cách dạy khác
+        hẳn, không phải chỉ là công cụ khác.
+      </li>
+      <li>
+        <strong>Bấm kết thúc tiết và mở báo cáo ngay tại chỗ.</strong> Đây là đòn kết. Sau khi thấy
+        báo cáo bốn chiều từng em, người xem sẽ tự hiểu vì sao hai sản phẩm không cùng hạng mục.
+      </li>
+    </ol>
+  </div>
+
+  <div class="note b">
+    <span class="note-title">Nhắc lại một lần nữa cho chắc</span>
+    <p>
+      Trước khi demo ở bất kỳ đâu, phải chạy thử trên màn hình thật. Toàn bộ tài liệu này đọc từ mã
+      nguồn, chưa có một dòng nào đến từ trải nghiệm trên phần cứng Philips. Ba màn demo ở trên đều
+      là những thứ nặng, và chính chúng là chỗ dễ vỡ nhất trên máy chưa được thử.
+    </p>
+  </div>
+</section>
+
+<!-- ==========================================================
+     9
+     ========================================================== -->
+<section id="s9">
+  <div class="eyebrow">Phần 9</div>
+  <h2>Nguồn</h2>
+  <p class="col small">Ngày truy cập: 24 tháng 8 năm 2026.</p>
+
+  <div class="src-group">Phía Philips</div>
+  <ol class="srcs">
+    <li>PPDS. <em>Philips Genius education software</em> — danh mục công cụ và cách chia sẻ cuối tiết. <a href="https://www.ppds.com/innovations/philips-genius">ppds.com</a></li>
+    <li>Digital Signage Today. <em>PPDS launches Philips Genius for education</em>. <a href="https://www.digitalsignagetoday.com/news/ppds-launches-philips-genius-for-education/">digitalsignagetoday.com</a></li>
+    <li>Commercial Integrator. <em>PPDS Launches Philips Genius Software for Enhanced Classroom Displays</em>. <a href="https://www.commercialintegrator.com/news/ppds-launches-philips-genius-software-for-enhanced-classroom-displays/135147/">commercialintegrator.com</a></li>
+    <li>Philips PPDS. <em>E-Line 65/75/86BDL4052E User Manual</em> — chương 6 về bảng viết tích hợp. <a href="https://www.documents.philips.com/assets/20240207/b4828df13f8843db8c06b10f00b6ec96.pdf">documents.philips.com (PDF)</a></li>
+    <li>Philips. <em>86BDL4152E/00</em> và <em>86BDL4252E/00</em> — thông số và tính năng đi kèm. <a href="https://www.usa.philips.com/p-p/86BDL4152E_00/signage-solutions-e-line-display">usa.philips.com</a></li>
+    <li>PPDS. <em>Philips Wave</em> — quản lý dàn máy từ xa. <a href="https://www.ppds.com/wave">ppds.com</a></li>
+    <li>PPDS. <em>i3LEARNHUB software</em> và bản tin hợp tác với i3 Technologies. <a href="https://www.ppds.com/innovations/i3learnhub">ppds.com</a></li>
+    <li>AV Interactive. <em>PPDS partners with education software firm i3 Technologies</em>. <a href="https://www.avinteractive.com/news/products/ppds-partners-education-software-firm-i3-technologies-26-05-2021/">avinteractive.com</a></li>
+  </ol>
+
+  <div class="src-group">Phía Smart Class — đọc trực tiếp trong mã nguồn</div>
+  <ol class="srcs" start="9">
+    <li><code>src/analytics/metrics/EducationalMetrics.ts</code> — bốn chiều chấm điểm và trọng số, xếp loại S đến D, sinh điểm mạnh điểm yếu và lời khuyên.</li>
+    <li><code>src/analytics/collectors/</code> — năm bộ thu thập: điểm danh, mức tham gia, sự kiện, trò chơi, quiz.</li>
+    <li><code>src/analytics/components/dashboards/session/</code> — năm mục báo cáo buổi học và chức năng xuất PDF.</li>
+    <li><code>src/components/classroom/splitBoard/</code> — chia bảng tối đa bốn vùng.</li>
+    <li><code>src/components/classroom/view-student/</code> — canvas cá nhân, chiếu bài học sinh, khung nhỏ bảng giáo viên, xin phép và dừng chiếu.</li>
+    <li><code>src/components/classroom/rollerMenu/</code> — menu tròn riêng theo từng ngón chạm.</li>
+    <li><code>src/services/ai/</code> — nhận dạng công thức toán viết tay, chuyển nét vẽ thành hình, định tuyến lệnh giọng nói, phân tích và vẽ đồ thị công thức.</li>
+    <li><code>src/components/classroom/AIPanelSidebar.tsx</code> — ba tác vụ AI: Tạo Quiz, Tạo hình ảnh, Giải thích.</li>
+    <li><code>src/hooks/useSmartclassAICameraAttendancePipeline.ts</code> và <code>src/components/classroom/attendance/</code> — quy trình điểm danh khuôn mặt và cơ chế phục hồi camera.</li>
+    <li><code>src/widgets/</code> — 26 công cụ dạy học. Bảng tuần hoàn và giải phẫu người là hai phần lớn nhất.</li>
+    <li><code>flow.md</code>, <code>package.json</code>, <code>src-tauri/tauri.conf.json</code>, <code>src/locales/</code> — kiến trúc chạy khi mất mạng, nền tảng đóng gói, và ngôn ngữ giao diện.</li>
+  </ol>
+</section>
+
+<hr class="sep">
+
+<section style="border-top:none; padding-top:0">
+  <div class="col">
+    <h3 style="margin-top:0">Ghi chú về cách làm bản này</h3>
+    <p class="small">
+      Phía Philips lấy từ tài liệu chính thức của hãng, trong đó phần bảng viết đọc trực tiếp từ
+      file PDF sách hướng dẫn tải về từ máy chủ tài liệu của Philips. Phía Smart Class đọc trực
+      tiếp trong mã nguồn nhánh <code>neo-build-app</code>, không lấy từ tài liệu giới thiệu, để
+      tránh kể vống tính năng.
+    </p>
+    <p class="small">
+      Những chỗ ghi "không thấy công bố" là chỗ tôi tìm mà không thấy trong tài liệu chính thức của
+      Philips. Đó không phải khẳng định họ không có, và khi ra bàn đàm phán nên hỏi lại cho chắc
+      thay vì nói chắc.
+    </p>
+    <p class="small">
+      Bản này dùng công cụ AI hỗ trợ tìm kiếm và tổng hợp. Tài liệu đi kèm là bản nghiên cứu phần
+      cứng Philips, nói về dòng máy, hệ điều hành và đường triển khai.
+    </p>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p style="margin:0">
+      Hồ sơ đối chiếu nội bộ · Trường học số · 24/08/2026 ·
+      Smart Class đối đầu phần mềm Philips
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

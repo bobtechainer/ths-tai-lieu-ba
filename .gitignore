@@ -1,0 +1,39 @@
+# Mặc định
+node_modules/
+.next/
+.vercel/
+__pycache__/
+*.pyc
+.env*
+test-results/
+playwright-report/
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+~$*
+
+# Phiên đăng nhập, dữ liệu cào về từ UAT (thư mục _rs ở máy gốc)
+_rs/
+auth.json
+storageState*.json
+
+# File đầu ra giao cho khách hoặc có tài khoản, dữ liệu thật: giữ ở máy, không đưa lên
+*.xlsx
+*.xlsm
+*.docx
+*.pptx
+*.pdf
+*.bak
+# Ngoại lệ: tài liệu thiết kế vòng đời học sinh, đã kiểm không có dữ liệu cá nhân
+!vong-doi-hoc-sinh/vong-doi-hoc-sinh-THS.xlsx
+
+# Dữ liệu trung gian script ghi ra
+*_output.txt
+*dump*.txt
+*.json
+
+# Bản gốc có token / mật khẩu: chỉ dùng bản .example trong repo
+figma_audit.py
+figma_audit_cache.json
+figma_audit_report.html
+vba-macro-cau-hoi.bas

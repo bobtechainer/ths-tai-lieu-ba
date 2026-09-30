@@ -1,0 +1,690 @@
+<title>IELTS đáng mấy điểm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,700&display=swap">
+<style>
+:root{
+  --bg:#f6f6f3; --surface:#fcfcfb; --surface-2:#efeee9;
+  --ink-1:#15171a; --ink-2:#4e545a; --ink-3:#84898e;
+  --rule:#e1e0d9; --rule-strong:#c9c8c0;
+  --accent:#1c5cab; --s1:#2a78d6; --ghost:#b6b5ad;
+  --good:#0ca30c; --warn:#fab219; --warn-ink:#8a5a00; --crit:#d03b3b;
+  --chip-chot-bg:#e7eff9;  --chip-chot-ink:#154a8a;
+  --chip-that-bg:#e6f4ec;  --chip-that-ink:#0d6b3a;
+  --chip-dubao-bg:#fbf0d9; --chip-dubao-ink:#7a5200;
+  --shadow:0 1px 2px rgba(11,11,11,.05), 0 8px 24px -16px rgba(11,11,11,.18);
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"Be Vietnam Pro","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#111210; --surface:#1a1a19; --surface-2:#232321;
+    --ink-1:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
+    --rule:#2c2c2a; --rule-strong:#3c3c39;
+    --accent:#6da7ec; --s1:#3987e5; --ghost:#5b5b56;
+    --good:#0ca30c; --warn:#fab219; --warn-ink:#e0b45c; --crit:#e66767;
+    --chip-chot-bg:#16273c;  --chip-chot-ink:#9cc4f0;
+    --chip-that-bg:#12301f;  --chip-that-ink:#6fc78f;
+    --chip-dubao-bg:#332708; --chip-dubao-ink:#e8c576;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111210; --surface:#1a1a19; --surface-2:#232321;
+  --ink-1:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
+  --rule:#2c2c2a; --rule-strong:#3c3c39;
+  --accent:#6da7ec; --s1:#3987e5; --ghost:#5b5b56;
+  --good:#0ca30c; --warn:#fab219; --warn-ink:#e0b45c; --crit:#e66767;
+  --chip-chot-bg:#16273c;  --chip-chot-ink:#9cc4f0;
+  --chip-that-bg:#12301f;  --chip-that-ink:#6fc78f;
+  --chip-dubao-bg:#332708; --chip-dubao-ink:#e8c576;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink-1);font-family:var(--sans);font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.page{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:0 72px;display:grid;grid-template-columns:1fr;gap:36px}
+@media (min-width:1080px){.page{grid-template-columns:208px minmax(0,1fr);align-items:start;gap:52px}}
+
+.masthead{grid-column:1/-1;border-bottom:1px solid var(--rule-strong);padding-block:42px 26px}
+.kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 14px}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(2.4rem,6.2vw,4rem);line-height:1.03;letter-spacing:-.02em;margin:0 0 16px;text-wrap:balance;max-width:16ch}
+.dek{font-family:var(--serif);font-size:clamp(1.1rem,2.3vw,1.35rem);line-height:1.48;color:var(--ink-2);max-width:54ch;margin:0 0 20px}
+.byline{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13.5px;color:var(--ink-3);border-top:1px solid var(--rule);padding-top:14px}
+.byline b{color:var(--ink-2);font-weight:600}
+
+.toc{font-size:14px;border-top:2px solid var(--ink-1);padding-top:14px}
+@media (min-width:1080px){.toc{position:sticky;top:24px}}
+.toc h2{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px;font-weight:600}
+.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.toc a{display:flex;gap:10px;text-decoration:none;color:var(--ink-2);padding:7px 8px;border-radius:5px;line-height:1.4}
+.toc a:hover{background:var(--surface-2);color:var(--ink-1)}
+.toc a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.toc .n{color:var(--ink-3);font-variant-numeric:tabular-nums;font-size:12.5px;padding-top:1px}
+
+article{min-width:0}
+section{scroll-margin-top:20px;margin-bottom:52px}
+h2.sec{font-family:var(--serif);font-size:clamp(1.55rem,3.4vw,2.15rem);line-height:1.16;letter-spacing:-.015em;margin:0 0 14px;text-wrap:balance}
+.sec-no{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;display:block;margin-bottom:9px}
+h3{font-size:1.1rem;font-weight:600;line-height:1.35;margin:30px 0 10px;letter-spacing:-.005em}
+h4{font-size:.96rem;font-weight:600;margin:22px 0 8px}
+p{margin:0 0 15px;max-width:64ch}
+article ul{max-width:62ch;margin:0 0 15px;padding-left:20px}
+article li{margin-bottom:7px}
+a{color:var(--accent)}
+.lead{font-size:1.04rem;color:var(--ink-2);max-width:60ch}
+
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;letter-spacing:.02em;padding:2px 8px;border-radius:3px;white-space:nowrap;vertical-align:2px}
+.chip::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.75}
+.c-chot{background:var(--chip-chot-bg);color:var(--chip-chot-ink)}
+.c-that{background:var(--chip-that-bg);color:var(--chip-that-ink)}
+.c-dubao{background:var(--chip-dubao-bg);color:var(--chip-dubao-ink)}
+
+.keybox{background:var(--surface);border:1px solid var(--rule);border-top:3px solid var(--accent);border-radius:4px;padding:22px 22px 10px;box-shadow:var(--shadow);margin-bottom:34px}
+.keybox h2{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 16px;font-weight:600}
+.keylist{list-style:none;margin:0;padding:0;display:grid;gap:15px}
+@media (min-width:720px){.keylist{grid-template-columns:1fr 1fr;gap:16px 30px}}
+.keylist li{display:grid;grid-template-columns:24px 1fr;gap:11px;margin:0;font-size:15px;line-height:1.52}
+.keylist .k{font-family:var(--serif);font-size:1.3rem;font-weight:600;color:var(--accent);line-height:1.1}
+
+.gloss{border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong);padding:18px 0 4px;margin:0 0 38px}
+.gloss h2{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 14px;font-weight:600}
+.gloss dl{margin:0;display:grid;gap:13px 32px}
+@media (min-width:640px){.gloss dl{grid-template-columns:1fr 1fr}}
+@media (min-width:1080px){.gloss dl{grid-template-columns:1fr 1fr 1fr}}
+.gloss dt{font-weight:600;font-size:13.5px;margin:0 0 2px;color:var(--ink-1)}
+.gloss dd{margin:0;font-size:13px;line-height:1.48;color:var(--ink-2)}
+
+.note{background:var(--surface-2);border-left:3px solid var(--rule-strong);padding:15px 17px;border-radius:0 4px 4px 0;font-size:14.5px;color:var(--ink-2);margin:0 0 22px}
+.note p{margin:0 0 9px;max-width:none}
+.note p:last-child{margin:0}
+.note b{color:var(--ink-1)}
+.note.flag{border-left-color:var(--warn);background:var(--chip-dubao-bg);color:var(--warn-ink)}
+.note.flag b{color:var(--warn-ink)}
+
+figure{margin:26px 0;background:var(--surface);border:1px solid var(--rule);border-radius:4px;padding:20px 20px 16px;box-shadow:var(--shadow)}
+@media (min-width:1080px){figure{margin-inline:-26px;padding:24px 26px 18px}}
+figure .fig-title{font-size:15px;font-weight:600;margin:0 0 4px;line-height:1.4}
+figure .fig-sub{font-size:13.5px;color:var(--ink-3);margin:0 0 16px;line-height:1.5;max-width:68ch}
+figcaption{font-size:12.5px;color:var(--ink-3);line-height:1.55;margin-top:14px;padding-top:11px;border-top:1px solid var(--rule);max-width:76ch}
+svg{display:block;max-width:100%;height:auto}
+svg text{font-family:var(--sans)}
+
+.tw{overflow-x:auto;margin:0 0 4px;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:520px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--rule);vertical-align:top;line-height:1.45}
+thead th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600;border-bottom:1.5px solid var(--rule-strong);padding-bottom:8px}
+tbody tr:last-child td{border-bottom:none}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td.name{font-weight:500;color:var(--ink-1)}
+td small{display:block;color:var(--ink-3);font-size:12.5px;line-height:1.4;margin-top:2px}
+tbody tr.group-head td{background:var(--surface-2);font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.hi{color:var(--accent);font-weight:600}
+.down{color:var(--crit);font-weight:600}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:4px;overflow:hidden}
+.tile{background:var(--surface);padding:15px 16px}
+.tile .tl{font-size:12px;color:var(--ink-3);margin:0 0 7px;line-height:1.4}
+.tile .tv{font-family:var(--serif);font-size:1.9rem;font-weight:600;line-height:1;margin:0;letter-spacing:-.01em}
+.tile .td{font-size:12.5px;color:var(--ink-3);margin:6px 0 0;line-height:1.4}
+.tile .td b{font-weight:600}
+
+.lanes{display:grid;gap:9px;margin:22px 0 6px}
+.lane{display:grid;grid-template-columns:1fr;gap:9px;border:1px solid var(--rule);border-radius:4px;padding:15px 17px;background:var(--surface)}
+@media (min-width:760px){.lane{grid-template-columns:186px 1fr 170px;align-items:start;gap:20px}}
+.lane .lname{font-weight:600;font-size:14.5px;line-height:1.35;margin:0}
+.lane .lname small{display:block;color:var(--ink-3);font-weight:400;font-size:12.5px;margin-top:3px;line-height:1.4}
+.lane .ldesc{font-size:13.5px;color:var(--ink-2);margin:0;line-height:1.5}
+.lane .lval{font-size:13px;line-height:1.42;border-left:3px solid var(--rule-strong);padding-left:12px}
+.lane .lval b{display:block;font-family:var(--serif);font-size:1.24rem;font-weight:600;color:var(--ink-1);line-height:1.15;margin-bottom:3px}
+.lane.best .lval{border-left-color:var(--s1)}
+.lane.best .lval b{color:var(--accent)}
+.lane.weak .lval{border-left-color:var(--ghost)}
+
+.dec{display:grid;gap:8px;margin:22px 0 6px}
+.decrow{display:grid;grid-template-columns:1fr;gap:9px;border:1px solid var(--rule);border-left:3px solid var(--s1);border-radius:4px;padding:15px 17px;background:var(--surface)}
+@media (min-width:720px){.decrow{grid-template-columns:1fr 1fr 128px;align-items:center;gap:20px}}
+.decrow .cond{font-weight:600;font-size:14.5px;margin:0;line-height:1.4}
+.decrow .why{font-size:13.5px;color:var(--ink-2);margin:0;line-height:1.5}
+.decrow .goal{font-family:var(--serif);font-size:1.5rem;font-weight:600;color:var(--accent);margin:0;line-height:1.1}
+.decrow .goal small{display:block;font-family:var(--sans);font-size:11.5px;color:var(--ink-3);font-weight:400;margin-top:3px;line-height:1.35}
+.decrow.none{border-left-color:var(--ghost)}
+.decrow.none .goal{color:var(--ink-2);font-size:1.16rem}
+
+.tline{list-style:none;margin:22px 0 0;padding:0 0 0 22px;border-left:2px solid var(--rule);max-width:62ch}
+.tline li{position:relative;margin:0 0 22px;padding-left:4px}
+.tline li::before{content:"";position:absolute;left:-29px;top:7px;width:11px;height:11px;border-radius:50%;background:var(--surface);border:2.5px solid var(--rule-strong)}
+.tline li.now::before{background:var(--accent);border-color:var(--accent)}
+.tline .when{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent);font-weight:600;display:block;margin-bottom:3px}
+.tline .what{font-weight:600;font-size:15px;display:block;margin-bottom:3px;line-height:1.4}
+.tline p{font-size:14px;color:var(--ink-2);margin:0;max-width:56ch}
+
+.srcgrid{display:grid;gap:20px}
+@media (min-width:720px){.srcgrid{grid-template-columns:1fr 1fr;gap:20px 34px}}
+.srcgrid h4{margin:0 0 7px}
+.srcgrid ul{margin:0;padding-left:17px;font-size:13px;color:var(--ink-2);max-width:none}
+.srcgrid li{margin-bottom:5px;line-height:1.48}
+
+hr.div{border:none;border-top:1px solid var(--rule);margin:0 0 44px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="page">
+
+  <header class="masthead">
+    <p class="kicker">Tuyển sinh đại học 2027 · 18 trường tốp đầu Hà Nội</p>
+    <h1>IELTS đáng mấy điểm</h1>
+    <p class="dek">Luật chơi vừa đổi. Chứng chỉ không còn là cánh cửa riêng, chỉ là cách tính lại điểm môn tiếng Anh — và giá của nó chênh nhau hơn một điểm tùy trường.</p>
+    <div class="byline">
+      <span>Cho phụ huynh, học sinh lớp 11 và giáo viên tư vấn</span>
+      <span><b>Số liệu chốt ngày 14/9/2026</b></span>
+      <span>Lứa 2K9, xét tuyển hè 2027</span>
+      <span>Cần số chi tiết từng ngành? Xem <a href="https://claude.ai/artifact/LJEyKix9ikoeZM7i7GzrDi"><b>Hồ sơ 18 trường</b></a></span>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Mục lục">
+    <h2>Trong bài</h2>
+    <ol>
+      <li><a href="#luat"><span class="n">1</span><span>Luật mới đổi gì</span></a></li>
+      <li><a href="#bando"><span class="n">2</span><span>Bản đồ 18 trường</span></a></li>
+      <li><a href="#dangmay"><span class="n">3</span><span>IELTS đáng mấy điểm</span></a></li>
+      <li><a href="#duongvao"><span class="n">4</span><span>Năm đường vào</span></a></li>
+      <li><a href="#khongco"><span class="n">5</span><span>Không có IELTS thì sao</span></a></li>
+      <li><a href="#nhammoc"><span class="n">6</span><span>Nhắm mốc nào, canh lịch nào</span></a></li>
+      <li><a href="#nguon"><span class="n">·</span><span>Nhãn và nguồn</span></a></li>
+    </ol>
+  </nav>
+
+  <article>
+
+    <div class="keybox">
+      <h2>Năm điều nên nắm</h2>
+      <ol class="keylist">
+        <li><span class="k">1</span><span>Một tấm chứng chỉ chỉ dùng được <b>một trong hai cách</b>: thay điểm môn tiếng Anh, hoặc cộng điểm. Không được cả hai.</span></li>
+        <li><span class="k">2</span><span>Không còn chuyện trường dành riêng bao nhiêu phần trăm chỉ tiêu cho người có IELTS. Quy chế cấm chia chỉ tiêu theo phương thức.</span></li>
+        <li><span class="k">3</span><span>Mốc để được tính 10 điểm đã bị đẩy lên. Nhóm Đại học Quốc gia Hà Nội từ 7.0 lên <b>7.5</b>; Luật Hà Nội từ 6.5 lên 7.5.</span></li>
+        <li><span class="k">4</span><span>Bốn trường lớn <b>không quy đổi IELTS</b>: Y Hà Nội, Dược Hà Nội, Sư phạm Hà Nội, Bưu chính Viễn thông.</span></li>
+        <li><span class="k">5</span><span>Khung 2027 hiện vẫn là quy chế của mùa 2026. Thứ phải chờ là đề án riêng của từng trường, ra khoảng <b>tháng 12/2026</b>.</span></li>
+      </ol>
+    </div>
+
+    <div class="gloss">
+      <h2>Vài từ sẽ gặp lại nhiều lần</h2>
+      <dl>
+        <div><dt>Tổ hợp</dt><dd>Nhóm ba môn dùng để cộng điểm xét tuyển. A01 là Toán – Lý – Anh, D01 là Toán – Văn – Anh, A00 là Toán – Lý – Hóa.</dd></div>
+        <div><dt>Phương thức xét tuyển</dt><dd>Đường vào mà thí sinh chọn: điểm thi tốt nghiệp, bài thi riêng, học bạ, hay tuyển thẳng.</dd></div>
+        <div><dt>Thang 30</dt><dd>Thang của tổ hợp ba môn thi tốt nghiệp. Bài thi đánh giá năng lực dùng thang 150, đánh giá tư duy dùng thang 100.</dd></div>
+        <div><dt>Band</dt><dd>Nấc điểm của IELTS, cách nhau nửa đơn vị: 5.0, 5.5, 6.0 và cứ thế đến 9.0.</dd></div>
+        <div><dt>Quy đổi chứng chỉ</dt><dd>Lấy điểm IELTS đổi ra điểm môn tiếng Anh theo bảng riêng của trường, rồi dùng thay cho điểm thi.</dd></div>
+        <div><dt>Trung vị</dt><dd>Điểm của em đứng đúng giữa danh sách. Khác điểm trung bình ở chỗ không bị vài bài rất cao hoặc rất thấp kéo lệch.</dd></div>
+        <div><dt>Phổ điểm</dt><dd>Bức tranh phân bố điểm của toàn bộ thí sinh một kỳ thi — bao nhiêu em được 5, bao nhiêu em được 8.</dd></div>
+        <div><dt>Phân vị</dt><dd>Thứ hạng tính theo phần trăm. Cách Bộ bắt các trường so điểm giữa hai kỳ thi khác thang: ai cùng thứ hạng thì coi là ngang nhau, dù con số trông chẳng liên quan.</dd></div>
+      </dl>
+    </div>
+
+    <!-- ============ 1 ============ -->
+    <section id="luat">
+      <span class="sec-no">Phần 1</span>
+      <h2 class="sec">Luật mới đổi gì</h2>
+
+      <p class="lead">Ngày 15/2/2026, Bộ Giáo dục và Đào tạo ban hành Thông tư 06/2026, thay thế cả hai văn bản cũ. Đến giữa tháng 9/2026 Bộ chưa có quy chế riêng cho 2027, nên lứa lớp 11 cứ căn theo bản này. <span class="chip c-chot">Đã chốt</span></p>
+
+      <figure>
+        <p class="fig-title">Sáu thứ đã đổi so với mùa trước</p>
+        <div class="tw">
+          <table>
+            <thead><tr><th style="width:26%">Nội dung</th><th>Mùa 2025</th><th>Mùa 2026, và mặc định cho 2027</th></tr></thead>
+            <tbody>
+              <tr><td class="name">Cách dùng chứng chỉ</td><td>Có trường cho vừa quy đổi vừa cộng điểm</td><td class="hi">Chỉ được chọn một trong hai</td></tr>
+              <tr><td class="name">Khi quy đổi</td><td>Trọng số tối đa 50% tổ hợp</td><td class="hi">Thay đúng một môn, tối đa 10 trên thang 30</td></tr>
+              <tr><td class="name">Khi cộng điểm</td><td>Nằm chung trong trần 3,00</td><td class="hi">Tách riêng, trần 1,50</td></tr>
+              <tr><td class="name">Bảng quy đổi</td><td>Không quy định số mức</td><td class="hi">Tối thiểu 5 mức, rà soát lại ít nhất 2 năm một lần</td></tr>
+              <tr><td class="name">Miễn thi tốt nghiệp bằng chứng chỉ</td><td>Vẫn được miễn, nhưng thôi quy đổi thành 10 điểm</td><td>Không đổi thêm gì. Miễn thi giờ gần như vô nghĩa về điểm số: năm 2026 chỉ còn <b>0,66%</b> thí sinh đăng ký, so với 47.000–67.000 em giai đoạn 2023–2024</td></tr>
+              <tr><td class="name">Chỉ tiêu riêng theo phương thức</td><td>Đã cấm</td><td>Vẫn cấm. Mỗi ngành chỉ có <b>một mức trúng tuyển duy nhất</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figcaption>Hệ quả của dòng cuối: không thể so "điểm chuẩn phương thức IELTS" với "điểm chuẩn phương thức thường" nữa — hai con số đó không còn tồn tại. <span class="chip c-chot">Đã chốt</span></figcaption>
+      </figure>
+
+      <figure>
+        <p class="fig-title">Ba con số hay bị nhắc lẫn lộn</p>
+        <div class="tw">
+          <table>
+            <thead><tr><th style="width:16%">Con số</th><th style="width:30%">Áp dụng cho</th><th>Nghĩa là gì</th></tr></thead>
+            <tbody>
+              <tr><td class="name hi">10 điểm</td><td>Chứng chỉ dùng theo hướng <b>quy đổi</b></td><td>Chứng chỉ thay đúng một môn trong tổ hợp ba môn, tối đa 10 trên 10 của môn đó.</td></tr>
+              <tr><td class="name hi">1,50 điểm</td><td>Chứng chỉ dùng theo hướng <b>cộng điểm</b></td><td>Đây mới là trần thật của điểm cộng cho chứng chỉ ngoại ngữ, tính trên thang 30.</td></tr>
+              <tr><td class="name">3,00 điểm</td><td>Tổng mọi loại điểm cộng, <b>không riêng chứng chỉ</b></td><td>Trần chung cho điểm thưởng, điểm xét thưởng và điểm khuyến khích cộng lại. Riêng mức 3,00 dành cho thí sinh đủ điều kiện tuyển thẳng nhưng chọn thi như mọi người.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </figure>
+    </section>
+
+    <hr class="div">
+
+    <!-- ============ 2 ============ -->
+    <section id="bando">
+      <span class="sec-no">Phần 2</span>
+      <h2 class="sec">Bản đồ 18 trường</h2>
+
+      <p class="lead">Mười tám trường chia làm hai nhóm rất khác nhau. Nhóm thứ nhất cho IELTS thay hẳn điểm thi môn tiếng Anh. Nhóm thứ hai chỉ cộng thêm mấy phần mười điểm.</p>
+
+      <figure>
+        <p class="fig-title">Cùng một tấm IELTS 6.5, giá chênh nhau hơn một điểm</p>
+        <div class="tiles">
+          <div class="tile"><p class="tl">Ngoại thương</p><p class="tv">8,5</p><p class="td">thấp nhất</p></div>
+          <div class="tile"><p class="tl">Nhóm ĐHQGHN, Kinh tế Quốc dân, Luật Hà Nội</p><p class="tv">9,0</p><p class="td">mức phổ biến</p></div>
+          <div class="tile"><p class="tl">Bách khoa, Thương mại, Ngân hàng</p><p class="tv">9,5</p><p class="td">nhóm rộng tay</p></div>
+          <div class="tile"><p class="tl">Học viện Tài chính</p><p class="tv">9,75</p><p class="td">cao nhất</p></div>
+          <div class="tile"><p class="tl">Dược Hà Nội</p><p class="tv">+0,75</p><p class="td">chỉ cộng thêm, không thay điểm môn</p></div>
+        </div>
+        <figcaption>Khoảng cách 8,5 đến 9,75 là 1,25 điểm trên thang 30 — đủ để đổi cả một nguyện vọng. Ô cuối cho thấy sự khác biệt lớn hơn nhiều: ở nhóm chỉ cộng điểm, cùng tấm bằng đó chỉ đáng chưa tới một điểm. Chọn trường trước, rồi mới đặt mục tiêu band.</figcaption>
+      </figure>
+
+      <figure>
+        <p class="fig-title">Bảng tra: IELTS được dùng thế nào ở từng trường, mùa 2026</p>
+        <p class="fig-sub">Cột "10 điểm từ" là mức IELTS tối thiểu để được tính tròn 10 điểm môn tiếng Anh. Cột "sàn" là mức thấp nhất trường còn nhận.</p>
+        <div class="tw">
+          <table>
+            <thead><tr><th>Trường</th><th>Cách dùng IELTS</th><th class="num">Sàn</th><th class="num">10 điểm từ</th><th>Ghi chú</th></tr></thead>
+            <tbody>
+              <tr class="group-head"><td colspan="5">Nhóm quy đổi — IELTS thay điểm thi môn tiếng Anh</td></tr>
+              <tr><td class="name">Bách khoa Hà Nội</td><td>Quy đổi, và cộng thêm được vào điểm xét bài thi tư duy</td><td class="num">5.0</td><td class="num hi">7.0</td><td>Rộng tay nhất nhóm kỹ thuật</td></tr>
+              <tr><td class="name">Thương mại</td><td>Quy đổi, hoặc cộng tối đa 1,5 điểm</td><td class="num">5.0</td><td class="num hi">7.0</td><td>Muốn dùng học bạ thì bắt buộc phải kèm chứng chỉ</td></tr>
+              <tr><td class="name">Học viện Tài chính</td><td>Quy đổi<small>Bảng đã được sửa giữa mùa 2026, nới rộng thêm nửa band so với bản ban hành tháng 3</small></td><td class="num">5.0</td><td class="num hi">7.0</td><td>Rộng tay nhất cả danh sách: 5.5 được 9,0 và 6.5 được 9,75</td></tr>
+              <tr><td class="name">Học viện Ngân hàng</td><td>Quy đổi, và có bảng cộng điểm riêng</td><td class="num">5.5</td><td class="num">7.5</td><td>Trường duy nhất còn xét học bạ độc lập</td></tr>
+              <tr><td class="name">Kinh tế Quốc dân</td><td>Quy đổi</td><td class="num">5.5</td><td class="num">7.5</td><td>Bỏ hẳn cộng điểm chứng chỉ từ 2026</td></tr>
+              <tr><td class="name">Luật Hà Nội</td><td>Quy đổi <em>hoặc</em> cộng, phải chọn một</td><td class="num">5.5</td><td class="num">7.5</td><td>Siết mạnh: 5.5 từ 9 điểm rơi còn 8</td></tr>
+              <tr><td class="name">Ngoại ngữ — ĐHQGHN</td><td>Quy đổi, rồi nhân hệ số 2</td><td class="num">5.5</td><td class="num">7.5</td><td>Nơi IELTS có giá nhất trong cả danh sách</td></tr>
+              <tr><td class="name">Công nghệ — ĐHQGHN</td><td>Quy đổi; nếu xét bằng bài thi năng lực thì cộng 1,0–1,5 điểm</td><td class="num">5.5</td><td class="num">7.5</td><td>Công bố rõ mức cộng cho đường bài thi riêng</td></tr>
+              <tr><td class="name">Khoa học Tự nhiên — ĐHQGHN</td><td>Quy đổi, chỉ với tổ hợp có tiếng Anh</td><td class="num">5.5</td><td class="num">7.5</td><td>Tổ hợp không có tiếng Anh thì không dùng được</td></tr>
+              <tr><td class="name">Kinh tế — ĐHQGHN</td><td>Quy đổi</td><td class="num">5.5</td><td class="num">7.5</td><td>Áp dụng cho bốn tổ hợp có tiếng Anh</td></tr>
+              <tr><td class="name">Khoa học Xã hội và Nhân văn — ĐHQGHN</td><td>Quy đổi, nằm trong phương thức xét điểm thi</td><td class="num">5.5</td><td class="num">7.5</td><td>Không có phương thức kết hợp riêng</td></tr>
+              <tr><td class="name">Luật — ĐHQGHN</td><td>Quy đổi</td><td class="num">5.5</td><td class="num">7.5</td><td>Chứng chỉ phải đủ bốn kỹ năng</td></tr>
+              <tr><td class="name">Trường Quốc tế — ĐHQGHN</td><td>Quy đổi</td><td class="num">5.5</td><td class="num">7.5</td><td>Có thêm yêu cầu riêng về điểm tiếng Anh theo nhóm ngành</td></tr>
+              <tr><td class="name">Ngoại thương</td><td>Quy đổi</td><td class="num">6.5</td><td class="num down">8.0</td><td>Khó nhất: sàn cao nhất, mốc 10 điểm xa nhất</td></tr>
+              <tr class="group-head"><td colspan="5">Nhóm cộng điểm — IELTS không thay được điểm thi</td></tr>
+              <tr><td class="name">Y Hà Nội</td><td>Chỉ cộng điểm thưởng<small>5.5–6.0 được 0,75 · 6.5 được 1,0 · 7.0 được 1,25 · từ 7.5 được 1,5</small></td><td class="num">5.5</td><td class="num">—</td><td>Lần đầu dùng thêm bài thi năng lực của Sư phạm Hà Nội</td></tr>
+              <tr><td class="name">Dược Hà Nội</td><td>Chỉ cộng điểm khuyến khích<small>Biên độ 0,25–1,5; từ 8.0 được mức trần</small></td><td class="num">5.5</td><td class="num">—</td><td>Các mức ở giữa chưa công bố dạng bảng</td></tr>
+              <tr><td class="name">Sư phạm Hà Nội</td><td>Điều kiện nộp hồ sơ, kèm khuyến khích tối đa 1,0<small>Ngành tiếng Anh đòi 6.5, ngành khác 6.0</small></td><td class="num">6.0</td><td class="num">—</td><td>Đăng ký nhiều đường cùng lúc, hệ thống tự lấy đường cho điểm cao nhất</td></tr>
+              <tr><td class="name">Bưu chính Viễn thông</td><td>Chỉ cộng điểm<small>5.5 được 0,5 · 6.0 được 0,75 · 6.5 được 1,0 · từ 7.0 được 1,5</small></td><td class="num">5.5</td><td class="num">—</td><td>Có một phương thức riêng ghép IELTS với học bạ</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figcaption>Bảy trường thuộc Đại học Quốc gia Hà Nội dùng chung một bảng quy đổi. <span class="chip c-chot">Đã chốt</span> cho mùa 2026. Học viện Ngân hàng công bố cả hai bảng, nhưng văn bản ghi rõ phải chọn một — hệ thống của trường tự lấy cách có lợi hơn cho thí sinh. Cần chỉ tiêu, công thức tính điểm và điểm chuẩn từng ngành thì xem <a href="https://claude.ai/artifact/LJEyKix9ikoeZM7i7GzrDi">Hồ sơ 18 trường</a>.</figcaption>
+      </figure>
+    </section>
+
+    <hr class="div">
+
+    <!-- ============ 3 ============ -->
+    <section id="dangmay">
+      <span class="sec-no">Phần 3</span>
+      <h2 class="sec">IELTS đáng mấy điểm</h2>
+
+      <p class="lead">Câu hỏi hay bị đặt sai. IELTS không <em>cho</em> điểm — nó <em>thay</em> điểm. Lợi ích thật bằng điểm quy đổi trừ đi điểm mà chính em ấy sẽ tự thi được.</p>
+
+      <figure>
+        <p class="fig-title">Một tấm IELTS 7.0 lãi được bao nhiêu điểm</p>
+        <p class="fig-sub">Tính theo bảng của nhóm Đại học Quốc gia Hà Nội, nơi IELTS 7.0 tương đương 9,5 điểm môn tiếng Anh.</p>
+        <svg viewBox="0 0 700 330" role="img" aria-labelledby="c4t c4d">
+          <title id="c4t">Chênh lệch giữa điểm quy đổi và điểm thi tự đạt</title>
+          <desc id="c4d">Tự thi được 5,0 thì IELTS 7.0 lãi 4,5 điểm; tự thi 7,0 lãi 2,5; tự thi 9,0 lãi 0,5; tự thi 9,5 hòa vốn; tự thi 10 thì lỗ 0,5 điểm.</desc>
+          <g stroke="var(--rule)" stroke-width="1">
+            <line x1="277" y1="44" x2="277" y2="292"/><line x1="354" y1="44" x2="354" y2="292"/>
+            <line x1="430" y1="44" x2="430" y2="292"/><line x1="507" y1="44" x2="507" y2="292"/>
+            <line x1="584" y1="44" x2="584" y2="292"/><line x1="660" y1="44" x2="660" y2="292"/>
+          </g>
+          <line x1="277" y1="44" x2="277" y2="300" stroke="var(--rule-strong)" stroke-width="1.5"/>
+          <g fill="var(--ink-3)" font-size="11.5" text-anchor="middle">
+            <text x="277" y="34">0</text><text x="354" y="34">+1</text><text x="430" y="34">+2</text>
+            <text x="507" y="34">+3</text><text x="584" y="34">+4</text><text x="660" y="34">+5 điểm</text>
+          </g>
+          <g font-size="13.5">
+            <text x="186" y="62" text-anchor="end" fill="var(--ink-2)">tự thi được 5,0</text>
+            <rect x="277" y="49" width="345" height="17" rx="4" fill="var(--s1)"/>
+            <text x="632" y="62" fill="var(--ink-1)" font-weight="600">+4,5</text>
+
+            <text x="186" y="97" text-anchor="end" fill="var(--ink-2)">tự thi được 6,0</text>
+            <rect x="277" y="84" width="268" height="17" rx="4" fill="var(--s1)"/>
+            <text x="555" y="97" fill="var(--ink-1)" font-weight="600">+3,5</text>
+
+            <text x="186" y="132" text-anchor="end" fill="var(--ink-2)">tự thi được 7,0</text>
+            <rect x="277" y="119" width="192" height="17" rx="4" fill="var(--s1)"/>
+            <text x="479" y="132" fill="var(--ink-1)" font-weight="600">+2,5</text>
+
+            <text x="186" y="167" text-anchor="end" fill="var(--ink-2)">tự thi được 8,0</text>
+            <rect x="277" y="154" width="115" height="17" rx="4" fill="var(--s1)"/>
+            <text x="402" y="167" fill="var(--ink-1)" font-weight="600">+1,5</text>
+
+            <text x="186" y="202" text-anchor="end" fill="var(--ink-2)">tự thi được 9,0</text>
+            <rect x="277" y="189" width="38" height="17" rx="4" fill="var(--s1)"/>
+            <text x="325" y="202" fill="var(--ink-1)" font-weight="600">+0,5</text>
+
+            <text x="186" y="237" text-anchor="end" fill="var(--ink-2)">tự thi được 9,5</text>
+            <rect x="275" y="224" width="4" height="17" rx="1" fill="var(--ghost)"/>
+            <text x="289" y="237" fill="var(--ink-2)" font-weight="600">hòa vốn</text>
+
+            <text x="186" y="272" text-anchor="end" fill="var(--ink-2)">tự thi được 10</text>
+            <rect x="239" y="259" width="38" height="17" rx="4" fill="var(--crit)"/>
+            <text x="231" y="272" fill="var(--crit)" font-weight="600" text-anchor="end">−0,5</text>
+            <text x="289" y="272" fill="var(--ink-3)" font-size="11.5">nên dùng điểm thi, đừng dùng chứng chỉ</text>
+          </g>
+          <line x1="0" y1="300" x2="700" y2="300" stroke="var(--rule)" stroke-width="1"/>
+          <text x="4" y="320" fill="var(--ink-3)" font-size="11.5">Điểm thi tiếng Anh trung bình toàn quốc năm 2026 là 5,07 · trung vị 4,75</text>
+        </svg>
+        <figcaption><span class="chip c-that">Số thật 2026</span> cho phổ điểm; bảng quy đổi <span class="chip c-chot">đã chốt</span> cho mùa 2026.</figcaption>
+      </figure>
+
+      <p>Chỗ hay bị bỏ qua: một em học được đến IELTS 6.5 thì đề thi tốt nghiệp không làm khó được em ấy, thường vẫn ra 8,5 đến 9,5 điểm. Mà bảng của nhóm Đại học Quốc gia cho 6.5 đúng 9,0. Nói thẳng ra, <strong>ở mức 6.5 nhiều em đang trả công sức cho thứ mình vốn đã có.</strong> Phần lãi thật bắt đầu rõ từ 7.0, và rõ nhất ở 7.5 — nơi điểm được khóa cứng ở 10, không phụ thuộc vào việc hôm thi có mệt hay không.</p>
+
+      <div class="note">
+        <p><b>Vậy có nên cho con học IELTS không?</b></p>
+        <p>Nếu gia đình chưa chọn được trường, câu trả lời ngắn là <b>có — nhưng chỉ khi đặt được mục tiêu từ 7.0 trở lên</b>. Dừng ở 6.0 hay 6.5 thì với phần lớn trường, tấm bằng đổi lại chưa tới một điểm, vì một em đạt được mức đó thường cũng tự thi ra ngần ấy điểm.</p>
+        <p>Còn nếu con nghiêng về y dược hay sư phạm, câu trả lời là <b>không</b>. Ở nhóm trường đó chứng chỉ không thay được điểm thi, chỉ cộng nhiều nhất 1,5 điểm — chừng ấy thời gian dồn vào ba môn trong tổ hợp sẽ đổi được nhiều hơn hẳn.</p>
+      </div>
+
+      <h3>Và mốc đáng học đó vừa bị đẩy lên cao hơn</h3>
+
+      <figure>
+        <p class="fig-title">Mốc 10 điểm đã bị đẩy lên</p>
+        <svg viewBox="0 0 700 270" role="img" aria-labelledby="c2t c2d">
+          <title id="c2t">Ngưỡng IELTS để đạt 10 điểm, so sánh 2025 và 2026</title>
+          <desc id="c2d">Luật Hà Nội nâng từ 6.5 lên 7.5. Nhóm Đại học Quốc gia Hà Nội nâng từ 7.0 lên 7.5. Bách khoa Hà Nội và Thương mại đều nâng từ 6.5 lên 7.0.</desc>
+          <g font-size="12">
+            <circle cx="210" cy="22" r="5" fill="var(--ghost)"/><text x="222" y="26" fill="var(--ink-2)">mùa 2025</text>
+            <circle cx="310" cy="22" r="5.5" fill="var(--s1)"/><text x="323" y="26" fill="var(--ink-2)">mùa 2026</text>
+          </g>
+          <g stroke="var(--rule)" stroke-width="1">
+            <line x1="235" y1="46" x2="235" y2="216"/><line x1="345" y1="46" x2="345" y2="216"/>
+            <line x1="455" y1="46" x2="455" y2="216"/><line x1="565" y1="46" x2="565" y2="216"/>
+          </g>
+          <g fill="var(--ink-3)" font-size="11.5" text-anchor="middle">
+            <text x="235" y="238">IELTS 6.0</text><text x="345" y="238">6.5</text><text x="455" y="238">7.0</text><text x="565" y="238">7.5</text>
+          </g>
+          <g font-size="13.5" fill="var(--ink-1)">
+            <text x="205" y="72" text-anchor="end">Luật Hà Nội</text>
+            <line x1="345" y1="67" x2="565" y2="67" stroke="var(--s1)" stroke-width="2.5"/>
+            <circle cx="345" cy="67" r="5" fill="var(--ghost)" stroke="var(--surface)" stroke-width="2"/>
+            <circle cx="565" cy="67" r="5.5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>
+            <text x="585" y="72" fill="var(--ink-2)" font-size="12">khó thêm một band</text>
+
+            <text x="205" y="115" text-anchor="end">Nhóm ĐHQGHN</text>
+            <line x1="455" y1="110" x2="565" y2="110" stroke="var(--s1)" stroke-width="2.5"/>
+            <circle cx="455" cy="110" r="5" fill="var(--ghost)" stroke="var(--surface)" stroke-width="2"/>
+            <circle cx="565" cy="110" r="5.5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>
+            <text x="585" y="115" fill="var(--ink-2)" font-size="12">nửa band</text>
+
+            <text x="205" y="158" text-anchor="end">Bách khoa Hà Nội</text>
+            <line x1="345" y1="153" x2="455" y2="153" stroke="var(--s1)" stroke-width="2.5"/>
+            <circle cx="345" cy="153" r="5" fill="var(--ghost)" stroke="var(--surface)" stroke-width="2"/>
+            <circle cx="455" cy="153" r="5.5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>
+            <text x="475" y="158" fill="var(--ink-2)" font-size="12">nửa band</text>
+
+            <text x="205" y="201" text-anchor="end">Thương mại</text>
+            <line x1="345" y1="196" x2="455" y2="196" stroke="var(--s1)" stroke-width="2.5"/>
+            <circle cx="345" cy="196" r="5" fill="var(--ghost)" stroke="var(--surface)" stroke-width="2"/>
+            <circle cx="455" cy="196" r="5.5" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>
+            <text x="475" y="201" fill="var(--ink-2)" font-size="12">nửa band</text>
+          </g>
+          <line x1="235" y1="216" x2="565" y2="216" stroke="var(--rule-strong)" stroke-width="1.5"/>
+        </svg>
+        <figcaption>Đầu dưới của bảng cũng bị hạ cùng lúc: ở nhóm Đại học Quốc gia Hà Nội, IELTS 5.5 từ 8,5 rơi xuống 8,0; ở Luật Hà Nội, 5.5 từ 9 rơi thẳng xuống 8. Quy chế buộc bảng phải có ít nhất năm mức, mà cách giãn bảng dễ nhất là kéo dài đuôi ra phía trên. <span class="chip c-that">Số thật 2026</span></figcaption>
+      </figure>
+
+      <div class="note">
+        <p>Bảng năm 2025 của nhóm này chỉ có bốn mức, và các bản tin công khai chỉ ghi lại hai mốc đầu cuối — IELTS 5.5 được 8,5 và 7.0 được 10. Giá trị các mức ở giữa không có nguồn dạng văn bản, nên bài này không so sánh những mức đó.</p>
+      </div>
+    </section>
+
+    <hr class="div">
+
+    <!-- ============ 4 ============ -->
+    <section id="duongvao">
+      <span class="sec-no">Phần 4</span>
+      <h2 class="sec">Năm đường vào</h2>
+
+      <p class="lead">Cùng một tấm chứng chỉ, giá trị thay đổi hẳn tùy đường mà gia đình chọn. Đây là chỗ nhiều người tính nhầm nhất.</p>
+
+      <div class="lanes">
+        <div class="lane">
+          <p class="lname">Thi thuần tốt nghiệp<small>Ba môn theo tổ hợp, thang 30</small></p>
+          <p class="ldesc">Đường phổ biến nhất, và là đường duy nhất mọi trường đều nhận. Điểm tiếng Anh là điểm em ấy tự thi được.</p>
+          <p class="lval"><b>0 điểm</b>IELTS không tham gia</p>
+        </div>
+        <div class="lane best">
+          <p class="lname">Thi tốt nghiệp, dùng IELTS thay môn tiếng Anh<small>Chỉ với tổ hợp có tiếng Anh</small></p>
+          <p class="ldesc">Hai môn còn lại giữ nguyên điểm thi, môn tiếng Anh lấy điểm quy đổi. Đây là chỗ IELTS có giá cao nhất.</p>
+          <p class="lval"><b>Tới +5 điểm</b>bằng điểm quy đổi trừ điểm tự thi</p>
+        </div>
+        <div class="lane">
+          <p class="lname">Thuần bài thi đánh giá năng lực<small>Đại học Quốc gia Hà Nội, thang 150</small></p>
+          <p class="ldesc">Bài thi có phần tiếng Anh để chọn, nên người giỏi tiếng Anh đã có lợi ngay trong đề. Riêng tấm chứng chỉ chỉ được cộng thêm, và không phải trường nào cũng cho cộng.</p>
+          <p class="lval"><b>+1,0 đến +1,5</b>ở nơi có công bố mức cộng</p>
+        </div>
+        <div class="lane weak">
+          <p class="lname">Thuần bài thi đánh giá tư duy<small>Bách khoa Hà Nội, thang 100</small></p>
+          <p class="ldesc">Bài thi không có phần tiếng Anh nào. Bách khoa cho cộng điểm thưởng chứng chỉ, nhưng mức cụ thể theo từng band chưa công bố dạng văn bản đọc được.</p>
+          <p class="lval"><b>Khoảng +3 điểm</b>nếu quy về thang 30 quen thuộc</p>
+        </div>
+        <div class="lane weak">
+          <p class="lname">Ghép IELTS với bài thi riêng<small>Kinh tế Quốc dân, mùa 2026</small></p>
+          <p class="ldesc">Điểm bài thi riêng được quy về thang 30 rồi ghép với điểm quy đổi chứng chỉ trong cùng một công thức. Đường này <strong>sẽ bị bỏ từ mùa 2027</strong>.</p>
+          <p class="lval"><b>Sắp đóng</b>trường đã thông báo từ tháng 6/2026</p>
+        </div>
+      </div>
+
+      <p style="margin-top:24px">Đọc năm dòng trên theo một câu: <strong>IELTS đáng giá nhất khi đi cùng điểm thi tốt nghiệp, và đáng ít nhất khi đi cùng các bài thi riêng.</strong> Ở đường thi tốt nghiệp, chứng chỉ thay hẳn một môn trong ba; ở các đường còn lại nó chỉ được cộng vào, mà trần cộng thì Bộ đã chốt ở 1,50 điểm.</p>
+
+      <div class="note flag">
+        <p><b>Thay đổi lớn nhất đã biết cho 2027.</b> Đại học Kinh tế Quốc dân công bố từ tháng 6/2026 rằng sẽ bỏ hẳn phương thức ghép chứng chỉ với bài thi riêng. Từ 2027, các bài thi đó chỉ dùng độc lập, còn IELTS quay về đúng hai vai trò mà quy chế cho phép. Trường cũng lần đầu nhận kết quả bài thi năng lực của Đại học Sư phạm Hà Nội. Mức điểm cụ thể nằm trong đề án tháng 12/2026. <span class="chip c-dubao">Dự báo 2027</span></p>
+      </div>
+
+      <figure>
+        <p class="fig-title">Hai bài thi riêng khác nhau thế nào</p>
+        <p class="fig-sub">Đọc nhanh: đánh giá năng lực rộng hơn — nhiều đợt thi hơn, gấp đôi số trường công nhận, có phần tiếng Anh để chọn. Đánh giá tư duy hẹp và khó hơn, không có tiếng Anh, nhưng kết quả dùng được hai năm.</p>
+        <div class="tw">
+          <table>
+            <thead><tr><th style="width:24%"></th><th>Đánh giá năng lực</th><th>Đánh giá tư duy</th></tr></thead>
+            <tbody>
+              <tr><td class="name">Đơn vị tổ chức</td><td>Đại học Quốc gia Hà Nội</td><td>Đại học Bách khoa Hà Nội</td></tr>
+              <tr><td class="name">Thang và thời gian</td><td>150 điểm, 195 phút</td><td>100 điểm, 150 phút</td></tr>
+              <tr><td class="name">Có phần tiếng Anh</td><td>Có, nếu chọn</td><td>Không</td></tr>
+              <tr><td class="name">Quy mô 2026</td><td>121.010 lượt, 6 đợt thi</td><td>khoảng 60.000 lượt, 3 đợt thi</td></tr>
+              <tr><td class="name">Điểm trung bình 2026</td><td>79,39 / 150</td><td>54,96 / 100</td></tr>
+              <tr><td class="name">Số trường công nhận</td><td>hơn 100</td><td>hơn 50</td></tr>
+              <tr><td class="name">Tương đương 28 điểm thi tốt nghiệp</td><td>112 / 150</td><td>77,90 / 100</td></tr>
+              <tr><td class="name">IELTS được tính vào</td><td>cộng 1,0–1,5 điểm, nơi có công bố</td><td>cộng điểm thưởng, trần 10 trên thang 100</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figcaption>Dòng "tương đương 28 điểm" lấy theo bảng của Kinh tế Quốc dân. Mỗi trường tự xây quy tắc quy đổi riêng, nên con số này khác nhau giữa các nơi — bảng phân vị của Đại học Quốc gia Hà Nội chẳng hạn đặt 28,23 điểm ngang 114. Cả hai kỳ đều chưa công bố lịch thi 2027. <span class="chip c-that">Số thật 2026</span></figcaption>
+      </figure>
+    </section>
+
+    <hr class="div">
+
+    <!-- ============ 5 ============ -->
+    <section id="khongco">
+      <span class="sec-no">Phần 5</span>
+      <h2 class="sec">Không có IELTS thì sao</h2>
+
+      <p class="lead">Phần lớn thí sinh vào các trường này không có chứng chỉ, và họ vẫn vào được. Nhưng bức tranh môn tiếng Anh đang đổi theo hướng làm lợi thế của người giỏi tiếng Anh lớn hơn trước, chứ không nhỏ đi.</p>
+
+      <figure>
+        <p class="fig-title">Điểm thi tiếng Anh tốt nghiệp tụt sâu trong năm 2026</p>
+        <div class="tiles">
+          <div class="tile"><p class="tl">Điểm trung bình</p><p class="tv">5,07</p><p class="td">năm 2025 là <b>5,38</b></p></div>
+          <div class="tile"><p class="tl">Trung vị</p><p class="tv">4,75</p><p class="td">năm 2025 là <b>5,25</b></p></div>
+          <div class="tile"><p class="tl">Dưới trung bình</p><p class="tv">&gt;50%</p><p class="td">năm 2025 là <b>38,2%</b></p></div>
+          <div class="tile"><p class="tl">Số bài đạt điểm 10</p><p class="tv">311</p><p class="td">năm 2025 chỉ có <b>141</b></p></div>
+          <div class="tile"><p class="tl">Tỉ lệ chọn thi môn ngoại ngữ</p><p class="tv">28,4%</p><p class="td">từ 2025 không còn là môn bắt buộc</p></div>
+        </div>
+        <figcaption>Hơn 334.500 thí sinh dự thi môn này năm 2026. Đây là tỉ lệ dưới trung bình cao nhất trong tất cả các môn, và cao nhất trong bốn năm gần đây. Đáng chú ý là số bài đạt 10 tăng hơn gấp đôi trong khi hơn nửa số bài dưới trung bình — đề đã kéo giãn phổ điểm ra hai đầu. <span class="chip c-that">Số thật 2026</span></figcaption>
+      </figure>
+
+      <figure>
+        <p class="fig-title">Ba lối đi khi không có chứng chỉ</p>
+        <div class="tw">
+          <table>
+            <thead><tr><th style="width:26%">Lối đi</th><th>Nghĩa là gì</th><th>Điều cần biết</th></tr></thead>
+            <tbody>
+              <tr><td class="name">Thi tiếng Anh và tự lấy điểm</td><td>Vẫn ăn được 10 điểm như thường</td><td>311 bài đạt điểm tuyệt đối trên hơn 334.000 bài, tức khoảng chín phần vạn. Cửa hẹp nhưng có thật.</td></tr>
+              <tr><td class="name">Chọn tổ hợp không có tiếng Anh</td><td>A00 là Toán – Lý – Hóa, B00 là Toán – Hóa – Sinh, C00 là Văn – Sử – Địa</td><td>Gần 72% thí sinh năm 2026 đã đi đường này. Nhưng A00 thường lấy điểm chuẩn <b>cao hơn</b>: Ngoại thương chênh 1 điểm, Luật Hà Nội chênh gần 1,5 điểm giữa A00 và D01.</td></tr>
+              <tr><td class="name">Đi bài thi riêng</td><td>Đánh giá năng lực, đánh giá tư duy, hoặc bài thi của Sư phạm Hà Nội</td><td>Số trường công nhận đang tăng nhanh: hơn 100, hơn 50, và riêng bài của Sư phạm nhảy từ 25 trường năm 2025 lên <b>38 trường</b> năm 2026, trong đó có cả Đại học Y Hà Nội.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figcaption>Về dòng giữa: tổ hợp A00 lấy cao hơn vì điểm Lý, Hóa thường cao hơn điểm Văn, nên trường nâng ngưỡng lên cho cân bằng. Tránh tiếng Anh không phải đi đường tắt — chỉ là đổi sang một cuộc đua khác, với vạch đích đặt cao hơn tương ứng. <span class="chip c-that">Số thật 2026</span></figcaption>
+      </figure>
+
+      <p>Một chỗ cần lưu ý khi bỏ tiếng Anh: có ngành bắt buộc phải dùng tổ hợp chứa môn này. Luật Thương mại quốc tế và Ngôn ngữ Anh của Đại học Luật Hà Nội chẳng hạn, chỉ nhận đúng hai tổ hợp A01 và D01.</p>
+
+      <p>Còn khi so điểm chuẩn giữa các đường, nhớ rằng <strong>điểm của bài thi riêng nhìn thấp hơn hẳn nhưng không so trực tiếp được</strong> — đó là hai thang khác nhau. Ở Đại học Y Hà Nội, ngành Điều dưỡng lấy 22,99 theo điểm thi tốt nghiệp nhưng 15,24 theo bài thi năng lực của Sư phạm. Điều đó không có nghĩa đường sau dễ hơn, chỉ có nghĩa đề khó hơn nên phổ điểm thấp hơn.</p>
+    </section>
+
+    <hr class="div">
+
+    <!-- ============ 6 ============ -->
+    <section id="nhammoc">
+      <span class="sec-no">Phần 6</span>
+      <h2 class="sec">Nhắm mốc nào, canh lịch nào</h2>
+
+      <p class="lead">Chốt danh sách ba đến năm trường mục tiêu trước, rồi mới đặt mục tiêu band. Làm ngược lại thì rất dễ học thừa hoặc học thiếu.</p>
+
+      <div class="dec">
+        <div class="decrow none">
+          <p class="cond">Nhắm Y, Dược, Sư phạm hoặc Bưu chính Viễn thông</p>
+          <p class="why">Bốn trường này không quy đổi chứng chỉ. IELTS chỉ cộng được tối đa 1,5 điểm, có nơi chỉ 1,0 — và ở Dược Hà Nội, band 6.5 mới chỉ đáng 0,75 điểm.</p>
+          <p class="goal">Không cần<small>dồn sức vào ba môn trong tổ hợp</small></p>
+        </div>
+        <div class="decrow">
+          <p class="cond">Nhắm Bách khoa Hà Nội, Thương mại hoặc Học viện Tài chính</p>
+          <p class="why">Ba trường này tính 10 điểm ngay từ 7.0. Đẩy tiếp lên 7.5 không đổi được gì.</p>
+          <p class="goal">7.0<small>lên cao hơn là thừa</small></p>
+        </div>
+        <div class="decrow">
+          <p class="cond">Nhắm nhóm ĐHQGHN, Kinh tế Quốc dân, Luật Hà Nội hoặc Ngân hàng</p>
+          <p class="why">Đây là nhóm đông nhất trong danh sách, và tất cả đều khóa 10 điểm ở mốc 7.5.</p>
+          <p class="goal">7.5<small>mốc phổ biến nhất</small></p>
+        </div>
+        <div class="decrow">
+          <p class="cond">Có Ngoại thương trong danh sách</p>
+          <p class="why">Dưới 6.5 trường không nhận chứng chỉ, và ở chính mức 6.5 cũng chỉ được 8,5 điểm.</p>
+          <p class="goal">8.0<small>mốc xa nhất trong bài</small></p>
+        </div>
+        <div class="decrow">
+          <p class="cond">Chưa biết con sẽ thi trường nào</p>
+          <p class="why">Ở mốc 7.0, mọi trường có quy đổi trong bài đều tính ít nhất 9,0 điểm. Lên 7.5 thì phủ gần hết, chỉ còn Ngoại thương đòi thêm.</p>
+          <p class="goal">7.0<small>an toàn khi còn phân vân</small></p>
+        </div>
+      </div>
+
+      <div class="note">
+        <p><b>Nếu trường con nhắm không nằm trong 18 trường này</b>, chỉ cần tìm ba thứ trên trang tuyển sinh của trường đó. Một: trường <em>quy đổi</em> chứng chỉ hay chỉ <em>cộng điểm</em> — đây là câu quyết định, vì một bên đáng tới mấy điểm còn một bên tối đa 1,5. Hai: bảng bắt đầu từ band nào và đạt 10 điểm ở band nào. Ba: chứng chỉ có dùng được với tổ hợp con định thi không. Tính đến cuối tháng 4/2026 đã có 81 trường công bố bảng quy đổi. <span class="chip c-that">Số thật 2026</span></p>
+      </div>
+
+      <h3>Lịch cần canh</h3>
+
+      <ol class="tline">
+        <li class="now">
+          <span class="when">Hiện tại — tháng 9/2026</span>
+          <span class="what">Khung pháp lý vẫn là Thông tư 06/2026</span>
+          <p>Bộ chưa ban hành quy chế riêng cho 2027, cũng chưa có dự thảo. Bản hiện hành không giới hạn hiệu lực theo năm nên mặc định vẫn áp dụng.</p>
+        </li>
+        <li>
+          <span class="when">Khoảng tháng 12/2026</span>
+          <span class="what">Các trường công bố đề án tuyển sinh 2027</span>
+          <p>Mốc quan trọng nhất. Bảng quy đổi cụ thể, ngưỡng nhận hồ sơ và mức điểm cộng đều nằm trong tài liệu này. Kinh tế Quốc dân đã hẹn rõ tháng 12.</p>
+        </li>
+        <li>
+          <span class="when">Cuối 2026 — đầu 2027</span>
+          <span class="what">Đăng ký các kỳ thi riêng</span>
+          <p>Lịch 2027 của cả hai kỳ chưa công bố. Mùa 2026 mở đăng ký từ tháng 11 và tháng 12 năm trước đó.</p>
+        </li>
+        <li>
+          <span class="when">Tháng 6/2027</span>
+          <span class="what">Kỳ thi tốt nghiệp trung học phổ thông</span>
+          <p>Vẫn mô hình bốn môn: Toán và Ngữ văn bắt buộc, cộng hai môn tự chọn. Bộ cho biết sẽ thí điểm thi trên máy tính từ 2027 ở nơi đủ điều kiện hạ tầng.</p>
+        </li>
+        <li>
+          <span class="when">Tháng 7 — 8/2027</span>
+          <span class="what">Đăng ký nguyện vọng và công bố điểm chuẩn</span>
+          <p>Mùa 2026 giới hạn 15 nguyện vọng mỗi thí sinh và đặt sàn 15,00 điểm cho tổng ba môn. Hai con số này nhiều khả năng giữ nguyên.</p>
+        </li>
+      </ol>
+
+      <p style="margin-top:26px">Một việc nhỏ nên làm trước tháng 12: theo dõi thẳng trang tuyển sinh của từng trường mục tiêu. Năm 2026 khá nhiều trung tâm luyện thi vẫn đăng bảng quy đổi của mùa cũ, và không ít gia đình lập kế hoạch theo bảng đã hết hiệu lực.</p>
+    </section>
+
+    <hr class="div">
+
+    <!-- ============ nguồn ============ -->
+    <section id="nguon">
+      <h2 class="sec">Nhãn và nguồn</h2>
+
+      <p>Mỗi con số trong bài mang một trong ba nhãn:</p>
+      <ul>
+        <li><span class="chip c-chot">Đã chốt</span> — có văn bản pháp quy hoặc công bố chính thức. Tin được, trừ khi văn bản bị thay.</li>
+        <li><span class="chip c-that">Số thật 2026</span> — chuyện đã xảy ra và đã công bố. Dùng để tham chiếu, không phải để suy ra mùa sau.</li>
+        <li><span class="chip c-dubao">Dự báo 2027</span> — định hướng đã tuyên bố nhưng chưa thành văn bản. Nên kiểm tra lại khi đề án ra.</li>
+      </ul>
+
+      <h4>Những chỗ bài này không có câu trả lời</h4>
+      <ul>
+        <li>Mức điểm thưởng theo từng band IELTS khi cộng vào bài thi tư duy của Bách khoa Hà Nội — bảng gốc đăng dạng ảnh.</li>
+        <li>Bảng cộng điểm chi tiết của Đại học Dược Hà Nội — chỉ có biên độ 0,25 đến 1,5.</li>
+        <li>Học viện Ngân hàng có cho cộng dồn cả quy đổi lẫn điểm khuyến khích hay không.</li>
+        <li>Tỉ lệ trúng tuyển theo từng đường vào — từ 2026 điểm chuẩn đã gộp chung nên về nguyên tắc không tách được.</li>
+        <li>Đề án 2027 của 17 trên 18 trường. Chỉ Kinh tế Quốc dân đã công bố phương hướng.</li>
+      </ul>
+
+      <div class="srcgrid" style="margin-top:24px">
+        <div>
+          <h4>Văn bản pháp quy</h4>
+          <ul>
+            <li>Thông tư 06/2026/TT-BGDĐT ngày 15/2/2026 — quy chế tuyển sinh đại học</li>
+            <li>Thông tư 06/2025/TT-BGDĐT ngày 19/3/2025 — bản bị thay thế, dùng để đối chiếu</li>
+            <li>Công văn 2304/BGDĐT-GDĐH ngày 4/5/2026 — hướng dẫn tuyển sinh 2026</li>
+            <li>Thông tư 24/2024 và 13/2026 — quy chế thi tốt nghiệp, phần miễn thi ngoại ngữ</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Công bố của trường</h4>
+          <ul>
+            <li>Đề án và thông tin tuyển sinh 2026 của cả 18 trường trong bài</li>
+            <li>Thông báo 176/TB-ĐHNT ngày 9/3/2026 — Ngoại thương</li>
+            <li>Thông báo 893/TB-ĐHLHN ngày 12/6/2026 — Luật Hà Nội</li>
+            <li>Thông báo 1954/TB-ĐHBK ngày 3/7/2026 — Bách khoa Hà Nội</li>
+            <li>Công văn 3089/ĐHQGHN-ĐT&amp;CTSV ngày 2/7/2026 — bảng phân vị quy đổi</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Phổ điểm và thống kê</h4>
+          <ul>
+            <li>Phổ điểm thi tốt nghiệp môn tiếng Anh 2025 và 2026, Bộ Giáo dục và Đào tạo</li>
+            <li>Phổ điểm đánh giá năng lực 2025 và 2026, Đại học Quốc gia Hà Nội</li>
+            <li>Phổ điểm đánh giá tư duy 2025 và 2026, Đại học Bách khoa Hà Nội</li>
+            <li>Điểm chuẩn 2025 và 2026 của 18 trường</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Báo chí</h4>
+          <ul>
+            <li>Cổng Thông tin điện tử Chính phủ và chuyên trang Xây dựng chính sách</li>
+            <li>Tuổi Trẻ, Thanh Niên, VnExpress, Dân trí, VietnamNet, Nhân Dân, Đại biểu Nhân dân</li>
+            <li>Đài Tiếng nói Việt Nam, Đài Truyền hình Việt Nam</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="note" style="margin-top:26px">
+        <p>Bài chốt số liệu ngày 14/9/2026. Khi đề án tuyển sinh 2027 của các trường ra vào khoảng tháng 12/2026, toàn bộ bảng quy đổi trong bài cần được đối chiếu lại.</p>
+      </div>
+    </section>
+
+  </article>
+</div>
