@@ -1,10 +1,10 @@
 # Tài liệu BA - Trường học số
 
-Repo này gom script và trang HTML Bob làm trong vai trò BA cho dự án Trường học số (THS). Nhiều script đọc một file Excel ở máy rồi ghi ra file Excel, Word hay PowerPoint. Các file đó đã gửi cho khách, đối tác hoặc đội nội bộ. Trang HTML là bài nghiên cứu, sơ đồ hệ thống và kịch bản minh họa, mở thẳng bằng trình duyệt. Các file `.md` là bản thiết kế đã chốt của vài báo cáo Excel lớn.
+Repo này gom script và trang HTML Bob làm trong vai trò BA cho dự án Trường học số (THS). Nhiều script đọc một file Excel ở máy rồi ghi ra file Excel, Word hay PowerPoint. Trang HTML là bài nghiên cứu, sơ đồ hệ thống và kịch bản minh họa, mở thẳng bằng trình duyệt. Bốn file `.md` trong `hoc-lieu/` và `kiem-thu/` là bản thiết kế đã chốt của vài báo cáo Excel lớn. Hai file `.md` còn lại là báo cáo module AI và bản dịch slide Smartclass.
+
+Người làm: Bob (BobLe, bob@techainer.com), tháng 5–9/2026. Tình trạng: đã dùng thật. Phần lớn file đầu ra đã gửi cho khách, đối tác hoặc đội nội bộ, repo này là bản lưu để bàn giao.
 
 Hai mục không thuộc THS nhưng làm cùng đợt nên để chung. Đó là bài IELTS tuyển sinh 2027 (`tuyen-sinh-ielts/`) và bài so 5 ứng dụng nấu ăn (`nghien-cuu/nghien-cuu-5-app-nau-an.html`).
-
-Người làm: Bob (BobLe, bob@techainer.com), tháng 5–9/2026. Tình trạng: đã dùng thật. Các file đầu ra đã gửi đi, repo này là bản lưu để bàn giao.
 
 ## Mở hoặc chạy thế nào
 
@@ -22,7 +22,7 @@ pip install openpyxl python-docx python-pptx playwright
   - Bộ `vong-doi-hoc-sinh` và hai file `phan-quyen/read_*.py` dùng file nằm ngay trong thư mục chứa script.
 - File đầu vào của các script này không có trong repo (xem mục "Không có trong repo").
 - Chạy được ngay, không cần file đầu vào: `kich-ban-demo/export_demo_script.py`, `thiet-bi-man-hinh/export_device_analysis.py`, `lop-hoc-thong-minh/export_smartclass_en_pptx.py`, `module-ai/generate_excel_report.py` và bộ `vong-doi-hoc-sinh/gen_vongdoi*.py`.
-- Ba file `export_demo_script.py`, `export_device_analysis.py`, `generate_excel_report.py` ghi thẳng vào `c:\Trường học số - source code\`. Máy khác thư mục thì sửa biến đường dẫn: cuối file với script demo, đầu file với hai script kia. `export_smartclass_en_pptx.py` ghi ra thư mục đang đứng, bộ `gen_vongdoi` ghi đè file xlsx nằm cạnh nó.
+- Máy khác thư mục thì sửa biến đường dẫn: cuối file với `export_demo_script.py`, đầu file với `export_device_analysis.py` và `generate_excel_report.py`. `export_smartclass_en_pptx.py` ghi ra thư mục đang đứng, bộ `gen_vongdoi` ghi đè file xlsx nằm cạnh nó.
 
 ## Trong repo có gì
 
@@ -34,7 +34,7 @@ pip install openpyxl python-docx python-pptx playwright
 | `csdl-dong-nai/build.py` | Đối chiếu hồ sơ trường, hồ sơ lớp: ngành đòi thông tin gì, web quản lý trường đã có chưa, nằm ở màn nào | dùng chung, không tự ghi file | 24/08/2026 |
 | `csdl-dong-nai/map2.py` | Phần còn lại của bảng đối chiếu: nhân sự, học sinh, phân công, môn học | dùng chung | 24/08/2026 |
 | `csdl-dong-nai/core.py` | Gom hai bảng trên thành từng đầu mục kèm trạng thái | dùng chung | 24/08/2026 |
-| `csdl-dong-nai/final.py` | Điền checklist gốc, giữ nguyên 5 cột và 38 dòng đầu của người khác. Đây là bản đã giao | `Checklist_RaSoat_API_CSDL_DongNai_CThu.xlsx` | 24/08/2026 |
+| `csdl-dong-nai/final.py` | Dựng lại checklist theo đúng khuôn 5 cột của file gốc. 38 dòng đầu của người khác chép sẵn trong script, script chỉ điền đầu mục 39–75. Đây là bản đã giao | `Checklist_RaSoat_API_CSDL_DongNai_CThu.xlsx` | 24/08/2026 |
 | `csdl-dong-nai/gen.py`, `huongdan.py` | Bản trước của `final.py`: 2 sheet (checklist, dò từng trường) và thêm sheet "Cách đọc file" | cùng tên file trên, ghi đè | 24/08/2026 |
 | `csdl-dong-nai/trace_p1.py` | Bảng dò từng trường phần 1, viết trước `build.py`. Không script nào gọi tới nữa | không có | 24/08/2026 |
 | `csdl-dong-nai/_form.py` | Mở một form trên trang UAT bằng phiên đăng nhập đã lưu, ghi lại tab, nhãn, ô nhập và chụp ảnh | `_rs/<tên>.txt`, `_rs/<tên>.png` | 24/08/2026 |
@@ -52,8 +52,8 @@ pip install openpyxl python-docx python-pptx playwright
 | `lop-hoc-thong-minh/Smartclass 2.0 - EN translation.md` | Bản dịch tiếng Anh 19 slide giới thiệu Smartclass 2.0 | không có | 25/08/2026 |
 | `lop-hoc-thong-minh/export_smartclass_en_pptx.py` | Dựng bản dịch trên thành PowerPoint, chữ sửa được sau khi đưa lên Canva | `Smart School - EN deck.pptx` | 25/08/2026 |
 | `so-do-he-thong/so-do-he-thong-truong-hoc-so.html` | Sơ đồ hệ thống THS: 4 chặng, 20 khối, bấm khối để xem chi tiết, có nút VI/EN. Làm để đưa vào CV | trang HTML | 10/09/2026 |
-| `so-do-he-thong/so-do-he-thong.html` | Bản làm lại kiểu làn: mỗi làn một nhóm người dùng, bấm khối thì sáng các đường nối | trang HTML | 10/09/2026 |
-| `tuyen-sinh-ielts/ielts-xet-tuyen-dai-hoc-2027.html` | Bài "IELTS đáng mấy điểm" về xét tuyển đại học 2027 ở 18 trường Hà Nội, viết cho phụ huynh và học sinh lớp 11 | trang HTML | 15/09/2026 |
+| `so-do-he-thong/so-do-he-thong.html` | Bản làm lại kiểu làn: 4 làn theo người dùng (nhà trường, giáo viên và học sinh, giáo viên, học sinh) và 1 làn chạy ngầm. Bấm khối thì sáng các đường nối | trang HTML | 10/09/2026 |
+| `tuyen-sinh-ielts/ielts-xet-tuyen-dai-hoc-2027.html` | Bài "IELTS đáng mấy điểm" về xét tuyển đại học 2027 ở 18 trường Hà Nội, viết cho phụ huynh, học sinh lớp 11 và giáo viên tư vấn | trang HTML | 15/09/2026 |
 | `tuyen-sinh-ielts/ho-so-tuyen-sinh-18-truong.html` | Hồ sơ tuyển sinh từng trường trong 18 trường, IELTS được tính bao nhiêu ở mỗi nơi | trang HTML | 15/09/2026 |
 | `tuyen-sinh-ielts/ielts-tuyen-sinh-2027-full.html` | Bản gộp bài đọc và hồ sơ 18 trường vào một trang | trang HTML | 17/09/2026 |
 | `nghien-cuu/gamification-platforms.html` | Bảng hơn 40 nền tảng gamification giáo dục: năm, nước, vốn, doanh thu, tình trạng | trang HTML | 14/08/2026 |
@@ -66,7 +66,7 @@ pip install openpyxl python-docx python-pptx playwright
 | `module-ai/generate_excel_report.py` | Bảng Excel của báo cáo trên: module nào có AI, có nên gộp, gợi ý AI tiếp | `bao-cao-module-ai-gkebook-2026-06-03.xlsx` | 03/06/2026 |
 | `module-ai/export_ai_modules.py` | Thêm 4 cột về AI vào file danh sách module NKG, giọng kỹ thuật | `Danh sách Module hiện có NKG - Đề xuất AI - bo-sung-AI.xlsx` | 03/06/2026 |
 | `module-ai/export_ai_modules_humanized.py` | Như trên, viết lại cho người không làm kỹ thuật | `Danh sách Module hiện có NKG - Đề xuất AI - humanized.xlsx` | 03/06/2026 |
-| `mau-import-cau-hoi/vba-macro-cau-hoi.example.bas` | Macro cho sheet "Câu hỏi" của mẫu import: chọn loại câu nhận định (Đúng/Sai, hoặc Đúng/Sai/Không xác định) ở cột B thì macro tự điền các lựa chọn, khóa ô đáp án và chỉ cho chọn A, B (hoặc A, B, C) ở cột đáp án đúng. Chọn loại câu khác thì macro chỉ xóa trống và mở khóa các ô đó | dán vào file `mau-import-cau-hoi*.xlsm` | 28/05/2026 |
+| `mau-import-cau-hoi/vba-macro-cau-hoi.example.bas` | Macro cho sheet "Câu hỏi" của mẫu import. Chọn loại câu Đúng/Sai (hoặc Đúng/Sai/Không xác định) ở cột B thì macro tự điền lựa chọn và khóa ô đáp án. Cột đáp án đúng chỉ cho chọn A, B (hoặc A, B, C). Chọn loại câu khác thì macro chỉ xóa trống và mở khóa các ô đó | dán vào file `mau-import-cau-hoi*.xlsm` | 28/05/2026 |
 | `hoc-lieu/2026-09-09-thong-ke-hoc-lieu-design.md` | Thiết kế và kết quả báo cáo kiểm kê học liệu, số liệu đọc từ hệ thống thật (chỉ đọc) | `Kiểm kê học liệu THS - 09.09.2026.xlsx` | 09/09/2026 |
 | `hoc-lieu/2026-09-17-ke-hoach-san-xuat-hoc-lieu-design.md` | Kế hoạch 10 tuần làm học liệu cho bộ SGK thống nhất: khối lượng, năng suất, số người | `Kế hoạch sản xuất học liệu SGK thống nhất - 17.09.2026.xlsx` | 17/09/2026 |
 | `hoc-lieu/2026-09-21-chia-nhom-chuyen-gia-design.md` | Đề xuất chia nhóm chuyên gia hiệp hội duyệt học liệu: 2 cấp học × 6 nhóm môn | `Đề xuất chia nhóm chuyên gia học liệu - 21.09.2026.xlsx` | 21/09/2026 |
@@ -84,13 +84,13 @@ Những thứ dưới đây cố ý để lại ở máy gốc, thư mục `c:\T
 - Hai file tài khoản chuyên gia học liệu ngày 24/09/2026. Trong đó có tên và tài khoản của người thật.
 - Bảng kết quả thi thử THPT môn Địa lý của trường THPT Sơn Tây. Đây là điểm của học sinh thật.
 - Thư mục `_rs`. Trong đó có phiên đăng nhập trang UAT, ảnh chụp hồ sơ học sinh và bản chữ của tài liệu API.
-- File dump và file trung gian (`*_output.txt`, `xlsx_full_dump.txt`, `details_output.txt`, `spreadsheet_data.json`, `humanized_data.json`, `figma_audit_data.json`, `tail.bin`...). Chúng chép lại nội dung các file Excel ở trên.
+- File dump và file trung gian (`*_output.txt`, `xlsx_full_dump.txt`, `details_output.txt`, `spreadsheet_data.json`, `humanized_data.json`, `figma_audit_data.json`...). Phần lớn chép lại nội dung các file Excel ở trên, riêng `figma_audit_data.json` là số liệu lấy từ Figma.
 - Bản gốc `figma_audit.py` (có token Figma cá nhân) và `figma_audit_report.html` (có đường link thẳng tới file thiết kế). Repo chỉ giữ bản `.example`.
 - Bản gốc `vba-macro-cau-hoi.bas` (có mật khẩu khóa sheet) và các file mẫu import câu hỏi `.xlsm`, `.xlsx`.
 - `mk.py`, bản đầu của checklist Đồng Nai. File này ghi tên đăng nhập tài khoản UAT, và đã có `final.py` thay.
 - Ảnh chụp màn hình cho báo cáo module AI, chụp từ hệ thống đang chạy.
 - `ddg.html`, `o.html`, `l.html`, `h.html`: trang kết quả tìm kiếm và trang tra văn bản cào về, `h.html` rỗng.
-- Script sinh file kiểm kê học liệu, kế hoạch sản xuất, chia nhóm chuyên gia, map testcase ver2 và bản sơ đồ kiểu làn. Chúng nằm ở thư mục tạm trên máy, không nằm trong thư mục dự án, có thể đã mất. Repo chỉ có bản thiết kế `.md`.
+- Script sinh file kiểm kê học liệu, kế hoạch sản xuất, chia nhóm chuyên gia, map testcase ver2 và bản sơ đồ kiểu làn. Chúng không nằm trong thư mục dự án. Một phần vẫn còn ở thư mục tạm `C:\Users\letru\AppData\Local\Temp\claude\ths-plan\` trên máy Bob (`build_plan.py`, `build_nhom.py`, `build_kiemke.py`...). Script map testcase và script sơ đồ kiểu làn thì không thấy ở đó. Thư mục tạm có thể bị dọn bất cứ lúc nào, cần thì xin Bob chép ra trước khi trả máy. Trong đó còn file tài khoản chuyên gia và danh sách số điện thoại, nên đừng chép cả thư mục vào repo. Repo chỉ có bản thiết kế `.md`.
 
 ## Lưu ý cho người nhận
 
@@ -101,7 +101,7 @@ Những thứ dưới đây cố ý để lại ở máy gốc, thư mục `c:\T
 - `figma_audit.example.py`: đặt biến môi trường `FIGMA_TOKEN` bằng token của mình và điền mã file Figma vào chỗ `FILE_KEY_xx`.
 - `vba-macro-cau-hoi.example.bas`: sửa `DOI_MAT_KHAU_KHOA_SHEET` thành đúng mật khẩu khóa sheet trong file mẫu.
 - `so-do-he-thong.html` được sinh bằng script, không viết tay. Sửa tay dễ làm lệch chữ với đường nối.
-- Bài IELTS chốt số liệu ngày 14–17/09/2026. Đề án tuyển sinh 2027 của các trường ra khoảng tháng 12/2026, lúc đó phải đối chiếu lại bảng quy đổi.
+- Bài IELTS chốt số liệu ngày 14/09/2026, bản gộp làm ngày 17/09. Đề án tuyển sinh 2027 của các trường ra khoảng tháng 12/2026, lúc đó phải đối chiếu lại bảng quy đổi.
 - Hai trang Philips chưa được kiểm trên máy thật. Kết luận kỹ thuật là suy ra từ thông số và tài liệu hãng.
 - Kế hoạch sản xuất học liệu dựa trên năng suất 22,7 học liệu/người/tuần, đo từ đợt năm 2025. Hai đợt gần nhất chậm hơn nhiều, nên đo lại trước khi đem đi họp.
 - Vài trang HTML có link tới trang claude.ai riêng của Bob. Người khác có thể không mở được link đó.
